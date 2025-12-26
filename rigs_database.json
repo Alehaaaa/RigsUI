@@ -414,7 +414,8 @@
         ],
         "collection": "Arcane",
         "author": "Iona Dolidzer",
-        "link": "https://www.artstation.com/marketplace/p/lbrLv/maya-rig-arcane-jinx-non-commercial"
+        "link": "https://www.artstation.com/marketplace/p/lbrLv/maya-rig-arcane-jinx-non-commercial",
+        "exists": false
     },
     "Ellen": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Ellen_rig_v1_01\\ellen_rig_v1_01_Maya2022.ma",
@@ -435,7 +436,7 @@
             "human",
             "female"
         ],
-        "collection": "N/A",
+        "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/WHuVm",
         "exists": false
@@ -447,7 +448,7 @@
             "human",
             "female"
         ],
-        "collection": "N/A",
+        "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/kKyvP",
         "exists": false
@@ -459,9 +460,20 @@
             "human",
             "male"
         ],
-        "collection": "N/A",
+        "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/zWtTC?layout=profile",
         "exists": false
+    },
+    "Douglas": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Douglas_v1.3.1/rig/Douglas_v1.3.1.ma",
+        "image": "douglas.jpg",
+        "tags": [
+            "animal",
+            "male"
+        ],
+        "collection": "Empty",
+        "author": "Brandon Schaal",
+        "link": "https://brandonschaal.gumroad.com/l/Douglas"
     }
 }
