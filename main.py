@@ -8,6 +8,7 @@ import logging
 from .widgets import FilterMenu, FlowLayout, RigItemWidget, RigSetupDialog
 
 import maya.cmds as cmds  # type: ignore
+from . import utils
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui  # type: ignore
@@ -31,21 +32,18 @@ LOG.setLevel(logging.DEBUG)
 LOG.disabled = True
 
 # -------------------- Constants --------------------
-MODULE_DIR = os.path.dirname(__file__)
-
 TOOL_TITLE = "Rigs Library"
 try:
-    with io.open(os.path.join(MODULE_DIR, "VERSION"), "r", encoding="utf-8") as f:
+    with io.open(os.path.join(utils.MODULE_DIR, "VERSION"), "r", encoding="utf-8") as f:
         VERSION = f.read().strip()
 except Exception:
     VERSION = "0.0.3 alpha"
 
-IMAGES_DIR = os.path.join(MODULE_DIR, "images")
-RIGS_JSON = os.path.join(MODULE_DIR, "rigs.json")
+RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs.json")
 
 # Ensure images dir exists
-if not os.path.exists(IMAGES_DIR):
-    os.makedirs(IMAGES_DIR)
+if not os.path.exists(utils.IMAGES_DIR):
+    os.makedirs(utils.IMAGES_DIR)
 
 
 # -------------------- Utils --------------------
@@ -90,7 +88,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # Add Rig Button
         self.add_btn = QtWidgets.QPushButton()
-        self.add_btn.setIcon(QtGui.QIcon(":/createIcon.png"))
+        self.add_btn.setIcon(utils.get_icon("add.svg"))
         self.add_btn.setFixedSize(25, 25)
         self.add_btn.setToolTip("Add new rig from file")
         self.add_btn.clicked.connect(self.add_new_rig)
@@ -105,7 +103,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # Reload
         self.reload_btn = QtWidgets.QPushButton("Reload")
-        self.reload_btn.setIcon(QtGui.QIcon(":/rebuild.png"))
+        self.reload_btn.setIcon(utils.get_icon("refresh.svg"))
         self.reload_btn.setFixedHeight(25)
         self.reload_btn.setToolTip("Reload rig data from disk")
         self.reload_btn.clicked.connect(lambda: self.load_data(delay=True))

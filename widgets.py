@@ -16,20 +16,10 @@ except ImportError:
 
     QAction = QtWidgets.QAction
 
+from . import utils
+
 # -------------------- Logging --------------------
 LOG = logging.getLogger("LibraryUI")
-
-# -------------------- Constants --------------------
-try:
-    MODULE_DIR = os.path.dirname(__file__)
-except NameError:
-    MODULE_DIR = "/"
-
-IMAGES_DIR = os.path.join(MODULE_DIR, "images")
-
-
-def format_name(name):
-    return name.lower().replace(" ", "_")
 
 
 # -------------------- Flow Layout --------------------
@@ -196,7 +186,7 @@ class FilterMenu(QtWidgets.QPushButton):
         self.menu.addSeparator()
         # Clear action
         clear_action = QAction("Clear Filters", self.menu)
-        clear_action.setIcon(QtGui.QIcon(":/trash.png"))
+        clear_action.setIcon(utils.get_icon("trash.svg"))
         clear_action.triggered.connect(self.clear_selection)
         self.menu.addAction(clear_action)
 
@@ -260,8 +250,8 @@ class ClickableLabel(QtWidgets.QLabel):
         self._clickable = False
 
     def updateImageDisplay(self, object):
-        img_name = object.data.get("image") or format_name(object.name) + ".jpg"
-        img_path = os.path.join(IMAGES_DIR, img_name)
+        img_name = object.data.get("image") or utils.format_name(object.name) + ".jpg"
+        img_path = os.path.join(utils.IMAGES_DIR, img_name)
 
         if img_name and os.path.exists(img_path):
             pix = QtGui.QPixmap(img_path)
@@ -332,7 +322,7 @@ class RigItemWidget(QtWidgets.QFrame):
         btn_layout.addWidget(self.add_reference_btn, 2)
 
         self.info_btn = QtWidgets.QPushButton()
-        self.info_btn.setIcon(QtGui.QIcon(":/info.png"))
+        self.info_btn.setIcon(utils.get_icon("info.svg"))
         self.info_btn.setFixedSize(25, 25)
         self.info_btn.clicked.connect(self.show_info)
         btn_layout.addWidget(self.info_btn, 0)
@@ -351,18 +341,46 @@ class RigItemWidget(QtWidgets.QFrame):
         self.setToolTip(tooltip)
 
     def set_exists(self, exists):
-        self.add_reference_btn.setEnabled(exists)
+        """
+        Updates the UI based on whether the rig file exists.
+        If missing, enables the button to allow repathing.
+        """
+        self.add_reference_btn.setEnabled(True)
+
+        try:
+            self.add_reference_btn.clicked.disconnect()
+        except Exception:
+            pass
+
+        path = self.data.get("path", "")
+
         if exists:
             self.update_state()
+            self.add_reference_btn.setToolTip(path)
         else:
             self.add_reference_btn.setText("MISSING")
             self.add_reference_btn.setStyleSheet(
-                "QPushButton { font-weight: bold; background-color: #4e524e; color: #aaa; }"
+                "QPushButton { font-weight: bold; background-color: #444; color: #aaa; border: 1px solid #555; }"
+                + "QPushButton:hover { background-color: #555; color: #eee; }"
             )
-            try:
-                self.add_reference_btn.clicked.disconnect()
-            except Exception:
-                pass
+            self.add_reference_btn.setToolTip(
+                "File not found:\n{}\n\nClick to locate file...".format(path)
+            )
+            self.add_reference_btn.clicked.connect(self.repath_file)
+
+    def repath_file(self):
+        old_path = self.data.get("path", "")
+        directory = os.path.dirname(old_path) if old_path else ""
+
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Locate Rig File", directory, "Maya Files (*.ma *.mb);;All Files (*.*)"
+        )
+
+        if path:
+            self.data["path"] = path
+            self.imageUpdated.emit()  # Trigger save in parent
+            self.set_exists(True)  # Refresh state
+
 
     def update_state(self):
         # Check if currently referenced
@@ -411,17 +429,11 @@ class RigItemWidget(QtWidgets.QFrame):
             self, "Select Image", "", "Images (*.png *.jpg *.jpeg)"
         )
         if path:
-            # Copy to images dir
-            ext = os.path.splitext(path)[1]
-            new_name = "{}{}".format(format_name(self.name), ext)
-            dest = os.path.join(IMAGES_DIR, new_name)
-            try:
-                shutil.copy2(path, dest)
+            new_name = utils.save_image_local(path, self.name)
+            if new_name:
                 self.data["image"] = new_name
                 self.imageUpdated.emit()  # Notify parent to save JSON
                 self.update_image_display()
-            except Exception as e:
-                LOG.error("Failed to copy image: {}".format(e))
 
     def add_reference(self):
         try:
@@ -517,8 +529,8 @@ class InfoDialog(QtWidgets.QDialog):
         layout.setContentsMargins(15, 15, 15, 15)
 
         # Image
-        img_name = self.data.get("image") or format_name(self.name) + ".jpg"
-        img_path = os.path.join(IMAGES_DIR, img_name)
+        img_name = self.data.get("image") or utils.format_name(self.name) + ".jpg"
+        img_path = os.path.join(utils.IMAGES_DIR, img_name)
 
         self.image_lbl = QtWidgets.QLabel()
         self.image_lbl.setFixedSize(200, 200)
@@ -765,7 +777,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         # Pre-fill Image if edit
         current_img = self.rig_data.get("image")
         if current_img:
-            img_path = os.path.join(IMAGES_DIR, current_img)
+            img_path = os.path.join(utils.IMAGES_DIR, current_img)
             if os.path.exists(img_path):
                 pix = QtGui.QPixmap(img_path)
                 self.image_lbl.setPixmap(
@@ -890,30 +902,9 @@ class RigSetupDialog(QtWidgets.QDialog):
         image_name = self.rig_data.get("image", "")
 
         if self.image_path and os.path.exists(self.image_path):
-            try:
-                # Sanitize name for filename: lowercase, underscores, ascii only
-                # Replace spaces with underscores first
-                base_clean = format_name(name)
-                # Remove anything that is not alphanumeric or underscore
-                safe_name = re.sub(r"[^a-z0-9_]", "", base_clean)
-
-                image_filename = "{}.jpg".format(safe_name)
-                dest_path = os.path.join(IMAGES_DIR, image_filename)
-
-                # Convert and Save using QImage
-                img = QtGui.QImage(self.image_path)
-                if not img.isNull():
-                    # Ensure images dir exists (just in case)
-                    if not os.path.exists(IMAGES_DIR):
-                        os.makedirs(IMAGES_DIR)
-
-                    img.save(dest_path, "JPG")
-                    image_name = image_filename
-                else:
-                    LOG.error("Failed to load image for conversion: {}".format(self.image_path))
-
-            except Exception as e:
-                LOG.error("Failed to process image: {}".format(e))
+            result_img = utils.save_image_local(self.image_path, name)
+            if result_img:
+                image_name = result_img
 
         self.result_data = {
             "name": name,
