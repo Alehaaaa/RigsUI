@@ -13,12 +13,10 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 
 ## Installation
 
-1. Copy the `RigsUI` folder to your Maya scripts directory:
+Copy the `RigsUI` folder to your Maya scripts directory:
    - **Windows**: `C:\Users\<NAME>\Documents\maya\scripts\`
    - **macOS**: `~/Library/Preferences/Autodesk/maya/scripts/`
    - **Linux**: `~/maya/scripts/`
-
-2. Restart Maya.
 
 ## Usage
 
@@ -36,13 +34,29 @@ RigsUI.show()
 4. The rig is added to the library.
 
 ### Editing Rigs
-1. Right-click on a rig thumbnail (if context menu is supported) or use the Edit button in the UI if available.
-2. Update the metadata as needed.
+1. Open the information dialog by clicking the (i) button under the rig thumbnail.
+2. Click the Edit button to edit the rig's metadata.
+3. Click the Save button to save the changes.
 
 ## Requirements
 
-- Autodesk Maya (Supported versions: 2017+ recommended)
+- Autodesk Maya (Supported versions: 2019+ recommended)
 - Standard Maya Python environment (`maya.cmds`, `PySide2` or `PySide6`)
+
+## Issues
+
+If you find any issues, please report them on the [GitHub issue tracker](https://github.com/aleha/RigsUI/issues).
+
+## Contributing
+
+Contributions are welcome! Please submit a pull request.
+
+## Transparency
+
+The source code was written by me, **Aleha**, with significant assistance from AI tools. Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
+
+Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
+And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)
 
 ## License
 
