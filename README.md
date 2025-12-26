@@ -6,8 +6,10 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 
 - **Dockable Interface**: Seamlessly integrates into the Maya workspace.
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
-- **Search**: Quickly find rigs by name.
-- **thumbnail Support**: Visual browsing with thumbnails.
+- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`).
+- **Sorting**: Sort library by Name, Collection, or Author.
+- **Context Actions**: Right-click to Edit Details, Open Source File, Show in Folder, or Remove Rig.
+- **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
 - **JSON Database**: Lightweight and portable data storage (`rigs_database.json`).
 - **Python 2 & 3 Compatible**: Works across multiple Maya versions.
 
@@ -33,10 +35,13 @@ RigsUI.show()
 3. Fill in the details (Name, Collection, Author, Tags).
 4. The rig is added to the library.
 
-### Editing Rigs
-1. Open the information dialog by clicking the (i) button under the rig thumbnail.
-2. Click the Edit button to edit the rig's metadata.
-3. Click the Save button to save the changes.
+### Managing Rigs
+1. **Info & Edit**: Click the (i) button to view rig details. 
+2. **Context Menu**: Right-click the (i) button to access advanced actions:
+   - **Edit Details**: Modification of metadata.
+   - **Open Source File**: Opens the original file in a new Maya scene.
+   - **Show in Folder**: Reveals the file in Explorer/Finder.
+   - **Remove Rig**: Removes the entry from the library.
 
 ## Requirements
 
@@ -55,8 +60,8 @@ Contributions are welcome! Please submit a pull request.
 
 The source code was written by me, **Alehaaaa**, with significant assistance from AI tools. Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
 
-Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
-And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)
+- Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
+- And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)
 
 ## License
 
