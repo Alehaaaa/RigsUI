@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.5] - 2025-12-26
+### 🚀 Added
+- **Context Menu**: Added right-click context menu to the Info button for quick access to "Edit Details".
+
+### 🐛 Fixed
+- **Tags Autocomplete**: Resolved issues where selecting a tag would overwrite the entire field. It now correctly appends the tag with a comma separator and preserves cursor position.
+- **UI Layout**: Fixed a bug where buttons were being added to the layout twice, causing visual artifacts.
+
 ## [0.0.4] - 2025-12-26
 ### 🚀 Added
 - **Threaded Search**: Implemented background thread for search/filtering to prevent UI freezing.
@@ -16,7 +24,7 @@ All notable changes to this project will be documented in this file.
 - **Codebase**: extensive refactoring for cleanliness, removal of duplicate code, and standardized variable naming (`search_input`, `action_btn`).
 
 ### 🐛 Fixed
-- **Visual Artifacts**: Fixed "ghosting" bug where widgets would overlap after reloading or filtering.
+- **Visual Artifacts**: Fixed "ghosting" bug where widgets would overlap after refreshing or filtering.
 - **Floating Windows**: Fixed issue where widgets would float momentarily before docking into the layout.
 
 

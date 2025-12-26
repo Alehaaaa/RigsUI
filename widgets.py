@@ -1,18 +1,16 @@
 from __future__ import absolute_import, print_function, unicode_literals
 import os
-import shutil
 import subprocess
 import logging
 import sys
-import re
 from maya import cmds
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui  # type: ignore
-    QAction = QtGui.QAction
+    from PySide6.QtGui import QAction, QActionGroup
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui  # type: ignore
-    QAction = QtWidgets.QAction
+    from PySide2.QtWidgets import QAction, QActionGroup
 
 from . import utils
 
@@ -36,11 +34,13 @@ class FlowLayout(QtWidgets.QLayout):
         self._itemList.append(item)
 
     def horizontalSpacing(self):
-        if self._hSpace >= 0: return self._hSpace
+        if self._hSpace >= 0:
+            return self._hSpace
         return self.smartSpacing(QtWidgets.QStyle.PM_LayoutHorizontalSpacing)
 
     def verticalSpacing(self):
-        if self._vSpace >= 0: return self._vSpace
+        if self._vSpace >= 0:
+            return self._vSpace
         return self.smartSpacing(QtWidgets.QStyle.PM_LayoutVerticalSpacing)
 
     def count(self):
@@ -91,7 +91,7 @@ class FlowLayout(QtWidgets.QLayout):
             # Skip hidden widgets to prevent gaps
             if wid and not wid.isVisible():
                 continue
-            
+
             spaceX = spacingX
             spaceY = spacingY
 
@@ -125,9 +125,12 @@ class FlowLayout(QtWidgets.QLayout):
 
 # -------------------- Utility Widgets --------------------
 
+
 class OpenMenu(QtWidgets.QMenu):
     def __init__(self, title=None, parent=None):
-        super(OpenMenu, self).__init__(title, parent) if title else super(OpenMenu, self).__init__(parent)
+        super(OpenMenu, self).__init__(title, parent) if title else super(OpenMenu, self).__init__(
+            parent
+        )
         self.setSeparatorsCollapsible(False)
         if parent and hasattr(parent, "destroyed"):
             parent.destroyed.connect(self.close)
@@ -150,6 +153,7 @@ class OpenMenu(QtWidgets.QMenu):
 
 class FilterMenu(QtWidgets.QPushButton):
     """Button with a checkable menu for filtering."""
+
     selectionChanged = QtCore.Signal()
 
     def __init__(self, title, parent=None):
@@ -204,12 +208,14 @@ class FilterMenu(QtWidgets.QPushButton):
                     section = data.get("section")
                     value = data.get("value")
                     if section:
-                        if section not in selected: selected[section] = []
+                        if section not in selected:
+                            selected[section] = []
                         selected[section].append(value)
         return selected
 
     def set_selected(self, selected):
-        if not isinstance(selected, dict): return
+        if not isinstance(selected, dict):
+            return
         for action in self.menu.actions():
             if action.isCheckable():
                 data = action.data()
@@ -228,6 +234,7 @@ class FilterMenu(QtWidgets.QPushButton):
 
 class SortMenu(QtWidgets.QPushButton):
     """Button with a menu for sorting options."""
+
     sortChanged = QtCore.Signal(str, bool)  # key, ascending
 
     def __init__(self, title="Sort", parent=None):
@@ -240,37 +247,37 @@ class SortMenu(QtWidgets.QPushButton):
 
     def _setup_menu(self):
         self.menu.clear()
-        
+
         # Sort Keys
-        self.grp_keys = QtWidgets.QActionGroup(self)
+        self.grp_keys = QActionGroup(self)
         self.grp_keys.setExclusive(True)
 
         for key in ["Name", "Collection", "Author"]:
-            action = QtWidgets.QAction(key, self.menu)
+            action = QAction(key, self.menu)
             action.setCheckable(True)
             action.setData(key)
             if key == self._current_key:
                 action.setChecked(True)
             self.grp_keys.addAction(action)
             self.menu.addAction(action)
-        
+
         self.grp_keys.triggered.connect(self._on_key_changed)
 
         self.menu.addSeparator()
 
         # Order
-        self.grp_order = QtWidgets.QActionGroup(self)
+        self.grp_order = QActionGroup(self)
         self.grp_order.setExclusive(True)
-        
+
         for text, val in [("Ascending", True), ("Descending", False)]:
-            action = QtWidgets.QAction(text, self.menu)
+            action = QAction(text, self.menu)
             action.setCheckable(True)
             action.setData(val)
             if val == self._ascending:
                 action.setChecked(True)
             self.grp_order.addAction(action)
             self.menu.addAction(action)
-            
+
         self.grp_order.triggered.connect(self._on_order_changed)
 
     def _on_key_changed(self, action):
@@ -281,7 +288,7 @@ class SortMenu(QtWidgets.QPushButton):
     def _on_order_changed(self, action):
         self._ascending = action.data()
         self.sortChanged.emit(self._current_key, self._ascending)
-    
+
     def set_sort(self, key, ascending):
         for action in self.grp_keys.actions():
             if action.data() == key:
@@ -289,13 +296,13 @@ class SortMenu(QtWidgets.QPushButton):
                 self._current_key = key
                 self.setText("Sort: " + self._current_key)
                 break
-        
+
         for action in self.grp_order.actions():
             if action.data() == ascending:
                 action.setChecked(True)
                 self._ascending = ascending
                 break
-    
+
     def get_current_sort(self):
         return self._current_key, self._ascending
 
@@ -340,9 +347,10 @@ class ClickableLabel(QtWidgets.QLabel):
 
 # -------------------- Main Widgets --------------------
 
+
 class RigItemWidget(QtWidgets.QFrame):
     """Widget representing a single rig card in the grid."""
-    
+
     imageUpdated = QtCore.Signal()
     filterRequested = QtCore.Signal(str, str)
     editRequested = QtCore.Signal(str)
@@ -386,10 +394,18 @@ class RigItemWidget(QtWidgets.QFrame):
         self.info_btn.setIcon(utils.get_icon("info.svg"))
         self.info_btn.setFixedSize(25, 25)
         self.info_btn.clicked.connect(self.show_info)
+        self.info_btn.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.info_btn.customContextMenuRequested.connect(self.show_info_btn_context_menu)
         btn_layout.addWidget(self.info_btn, 0)
 
         layout.addLayout(btn_layout)
         self._formatTooltip()
+
+    def show_info_btn_context_menu(self, pos):
+        menu = QtWidgets.QMenu(self.info_btn)
+        edit_action = menu.addAction("Edit Details")
+        edit_action.triggered.connect(lambda: self.editRequested.emit(self.name))
+        menu.exec_(self.info_btn.mapToGlobal(pos))
 
     def _formatTooltip(self):
         tip = "Name: {}\n".format(self.name)
@@ -419,8 +435,10 @@ class RigItemWidget(QtWidgets.QFrame):
     def set_exists(self, exists):
         """Enable repathing if file missing, else enable usage."""
         self.action_btn.setEnabled(True)
-        try: self.action_btn.clicked.disconnect()
-        except: pass
+        try:
+            self.action_btn.clicked.disconnect()
+        except Exception:
+            pass
 
         if exists:
             # File exists, check if referenced
@@ -451,8 +469,9 @@ class RigItemWidget(QtWidgets.QFrame):
     def update_state(self):
         # Check current references in scene
         path = self.data.get("path", "")
-        if not path: return
-        
+        if not path:
+            return
+
         norm_path = os.path.normpath(path).lower()
         is_ref = False
         try:
@@ -461,10 +480,13 @@ class RigItemWidget(QtWidgets.QFrame):
                 if os.path.normpath(r).lower() == norm_path:
                     is_ref = True
                     break
-        except Exception: pass
+        except Exception:
+            pass
 
-        try: self.action_btn.clicked.disconnect()
-        except: pass
+        try:
+            self.action_btn.clicked.disconnect()
+        except Exception:
+            pass
 
         if is_ref:
             self.action_btn.setText("REMOVE")
@@ -495,7 +517,7 @@ class RigItemWidget(QtWidgets.QFrame):
             button=["Reference", "Cancel"],
             defaultButton="Reference",
             cancelButton="Cancel",
-            dismissString="Cancel"
+            dismissString="Cancel",
         )
         if resp == "Reference":
             try:
@@ -515,7 +537,7 @@ class RigItemWidget(QtWidgets.QFrame):
             message="Remove '{}'?".format(self.name),
             button=["Remove", "Cancel"],
             defaultButton="Cancel",
-            cancelButton="Cancel"
+            cancelButton="Cancel",
         )
         if resp == "Remove":
             try:
@@ -535,6 +557,7 @@ class RigItemWidget(QtWidgets.QFrame):
 
 
 # -------------------- Info Dialog --------------------
+
 
 class InfoDialog(QtWidgets.QDialog):
     filterRequested = QtCore.Signal(str, str)
@@ -561,18 +584,20 @@ class InfoDialog(QtWidgets.QDialog):
         self.image_lbl.setFixedSize(200, 200)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #444;")
-        
+
         img_name = self.data.get("image") or utils.format_name(self.name) + ".jpg"
         img_path = os.path.join(utils.IMAGES_DIR, img_name)
-        
+
         if img_name and os.path.exists(img_path):
             pix = QtGui.QPixmap(img_path)
-            self.image_lbl.setPixmap(pix.scaled(
-                self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-            ))
+            self.image_lbl.setPixmap(
+                pix.scaled(
+                    self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                )
+            )
         else:
             self.image_lbl.setText("No Image")
-        
+
         layout.addWidget(self.image_lbl, 0, QtCore.Qt.AlignHCenter)
 
         # Name
@@ -584,13 +609,13 @@ class InfoDialog(QtWidgets.QDialog):
         # Form Layout
         self.form_layout = QtWidgets.QFormLayout()
         self.form_layout.setLabelAlignment(QtCore.Qt.AlignRight)
-        
-        self._add_row("Author", self.data.get("author"))
+
+        self._add_row("Author", self.data.get("author"), filter_cat="Author")
         self._add_row("Link", self.data.get("link"), is_link=True)
         self._add_row("Collection", self.data.get("collection"), filter_cat="Collections")
         self._add_row("Tags", self.data.get("tags", []), filter_cat="Tags")
         self._add_row("Path", self.data.get("path"), is_path=True)
-        
+
         layout.addLayout(self.form_layout)
         layout.addStretch()
 
@@ -599,16 +624,17 @@ class InfoDialog(QtWidgets.QDialog):
         edit_btn = QtWidgets.QPushButton("Edit")
         edit_btn.clicked.connect(self._on_edit)
         btn_layout.addWidget(edit_btn)
-        
+
         close_btn = QtWidgets.QPushButton("Close")
         close_btn.clicked.connect(self.accept)
         btn_layout.addWidget(close_btn)
-        
+
         layout.addLayout(btn_layout)
 
     def _add_row(self, label, value, is_link=False, is_path=False, filter_cat=None):
         """Helper to add formatted rows to form layout."""
-        if not value and not filter_cat: value = "Empty"
+        if not value and not filter_cat:
+            value = "Empty"
 
         lbl = QtWidgets.QLabel()
         lbl.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
@@ -618,26 +644,27 @@ class InfoDialog(QtWidgets.QDialog):
             href = value if value.startswith("http") else "http://" + value
             lbl.setText(self._link_tmpl % (href, href))
             lbl.setOpenExternalLinks(True)
-        
+
         elif is_path and value != "Empty":
             lbl.setText(self._link_tmpl % (value, value))
             lbl.setToolTip("Click to open folder")
             lbl.linkActivated.connect(self._open_folder)
-        
+
         elif filter_cat:
             # Handle list (Tags) or string (Collection)
-            if isinstance(value, list): # Tags
+            if isinstance(value, list):  # Tags
                 if not value:
                     lbl.setText("Empty")
                 else:
                     links = [self._filter_tmpl % (i, i) for i in value]
                     lbl.setText(", ".join(links))
                     lbl.linkActivated.connect(lambda v: self._emit_filter(filter_cat, v))
-            else: # Collection/Author
+            else:  # Collection/Author
                 disp = value if value else "Empty"
                 filt = value if value else "Empty"
-                if disp == "Empty": disp = "<i>Empty</i>"
-                
+                if disp == "Empty":
+                    disp = "<i>Empty</i>"
+
                 lbl.setText(self._filter_tmpl % (filt, disp))
                 lbl.linkActivated.connect(lambda v: self._emit_filter(filter_cat, v))
         else:
@@ -659,30 +686,35 @@ class InfoDialog(QtWidgets.QDialog):
         target = os.path.dirname(path) if os.path.isfile(path) else path
         if not os.path.exists(target):
             return
-        
-        if sys.platform == "win32": os.startfile(target)
-        elif sys.platform == "darwin": subprocess.Popen(["open", target])
-        else: subprocess.Popen(["xdg-open", target])
+
+        if sys.platform == "win32":
+            os.startfile(target)
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", target])
+        else:
+            subprocess.Popen(["xdg-open", target])
 
 
 # -------------------- Edit Dialog --------------------
 
+
 class TagsLineEdit(QtWidgets.QLineEdit):
     """QLineEdit with comma-separated auto-completion."""
+
     def __init__(self, tags, parent=None):
         super(TagsLineEdit, self).__init__(parent)
         self.completer = QtWidgets.QCompleter(tags, self)
         self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+        self.completer.setWidget(self)
         self.completer.activated.connect(self.insert_completion)
-        self.setCompleter(self.completer) # Native setCompleter isn't quite right for csv, need custom
 
     def keyPressEvent(self, event):
         super(TagsLineEdit, self).keyPressEvent(event)
-        
-        text = self.text()[:self.cursorPosition()]
+
+        text = self.text()[: self.cursorPosition()]
         if not text:
-             self.completer.popup().hide()
-             return
+            self.completer.popup().hide()
+            return
 
         prefix = text.split(",")[-1].strip()
         if prefix:
@@ -697,17 +729,46 @@ class TagsLineEdit(QtWidgets.QLineEdit):
             self.completer.popup().hide()
 
     def insert_completion(self, completion):
+        completion = str(completion)
         text = self.text()
         pos = self.cursorPosition()
-        prefix_len = len(text[:pos].split(",")[-1].strip())
-        
-        self.setText(text[:pos-prefix_len] + completion + ", " + text[pos:])
+
+        # Find the start of the current tag being edited
+        start_index = text.rfind(",", 0, pos) + 1
+
+        # Check if we need to add a separator after completion
+        remaining = text[pos:]
+        separator = ", "
+        if remaining.lstrip().startswith(","):
+            separator = ""
+
+        # Construct new text
+        new_text = text[:start_index] + " " + completion + separator + remaining
+
+        # Clean up
+        new_text = new_text.replace("  ", " ")
+        if new_text.startswith(" "):
+            new_text = new_text[1:]
+
+        self.setText(new_text)
+        self.setCursorPosition(len(new_text) - len(remaining))
 
 
 class RigSetupDialog(QtWidgets.QDialog):
     """Dialog for Adding or Editing a rig."""
-    
-    def __init__(self, existing_names, collections, authors, tags, mode="add", rig_name=None, rig_data=None, file_path=None, parent=None):
+
+    def __init__(
+        self,
+        existing_names,
+        collections,
+        authors,
+        tags,
+        mode="add",
+        rig_name=None,
+        rig_data=None,
+        file_path=None,
+        parent=None,
+    ):
         super(RigSetupDialog, self).__init__(parent)
         self.mode = mode
         self.rig_name = rig_name
@@ -717,7 +778,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         self.collections = list(collections)
         self.authors = list(authors)
         self.tags = list(tags)
-        
+
         self.file_path = file_path or self.rig_data.get("path", "")
         self.image_path = ""
         self.result_data = None
@@ -734,28 +795,34 @@ class RigSetupDialog(QtWidgets.QDialog):
         self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)")
         self.image_lbl.setFixedSize(150, 150)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
-        self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #555; border-radius: 5px;")
+        self.image_lbl.setStyleSheet(
+            "background-color: #222; border: 1px solid #555; border-radius: 5px;"
+        )
         self.image_lbl.setCursor(QtCore.Qt.PointingHandCursor)
         self.image_lbl.mousePressEvent = self.on_image_click
-        
+
         # Load existing image
         cur_img = self.rig_data.get("image")
         if cur_img:
             p = os.path.join(utils.IMAGES_DIR, cur_img)
             if os.path.exists(p):
                 self.image_lbl.setText("")
-                pix = QtGui.QPixmap(p).scaled(150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                pix = QtGui.QPixmap(p).scaled(
+                    150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                )
                 self.image_lbl.setPixmap(pix)
 
         layout.addWidget(self.image_lbl, 0, QtCore.Qt.AlignHCenter)
 
         # Form
         form = QtWidgets.QFormLayout()
-        
+
         # Name
         self.name_input = QtWidgets.QLineEdit()
-        if self.mode == "edit": self.name_input.setText(self.rig_name)
-        else: self.name_input.setText(os.path.splitext(os.path.basename(self.file_path))[0])
+        if self.mode == "edit":
+            self.name_input.setText(self.rig_name)
+        else:
+            self.name_input.setText(os.path.splitext(os.path.basename(self.file_path))[0])
         self.name_input.textChanged.connect(self.validate_name)
         form.addRow("Name:", self.name_input)
 
@@ -803,15 +870,19 @@ class RigSetupDialog(QtWidgets.QDialog):
         cancel.clicked.connect(self.reject)
         btns.addWidget(cancel)
         layout.addLayout(btns)
-        
+
         self.validate_name()
 
     def on_image_click(self, event):
         if event.button() == QtCore.Qt.LeftButton:
-            path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)")
+            path, _ = QtWidgets.QFileDialog.getOpenFileName(
+                self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)"
+            )
             if path:
                 self.image_path = path
-                pix = QtGui.QPixmap(path).scaled(150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                pix = QtGui.QPixmap(path).scaled(
+                    150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                )
                 self.image_lbl.setPixmap(pix)
                 self.image_lbl.setText("")
 
@@ -826,29 +897,30 @@ class RigSetupDialog(QtWidgets.QDialog):
         elif name in self.existing_names and name != self.rig_name:
             valid = False
             msg = "Name taken"
-        
+
         self.ok_btn.setEnabled(valid)
         self.ok_btn.setToolTip(msg)
 
     def accept_data(self):
         name = self.name_input.text().strip()
         tags = [t.strip() for t in self.tags_input.text().split(",") if t.strip()]
-        
+
         # Image handling
         img_name = self.rig_data.get("image", "")
         if self.image_path and os.path.exists(self.image_path):
             res = utils.save_image_local(self.image_path, name)
-            if res: img_name = res
+            if res:
+                img_name = res
 
         self.result_data = {
             "name": name,
             "data": {
                 "path": self.file_path,
                 "image": img_name,
-                "tags": tags, # Do not force to "Empty" string if empty list, keep list
+                "tags": tags,  # Do not force to "Empty" string if empty list, keep list
                 "collection": self.coll_input.text().strip() or "Empty",
                 "author": self.auth_input.text().strip() or "Empty",
-                "link": self.link_input.text().strip() or "Empty"
-            }
+                "link": self.link_input.text().strip() or "Empty",
+            },
         }
         self.accept()

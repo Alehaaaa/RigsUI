@@ -10,10 +10,10 @@ import maya.cmds as cmds  # type: ignore
 from . import utils
 
 try:
-    from PySide6 import QtWidgets, QtCore, QtGui  # type: ignore
+    from PySide6 import QtWidgets, QtCore  # type: ignore
     from shiboken6 import wrapInstance  # type: ignore
 except ImportError:
-    from PySide2 import QtWidgets, QtCore, QtGui  # type: ignore
+    from PySide2 import QtWidgets, QtCore  # type: ignore
     from shiboken2 import wrapInstance  # type: ignore
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin  # type: ignore
@@ -53,11 +53,13 @@ def _get_maya_main_window():
 
 # -------------------- Search Worker --------------------
 
+
 class SearchWorker(QtCore.QObject):
     """
     Background worker for filtering rigs based on search text and category filters.
     Runs in a separate QThread to avoid freezing the main UI.
     """
+
     finished = QtCore.Signal(list)
 
     def __init__(self, rig_data, search_text, filters):
@@ -89,7 +91,7 @@ class SearchWorker(QtCore.QObject):
                         key = "collection"
                     elif key in ["l", "link"]:
                         key = "link"
-                    
+
                     known_fields = ["tags", "author", "collection", "link"]
                     if key in known_fields:
                         if key not in field_filters:
@@ -108,25 +110,32 @@ class SearchWorker(QtCore.QObject):
                 match_fields = True
                 for key, vals in field_filters.items():
                     data_val = data.get(key)
-                    
+
                     if key == "tags":
-                         if not data_val: 
-                             match_fields = False; break
-                         data_tags_lower = [t.lower() for t in data_val]
-                         for v in vals:
-                             if v not in data_tags_lower:
-                                 match_fields = False; break
+                        if not data_val:
+                            match_fields = False
+                            break
+                        data_tags_lower = [t.lower() for t in data_val]
+                        for v in vals:
+                            if v not in data_tags_lower:
+                                match_fields = False
+                                break
+
                     else:
-                         if not data_val:
-                             match_fields = False; break
-                         data_val_lower = data_val.lower()
-                         for v in vals:
-                             if v not in data_val_lower:
-                                 match_fields = False; break
-                    
-                    if not match_fields: break
-                
-                if not match_fields: continue
+                        if not data_val:
+                            match_fields = False
+                            break
+                        data_val_lower = data_val.lower()
+                        for v in vals:
+                            if v not in data_val_lower:
+                                match_fields = False
+                                break
+
+                    if not match_fields:
+                        break
+
+                if not match_fields:
+                    continue
 
                 # Check General Terms (Name search)
                 match_general = True
@@ -134,9 +143,11 @@ class SearchWorker(QtCore.QObject):
                     name_lower = name.lower()
                     for term in general_terms:
                         if term not in name_lower:
-                            match_general = False; break
-                
-                if not match_general: continue
+                            match_general = False
+                            break
+
+                if not match_general:
+                    continue
 
                 # Check Dropdown Filters
                 match_dropdown = True
@@ -166,13 +177,13 @@ class SearchWorker(QtCore.QObject):
                     )
                     if not is_match:
                         match_dropdown = False
-                
+
                 if match_dropdown:
                     visible_names.append(name)
 
         except Exception as e:
             LOG.error("Search worker error: {}".format(e))
-        
+
         self.finished.emit(visible_names)
 
     def stop(self):
@@ -180,6 +191,7 @@ class SearchWorker(QtCore.QObject):
 
 
 # -------------------- Main Window --------------------
+
 
 class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     TOOL_TITLE = TOOL_TITLE
@@ -194,8 +206,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.settings = QtCore.QSettings(self.TOOL_TITLE, None)
 
         self.rig_data = {}
-        self._widgets_map = {} # Cache for widgets: {name: RigItemWidget}
-        
+        self._widgets_map = {}  # Cache for widgets: {name: RigItemWidget}
+
         # Threading
         self._search_thread = None
         self._search_worker = None
@@ -240,13 +252,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.sort_menu.sortChanged.connect(self._populate_grid)
         top_layout.addWidget(self.sort_menu)
 
-        # Reload
-        self.reload_btn = QtWidgets.QPushButton("Reload")
-        self.reload_btn.setIcon(utils.get_icon("refresh.svg"))
-        self.reload_btn.setFixedHeight(25)
-        self.reload_btn.setToolTip("Reload rig data from disk")
-        self.reload_btn.clicked.connect(lambda: self.load_data())
-        top_layout.addWidget(self.reload_btn)
+        # Refresh
+        self.refresh_btn = QtWidgets.QPushButton("Refresh")
+        self.refresh_btn.setIcon(utils.get_icon("refresh.svg"))
+        self.refresh_btn.setFixedHeight(25)
+        self.refresh_btn.setToolTip("Refresh rig data from disk")
+        self.refresh_btn.clicked.connect(lambda: self.load_data())
+        top_layout.addWidget(self.refresh_btn)
 
         main_layout.addLayout(top_layout)
 
@@ -289,16 +301,17 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 collections.add(val)
             else:
                 has_empty_collection = True
-            
+
             # Tags
             for t in details.get("tags", []):
-                if t: all_tags.add(t)
-            
+                if t:
+                    all_tags.add(t)
+
             # Authors
             val_auth = details.get("author")
             if val_auth and val_auth != "Empty":
                 authors.add(val_auth)
-            
+
             # Update File Existence
             details["exists"] = bool(os.path.exists(details.get("path", "")))
 
@@ -309,9 +322,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.filter_menu.set_items(
             sections={
-                "Tags": sorted(list(all_tags)), 
-                "Collections": cols_sorted, 
-                "Author": sorted(list(authors))
+                "Tags": sorted(list(all_tags)),
+                "Collections": cols_sorted,
+                "Author": sorted(list(authors)),
             }
         )
 
@@ -348,19 +361,19 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # 2. Detach all remaining widgets from layout (to re-sort)
         while self.flow_layout.count():
-            item = self.flow_layout.takeAt(0)
+            self.flow_layout.takeAt(0)
             # Do not delete, just remove from layout list
 
         # 3. Determine Sort Order
         sort_mode, ascending = self.sort_menu.get_current_sort()
-        
+
         def sort_key_func(item):
             name, data = item
             if sort_mode == "Collection":
                 val = data.get("collection")
                 # Treat "Empty" or None as "" so it sorts at the extreme
                 if not val or val == "Empty":
-                    val = "" 
+                    val = ""
                 return (val.lower(), name.lower())
             elif sort_mode == "Author":
                 val = data.get("author")
@@ -393,9 +406,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 except Exception as e:
                     LOG.error("Failed to create widget '{}': {}".format(name, e))
                     continue
-            
+
             self.flow_layout.addWidget(wid)
-            wid.setVisible(True) # Ensure visible before search filter runs
+            wid.setVisible(True)  # Ensure visible before search filter runs
 
         # Apply Search
         self.trigger_search()
@@ -407,11 +420,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         if self._search_thread:
             try:
                 if self._search_thread.isRunning():
-                    if self._search_worker: self._search_worker.stop()
+                    if self._search_worker:
+                        self._search_worker.stop()
                     self._search_thread.quit()
                     self._search_thread.wait()
             except RuntimeError:
-                pass 
+                pass
 
         search_text = self.search_input.text()
         filters = self.filter_menu.get_selected()
@@ -419,7 +433,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self._search_thread = QtCore.QThread()
         self._search_worker = SearchWorker(self.rig_data, search_text, filters)
         self._search_worker.moveToThread(self._search_thread)
-        
+
         self._search_thread.started.connect(self._search_worker.run)
         self._search_worker.finished.connect(self._on_search_finished)
         self._search_worker.finished.connect(self._search_thread.quit)
@@ -431,18 +445,18 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     def _on_search_finished(self, visible_names):
         """Apply search results to widget visibility."""
         visible_set = set(visible_names)
-        
+
         for name, wid in self._widgets_map.items():
             should_show = name in visible_set
             if wid.isVisible() != should_show:
                 wid.setVisible(should_show)
-        
+
         # Force layout refresh
         self.flow_layout.invalidate()
         self.container.update()
         if self.container.layout():
             self.container.layout().activate()
-            
+
         self.save_filters()
 
     def apply_single_filter(self, category, value):
@@ -456,12 +470,15 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         collections = set()
         authors = set()
         all_tags = set()
-        
+
         for details in self.rig_data.values():
-            if details.get("collection"): collections.add(details.get("collection"))
-            if details.get("author"): authors.add(details.get("author"))
-            if details.get("tags"): all_tags.update(details.get("tags"))
-            
+            if details.get("collection"):
+                collections.add(details.get("collection"))
+            if details.get("author"):
+                authors.add(details.get("author"))
+            if details.get("tags"):
+                all_tags.update(details.get("tags"))
+
         return sorted(list(collections)), sorted(list(authors)), sorted(list(all_tags))
 
     def _open_setup_dialog(self, mode, file_path=None, rig_name=None, rig_data=None):
@@ -480,13 +497,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             rig_data=rig_data,
             parent=self,
         )
-        
+
         if dlg.exec_() == QtWidgets.QDialog.Accepted:
             result = dlg.result_data
             if result:
                 new_name = result["name"]
                 new_data = result["data"]
-                
+
                 # If renaming in edit mode, remove old entry
                 if mode == "edit" and rig_name and new_name != rig_name:
                     if rig_name in self.rig_data:
@@ -504,7 +521,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             return
 
         path = os.path.normpath(path)
-        
+
         # Check for duplicates
         for name, data in self.rig_data.items():
             existing_path = os.path.normpath(data.get("path", ""))
@@ -520,12 +537,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         """Opens dialog to edit an existing rig."""
         if rig_name not in self.rig_data:
             return
-        
-        self._open_setup_dialog(
-            mode="edit", 
-            rig_name=rig_name, 
-            rig_data=self.rig_data[rig_name]
-        )
+
+        self._open_setup_dialog(mode="edit", rig_name=rig_name, rig_data=self.rig_data[rig_name])
 
     # ---------- Persistence (Settings) ----------
 
@@ -534,7 +547,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         try:
             if not cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, exists=True):
                 return
-            
+
             floating = cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, q=True, floating=True)
             self.settings.setValue("floating", floating)
 
@@ -559,7 +572,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         size = self.settings.value("size", None)
 
         kwargs = {"e": True, "label": self.WINDOW_TITLE, "minimumWidth": 370, "retain": False}
-        
+
         if floating:
             kwargs["floating"] = True
         else:
@@ -595,12 +608,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     def load_filters(self):
         try:
             filters = self.settings.value("filters", {})
-            if not filters: filters = {}
+            if not filters:
+                filters = {}
             self.filter_menu.set_selected(filters)
-            
+
             key = self.settings.value("sort_key", "Name")
             asc_val = self.settings.value("sort_ascending", True)
-            asc = (str(asc_val).lower() == 'true') if isinstance(asc_val, str) else bool(asc_val)
+            asc = (str(asc_val).lower() == "true") if isinstance(asc_val, str) else bool(asc_val)
             self.sort_menu.set_sort(key, asc)
         except Exception as e:
             LOG.error("Error loading filters: {}".format(e))
@@ -614,7 +628,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         try:
             if cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, exists=True):
                 cmds.deleteUI(self.WORKSPACE_CONTROL_NAME)
-        except Exception: 
+        except Exception:
             pass
         self.setParent(None)
         self.deleteLater()
@@ -625,8 +639,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             try:
                 if cmds.workspaceControl(ui, exists=True):
                     cmds.deleteUI(ui)
-            except Exception: pass
-        
+            except Exception:
+                pass
+
         inst = cls(_get_maya_main_window())
         inst.show(dockable=True, retain=False)
         inst.set_windowPosition()
