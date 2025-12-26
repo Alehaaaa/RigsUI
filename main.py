@@ -401,6 +401,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     wid.imageUpdated.connect(self.save_data)
                     wid.filterRequested.connect(self.apply_single_filter)
                     wid.editRequested.connect(self.edit_rig)
+                    wid.removeRequested.connect(self.remove_rig)
                     wid.set_exists(data["exists"])
                     self._widgets_map[name] = wid
                 except Exception as e:
@@ -539,6 +540,14 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             return
 
         self._open_setup_dialog(mode="edit", rig_name=rig_name, rig_data=self.rig_data[rig_name])
+
+    def remove_rig(self, rig_name):
+        """Removes a rig from the database."""
+        if rig_name in self.rig_data:
+            del self.rig_data[rig_name]
+            self.save_data()
+            self.load_data()  # Reload to refresh UI
+            LOG.info("Removed rig: {}".format(rig_name))
 
     # ---------- Persistence (Settings) ----------
 

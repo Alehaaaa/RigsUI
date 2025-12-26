@@ -354,6 +354,7 @@ class RigItemWidget(QtWidgets.QFrame):
     imageUpdated = QtCore.Signal()
     filterRequested = QtCore.Signal(str, str)
     editRequested = QtCore.Signal(str)
+    removeRequested = QtCore.Signal(str)
 
     def __init__(self, name, data, parent=None):
         super(RigItemWidget, self).__init__(parent)
@@ -403,9 +404,80 @@ class RigItemWidget(QtWidgets.QFrame):
 
     def show_info_btn_context_menu(self, pos):
         menu = QtWidgets.QMenu(self.info_btn)
+
+        # Edit Actions
         edit_action = menu.addAction("Edit Details")
         edit_action.triggered.connect(lambda: self.editRequested.emit(self.name))
+
+        menu.addSeparator()
+
+        # File Actions
+        action_open = menu.addAction("Open Source File")
+        action_open.setToolTip("Open this rig file in a new scene")
+        action_open.triggered.connect(self._on_open_file)
+
+        action_folder = menu.addAction("Show in Folder")
+        action_folder.triggered.connect(self._on_show_in_folder)
+
+        menu.addSeparator()
+
+        # Destructive
+        remove_action = menu.addAction("Remove Rig")
+        remove_action.setIcon(utils.get_icon("trash.svg"))
+        remove_action.triggered.connect(self._on_remove_request)
+
         menu.exec_(self.info_btn.mapToGlobal(pos))
+
+    def _on_open_file(self):
+        path = self.data.get("path")
+        if not path or not os.path.exists(path):
+            QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + str(path))
+            return
+
+        resp = QtWidgets.QMessageBox.warning(
+            self,
+            "Open Rig File",
+            "This will open the rig source file in a NEW scene.\nUnsaved changes in the current scene will be lost.\n\nContinue?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
+        if resp == QtWidgets.QMessageBox.Yes:
+            try:
+                cmds.file(path, open=True, force=True)
+            except Exception as e:
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to open file:\n" + str(e))
+
+    def _on_show_in_folder(self):
+        path = self.data.get("path")
+        if not path:
+            return
+
+        path = os.path.normpath(path)
+        if not os.path.exists(path):
+            QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + path)
+            return
+
+        # Select file in explorer if possible
+        if sys.platform == "win32":
+            subprocess.Popen(r'explorer /select,"{}"'.format(path))
+        elif sys.platform == "darwin":
+            subprocess.Popen(["open", "-R", path])
+        else:
+            # Linux usually just opens dir
+            subprocess.Popen(["xdg-open", os.path.dirname(path)])
+
+    def _on_remove_request(self):
+        resp = QtWidgets.QMessageBox.question(
+            self,
+            "Remove Rig",
+            "Are you sure you want to remove '{}' from the library?\n\nThis will NOT delete files.".format(
+                self.name
+            ),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
+        if resp == QtWidgets.QMessageBox.Yes:
+            self.removeRequested.emit(self.name)
 
     def _formatTooltip(self):
         tip = "Name: {}\n".format(self.name)
@@ -413,7 +485,12 @@ class RigItemWidget(QtWidgets.QFrame):
         tip += "Link: {}\n".format(self.data.get("link") or "Empty")
         tip += "Collection: {}\n".format(self.data.get("collection") or "Empty")
         tip += "Tags: {}\n".format(self.data.get("tags") or "Empty")
-        tip += "Path: {}".format(self.data.get("path") or "Empty")
+        path = self.data.get("path")
+        if path:
+            head, tail = os.path.split(path)
+            path = ".../{}/{}".format(os.path.basename(head), tail)
+
+        tip += "Path: {}".format(path or "Empty")
         self.setToolTip(tip)
 
     def update_image_display(self):
@@ -683,15 +760,16 @@ class InfoDialog(QtWidgets.QDialog):
 
     def _open_folder(self, path):
         path = os.path.normpath(path)
-        target = os.path.dirname(path) if os.path.isfile(path) else path
-        if not os.path.exists(target):
+        if not os.path.exists(path):
             return
 
         if sys.platform == "win32":
-            os.startfile(target)
+            subprocess.Popen(r'explorer /select,"{}"'.format(path))
         elif sys.platform == "darwin":
-            subprocess.Popen(["open", target])
+            subprocess.Popen(["open", "-R", path])
         else:
+            # Fallback for linux or generic dir opening
+            target = os.path.dirname(path) if os.path.isfile(path) else path
             subprocess.Popen(["xdg-open", target])
 
 

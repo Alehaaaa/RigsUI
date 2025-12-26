@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.6] - 2025-12-26
+### 🚀 Added
+- **Context Menu Actions**: Expanded the right-click menu on rig cards with new actions:
+    - **Open Source File**: Opens the rig's source file in a new Maya scene (includes safety warning).
+    - **Show in Folder**: Opens the system file explorer with the rig file selected/highlighted.
+    - **Remove Rig**: Allows removing a rig from the library database (does not delete the physical file).
+- **File Explorer Integration**: Enhanced "Show in Folder" and path links in the Info Dialog to select the specific file in Windows Explorer/Finder instead of just opening the parent directory.
+
+### 📦 Changed
+- **Menu Organization**: improved context menu layout with clear separators and logical grouping (Edit / File Actions / Destructive).
+- **Tooltips**: Improved path display in tooltips to show a shortened readable format for paths.
+- **Icons**: Added trash icon for the Remove action.
+
 ## [0.0.5] - 2025-12-26
 ### 🚀 Added
 - **Context Menu**: Added right-click context menu to the Info button for quick access to "Edit Details".

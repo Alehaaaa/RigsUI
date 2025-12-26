@@ -316,79 +316,79 @@
         "exists": true
     },
     "Carlos": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Carlos\\ProRigs_Carlos_v01.04_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Carlos\\ProRigs_Carlos_v01.04_L.ma",
         "image": "carlos.jpg",
         "tags": [
             "human",
             "male",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
     },
     "Charlie": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Charlie\\ProRigs_Charlie_v01.07_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Charlie\\ProRigs_Charlie_v01.07_L.ma",
         "image": "charlie.jpg",
         "tags": [
             "human",
             "male",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
     },
     "Lucas": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Lucas\\ProRigs_Lucas_v01.08_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Lucas\\ProRigs_Lucas_v01.08_L.ma",
         "image": "lucas.jpg",
         "tags": [
             "human",
             "male",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
     },
     "Maria": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Maria\\ProRigs_Maria_v01.04_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Maria\\ProRigs_Maria_v01.04_L.ma",
         "image": "maria.jpg",
         "tags": [
             "human",
             "female",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
     },
     "Mikey": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Mikey\\ProRigs_Mikey_v01.06_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Mikey\\ProRigs_Mikey_v01.06_L.ma",
         "image": "mikey.jpg",
         "tags": [
             "human",
             "male",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
     },
     "Will": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Will\\ProRigs_Will_v01.05_L.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Will\\ProRigs_Will_v01.05_L.ma",
         "image": "will.jpg",
         "tags": [
             "human",
             "male",
             "kid"
         ],
-        "collection": "ProRigs",
+        "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
         "exists": true
@@ -522,6 +522,96 @@
         ],
         "collection": "Empty",
         "author": "Characterrigs.com",
-        "link": "https://charrig.gumroad.com/l/ydvjk"
+        "link": "https://charrig.gumroad.com/l/ydvjk",
+        "exists": true
+    },
+    "Ashley": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Ashley\\Ashley_v01.05_L.ma",
+        "image": "ashley.jpg",
+        "tags": [
+            "human",
+            "female",
+            "young"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Carl": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Carl\\Carl_v01.07_L.ma",
+        "image": "carl.jpg",
+        "tags": [
+            "human",
+            "male",
+            "old"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Chris": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Chris\\Chris_v01.06_L.ma",
+        "image": "chris.jpg",
+        "tags": [
+            "human",
+            "male",
+            "young"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Izzy": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Izzy\\Izzy_v01.06_L.ma",
+        "image": "izzy.jpg",
+        "tags": [
+            "human",
+            "female",
+            "old"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Sam": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Sam\\Sam_v01.06_L.ma",
+        "image": "sam.jpg",
+        "tags": [
+            "human",
+            "female",
+            "kid"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Megan": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Megan\\Megan_v01.04_L.ma",
+        "image": "megan.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
+    },
+    "Daniel": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Family\\ProRigs_Daniel\\Daniel_v01.07_L.ma",
+        "image": "daniel.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "ProRigs Family",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-family/",
+        "exists": true
     }
 }
