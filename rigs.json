@@ -1,0 +1,467 @@
+{
+    "Apollo": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Apollo\\Apollo.ma",
+        "image": "apollo.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "Apollo&Artemis",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/ApolloRig",
+        "exists": true
+    },
+    "Artemis": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Artemis\\Artemis.ma",
+        "image": "artemis.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "Apollo&Artemis",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/ArtemisRig",
+        "exists": true
+    },
+    "Mars": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mars_v01.6.mb",
+        "image": "mars.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Mazu": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mazu_v01.4.mb",
+        "image": "mazu.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Minerva": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\minerva_v01.3.mb",
+        "image": "minerva.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Mireuk": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mireuk_v01.3.mb",
+        "image": "mireuk.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Modjadji": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\modjadji_v01.3.mb",
+        "image": "modjadji.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Mukuru": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mukuru_v01.4.mb",
+        "image": "mukuru.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "M-Bundle",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "exists": true
+    },
+    "Mandalorian": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Mandalorian\\scenes\\Mandalorian_Rig_v.1.1.mb",
+        "image": "mandalorian.jpg",
+        "tags": [
+            "male"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/qvdmc",
+        "exists": true
+    },
+    "The Child": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
+        "image": "the_child.jpg",
+        "tags": [
+            "creature"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
+        "exists": true
+    },
+    "Stormtrooper": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Stormtrooper\\scenes\\Stormtrooper_Rig_v5.mb",
+        "image": "stormtrooper.jpg",
+        "tags": [
+            "male"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/joFBP",
+        "exists": true
+    },
+    "BD-1": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\BD-1\\scenes\\BD-1_Rig_v1.1.mb",
+        "image": "bd-1.jpg",
+        "tags": [
+            "robot"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/AaAwS",
+        "exists": true
+    },
+    "AT_ST": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\AT_ST\\scenes\\AT_ST_Master.mb",
+        "image": "at_st.jpg",
+        "tags": [
+            "vehicle",
+            "robot"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/QhZQK",
+        "exists": true
+    },
+    "Sheriff": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\sheriff_public.ma",
+        "image": "sheriff.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "",
+        "author": "BreinerRigger",
+        "link": "https://breiner3drigger.gumroad.com/l/Sheriff_FreeRig",
+        "exists": true
+    },
+    "Sunny": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Sunny\\Sunny_Rig.ma",
+        "image": "sunny.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "",
+        "author": "Animation Methods",
+        "link": "https://animationmethods.gumroad.com/l/sunny",
+        "exists": true
+    },
+    "Bloody Young Samurai": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Samurai_Rig\\Bloody_Young_Samurai_rig.ma",
+        "image": "bloody_young_samurai.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "",
+        "author": "Khaled Hussein",
+        "link": "https://khaledhussein.gumroad.com/l/cbmnp",
+        "exists": true
+    },
+    "Miles": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Spider-verse\\MILES_V38\\Miles_Rig_V38.mb",
+        "image": "miles.jpg",
+        "tags": [
+            "superhero",
+            "male"
+        ],
+        "collection": "Spider-verse",
+        "author": "Khaled Hussein",
+        "link": "https://sahilanims.gumroad.com/l/ocetz",
+        "exists": true
+    },
+    "Peter B Parker": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Spider-verse\\Peter B Parker Rig\\Peter B Parker Rig.mb",
+        "image": "peter_b_parker.jpg",
+        "tags": [
+            "superhero",
+            "male"
+        ],
+        "collection": "Spider-verse",
+        "author": "Khaled Hussein",
+        "link": "https://sahilanims.gumroad.com/l/mccgv",
+        "exists": true
+    },
+    "The Spot": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Spider-verse\\THE SPOT V04\\The Spot V04.mb",
+        "image": "the_spot.jpg",
+        "tags": [
+            "superhero",
+            "male"
+        ],
+        "collection": "Spider-verse",
+        "author": "Khaled Hussein",
+        "link": "https://sahilanims.gumroad.com/l/gitghe",
+        "exists": true
+    },
+    "SpiderGwen": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\SpiderGwen\\SpiderGwen_Rig.ma",
+        "image": "spidergwen.jpg",
+        "tags": [
+            "superhero",
+            "female"
+        ],
+        "collection": "Spider-verse",
+        "author": "Alex Salmar",
+        "link": "https://alexsalmar.gumroad.com/l/spidergwen"
+    },
+    "Sebastian": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Sebastian_Rig\\Sebastian_Rig.ma",
+        "image": "sebastian.jpg",
+        "tags": [
+            "animal",
+            "male"
+        ],
+        "collection": "",
+        "author": "Characterrigs.com",
+        "link": "https://charrig.gumroad.com/l/ydvjk",
+        "exists": true
+    },
+    "Rumi": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Rumi Rig\\Rumi_Rig.ma",
+        "image": "rumi.jpg",
+        "tags": [
+            "superhero",
+            "female"
+        ],
+        "collection": "",
+        "author": "Cromacore",
+        "link": "https://cromacore.gumroad.com/l/rumirig",
+        "exists": true
+    },
+    "Golem Frog": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Golems\\Golem Frog\\GolemFrogRig.ma",
+        "image": "golem_frog.jpg",
+        "tags": [
+            "creature"
+        ],
+        "collection": "Golems",
+        "author": "Tristen",
+        "link": "https://tristenanimates.gumroad.com/l/jztyxn",
+        "exists": true
+    },
+    "Golem Bug": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Golems\\Golem_Bug\\GolemBugRig.ma",
+        "image": "golem_bug.jpg",
+        "tags": [
+            "creature"
+        ],
+        "collection": "Golems",
+        "author": "Tristen",
+        "link": "https://tristenanimates.gumroad.com/l/huluss",
+        "exists": true
+    },
+    "Golem Critter": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Golems\\Golem_Critter\\GolemCritterRig.ma",
+        "image": "golem_critter.jpg",
+        "tags": [
+            "creature"
+        ],
+        "collection": "Golems",
+        "author": "Tristen",
+        "link": "https://tristenanimates.gumroad.com/l/nywts",
+        "exists": true
+    },
+    "Blood Bat": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Golems\\Blood_Bat\\BloodBatRig.ma",
+        "image": "blood_bat.jpg",
+        "tags": [
+            "creature"
+        ],
+        "collection": "Golems",
+        "author": "Tristen",
+        "link": "https://tristenanimates.gumroad.com/l/brwjf",
+        "exists": true
+    },
+    "Alpha": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Alpha_Agora\\Alpha_Rig.ma",
+        "image": "alpha.jpg",
+        "tags": [
+            "female",
+            "human"
+        ],
+        "collection": "Agora",
+        "author": "Agora.Community",
+        "link": "https://agora.community/content/alpha-maya",
+        "exists": true
+    },
+    "Leo": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Leo_Final\\Leo.ma",
+        "image": "leo.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "",
+        "author": "Wonderwell Studios",
+        "link": "https://wonderwellstudios.gumroad.com/l/LeoRig",
+        "exists": true
+    },
+    "Carlos": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Carlos\\ProRigs_Carlos_v01.04_L.ma",
+        "image": "carlos.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Charlie": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Charlie\\ProRigs_Charlie_v01.07_L.ma",
+        "image": "charlie.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Lucas": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Lucas\\ProRigs_Lucas_v01.08_L.ma",
+        "image": "lucas.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Maria": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Maria\\ProRigs_Maria_v01.04_L.ma",
+        "image": "maria.jpg",
+        "tags": [
+            "human",
+            "female",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Mikey": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Mikey\\ProRigs_Mikey_v01.06_L.ma",
+        "image": "mikey.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Will": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\Kids_Library\\ProRigs_Will\\ProRigs_Will_v01.05_L.ma",
+        "image": "will.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "ProRigs",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-kids/",
+        "exists": true
+    },
+    "Jinx": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Jinx_Rig_Maya\\Jinx_Maya_v1.2.ma",
+        "image": "jinx.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "Arcane",
+        "author": "Iona Dolidzer",
+        "link": "https://www.artstation.com/marketplace/p/lbrLv/maya-rig-arcane-jinx-non-commercial",
+        "exists": true
+    },
+    "Ellen": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Ellen_rig_v1_01\\ellen_rig_v1_01_Maya2022.ma",
+        "image": "ellen.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "",
+        "author": "Antonio M\u00e9ndez",
+        "link": "https://tonyomendez.gumroad.com/l/ellenrig",
+        "exists": true
+    },
+    "Amy": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00Gabriel Salas\\Amy_Rig_v1.21\\Amy_Rig_v1.21.mb",
+        "image": "amy.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "N/A",
+        "author": "Gabriel Salas",
+        "link": "https://gabrielsalas.gumroad.com/l/WHuVm",
+        "exists": true
+    },
+    "Dana": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00Gabriel Salas\\Dana_Rig_v1.5\\Dana_Rig_v1.5.mb",
+        "image": "dana.jpg",
+        "tags": [
+            "human",
+            "female"
+        ],
+        "collection": "N/A",
+        "author": "Gabriel Salas",
+        "link": "https://gabrielsalas.gumroad.com/l/kKyvP",
+        "exists": true
+    },
+    "David": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00Gabriel Salas\\David_Rig_v1.51\\David_Rig_v1.51.mb",
+        "image": "david.jpg",
+        "tags": [
+            "human",
+            "male"
+        ],
+        "collection": "N/A",
+        "author": "Gabriel Salas",
+        "link": "https://gabrielsalas.gumroad.com/l/zWtTC?layout=profile",
+        "exists": true
+    }
+}

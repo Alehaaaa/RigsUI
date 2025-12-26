@@ -1,0 +1,19 @@
+# General
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Maya
+*.ma
+*.mb
+*.swatch
+*.pep
+*.xml
+
+# VS Code
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

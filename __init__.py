@@ -1,0 +1,39 @@
+import sys
+
+try:
+    import importlib
+except ImportError:
+    importlib = None
+
+import os
+import io
+
+# Expose version
+try:
+    _v_path = os.path.join(os.path.dirname(__file__), "VERSION")
+    with io.open(_v_path, "r", encoding="utf-8") as _f:
+        __version__ = _f.read().strip()
+except Exception:
+    __version__ = "0.0.0"
+
+
+def show(mod_name="RigsUI"):
+    for name in list(sys.modules.keys()):
+        if name == mod_name or name.startswith(mod_name + "."):
+            sys.modules.pop(name, None)
+
+    if importlib and hasattr(importlib, "invalidate_caches"):
+        importlib.invalidate_caches()
+        rigsui = importlib.import_module(mod_name)
+        main_mod = importlib.import_module(mod_name + ".main")
+    else:
+        rigsui = __import__(mod_name)
+        main_mod = __import__(mod_name + ".main", fromlist=["main"])
+
+    main_mod.LibraryUI.showUI()
+
+    return rigsui
+
+
+if __name__ == "__main__":
+    show()
