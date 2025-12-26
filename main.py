@@ -39,7 +39,7 @@ try:
 except Exception:
     VERSION = "0.0.3 alpha"
 
-RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs.json")
+RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs_database.json")
 
 # Ensure images dir exists
 if not os.path.exists(utils.IMAGES_DIR):
@@ -123,7 +123,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         main_layout.addWidget(self.scroll)
 
     def load_data(self, delay=False):
-        """Loads data from rigs.json and populates UI."""
+        """Loads data from rigs_database.json and populates UI."""
         if os.path.exists(RIGS_JSON):
             try:
                 with io.open(RIGS_JSON, "r", encoding="utf-8") as f:

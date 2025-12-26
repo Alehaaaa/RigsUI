@@ -8,7 +8,7 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
 - **Search**: Quickly find rigs by name.
 - **thumbnail Support**: Visual browsing with thumbnails.
-- **JSON Database**: Lightweight and portable data storage (`rigs.json`).
+- **JSON Database**: Lightweight and portable data storage (`rigs_database.json`).
 - **Python 2 & 3 Compatible**: Works across multiple Maya versions.
 
 ## Installation
