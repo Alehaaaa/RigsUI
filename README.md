@@ -45,7 +45,7 @@ RigsUI.show()
 
 ## Issues
 
-If you find any issues, please report them on the [GitHub issue tracker](https://github.com/aleha/RigsUI/issues).
+If you find any issues, please report them on the [GitHub issue tracker](https://github.com/Alehaaaa/RigsUI/issues).
 
 ## Contributing
 
@@ -53,7 +53,7 @@ Contributions are welcome! Please submit a pull request.
 
 ## Transparency
 
-The source code was written by me, **Aleha**, with significant assistance from AI tools. Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
+The source code was written by me, **Alehaaaa**, with significant assistance from AI tools. Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
 
 Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
 And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)
