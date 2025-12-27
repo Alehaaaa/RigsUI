@@ -1068,13 +1068,12 @@ class CollapsibleSection(QtWidgets.QWidget):
         super(CollapsibleSection, self).__init__(parent)
         self._items = []
 
-        self.setCursor(QtCore.Qt.PointingHandCursor)
-
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
         self.btn = QtWidgets.QPushButton(title)
+        self.btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.btn.setCheckable(True)
         self.btn.setChecked(False)
         self.btn.setStyleSheet(
