@@ -1,8 +1,8 @@
-from __future__ import absolute_import, print_function, unicode_literals
 import os
 import subprocess
 import logging
 import sys
+import json
 from maya import cmds
 
 try:
@@ -1067,6 +1067,7 @@ class CollapsibleSection(QtWidgets.QWidget):
     def __init__(self, title, parent=None):
         super(CollapsibleSection, self).__init__(parent)
         self._items = []
+        self._title = title
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1086,7 +1087,7 @@ class CollapsibleSection(QtWidgets.QWidget):
         # Scroll Area for content
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
-        self.scroll.setMaximumHeight(200)
+        # self.scroll.setMaximumHeight(200)
         self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setVisible(False)
@@ -1096,18 +1097,42 @@ class CollapsibleSection(QtWidgets.QWidget):
         self.content_layout = QtWidgets.QVBoxLayout(self.container)
         self.content_layout.setContentsMargins(5, 5, 5, 5)
         self.content_layout.setSpacing(2)
+
+        self.empty_lbl = QtWidgets.QLabel("No items")
+        self.empty_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self.empty_lbl.setStyleSheet("color: #888; font-style: italic; margin: 10px;")
+        self.empty_lbl.setVisible(True)  # Visible by default since items is empty
+        self.content_layout.addWidget(self.empty_lbl)
+
         self.content_layout.addStretch()
         self.scroll.setWidget(self.container)
 
         layout.addWidget(self.btn)
         layout.addWidget(self.scroll)
 
+        self.update_title()
+
+    def set_empty_text(self, text):
+        self.empty_lbl.setText(text)
+
     def _toggle(self, checked):
         self.scroll.setVisible(checked)
         self.update_title()
 
+        if checked:
+            self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        else:
+            self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+
+        if self.parentWidget() and self.parentWidget().layout():
+            ly = self.parentWidget().layout()
+            if hasattr(ly, "setStretchFactor"):
+                ly.setStretchFactor(self, 1 if checked else 0)
+
     def addWidget(self, widget):
         self._items.append(widget)
+        self.empty_lbl.setVisible(False)
+
         self.content_layout.insertWidget(self.content_layout.count() - 1, widget)
         self.update_title()
 
@@ -1116,32 +1141,99 @@ class CollapsibleSection(QtWidgets.QWidget):
             self._items.remove(widget)
             self.content_layout.removeWidget(widget)
             widget.setParent(None)
+
+            if not self._items:
+                self.empty_lbl.setVisible(True)
+
             self.update_title()
 
     def update_title(self):
-        base_title = self.btn.text().split(" (")[0]
-        self.btn.setText(f"{base_title} ({len(self._items)})")
+        self.btn.setText(f"{self._title} ({len(self._items)})")
 
 
-class BatchAddDialog(QtWidgets.QDialog):
-    """Main dialog for scanning and batch-adding rigs."""
+class GeminiWorker(QtCore.QThread):
+    """Background thread to query Gemini API for rig tags."""
+
+    finished = QtCore.Signal(dict)  # Returns dict of {filename: metadata}
+
+    def __init__(self, api_key, file_paths, parent=None):
+        super(GeminiWorker, self).__init__(parent)
+        self.api_key = api_key
+        self.file_paths = file_paths
+
+    def run(self):
+        try:
+            # We assume utils.query_gemini is available and blocking
+            json_str = utils.query_gemini(self.api_key, self.file_paths)
+            if json_str:
+                data = json.loads(json_str)
+                self.finished.emit(data)
+            else:
+                self.finished.emit({})
+        except Exception as e:
+            utils.LOG.error(f"Gemini Worker Error: {e}")
+            self.finished.emit({})
+
+
+class ResponsiveScrollArea(QtWidgets.QScrollArea):
+    """ScrollArea that adjusts its height to fit its content."""
+
+    def __init__(self, parent=None):
+        super(ResponsiveScrollArea, self).__init__(parent)
+        self.setWidgetResizable(True)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+
+    def eventFilter(self, o, e):
+        if o == self.widget() and e.type() == QtCore.QEvent.LayoutRequest:
+            self.updateGeometry()
+        return super(ResponsiveScrollArea, self).eventFilter(o, e)
+
+    def setWidget(self, widget):
+        super(ResponsiveScrollArea, self).setWidget(widget)
+        if widget:
+            widget.installEventFilter(self)
+
+    def sizeHint(self):
+        if self.widget():
+            h = self.widget().sizeHint().height()
+            f = self.frameWidth() * 2
+            return QtCore.QSize(super(ResponsiveScrollArea, self).sizeHint().width(), h + f)
+        return super(ResponsiveScrollArea, self).sizeHint()
+
+
+class ManageRigsDialog(QtWidgets.QDialog):
+    """Dialog for scanning, batch-adding, and managing rigs/settings."""
 
     rigAdded = QtCore.Signal(str, dict)
     blacklistChanged = QtCore.Signal(list)
 
-    def __init__(self, directory, rig_data, blacklist, collections, authors, tags, parent=None):
-        super(BatchAddDialog, self).__init__(parent)
-        self.setWindowTitle("Batch Add Rigs - " + os.path.basename(directory))
-        self.resize(700, 600)
+    def __init__(
+        self,
+        directory=None,
+        rig_data=None,
+        blacklist=None,
+        collections=None,
+        authors=None,
+        tags=None,
+        initial_tab=0,
+        parent=None,
+    ):
+        super(ManageRigsDialog, self).__init__(parent)
+        self.setWindowTitle("Manage Rigs")
+        self.resize(800, 600)
 
+        self.initial_tab = initial_tab
         self.directory = directory
-        self.rig_data = rig_data
-        self.blacklist = list(blacklist)
-        self.collections = collections
-        self.authors = authors
-        self.tags = tags
+        self.rig_data = rig_data or {}
+        self.blacklist = list(blacklist) if blacklist else []
+        self.collections = collections or []
+        self.authors = authors or []
+        self.tags = tags or []
 
-        self.existing_paths = {}  # Normalized lookup -> name
+        # Settings
+        self.settings = QtCore.QSettings("LibraryUI", "RigManager")
+
+        self.existing_paths = {}  # Normalized lookup -- name
         self.alternative_paths = set()  # Normalized lookup set
         for name, d in rig_data.items():
             if name.startswith("_"):
@@ -1163,51 +1255,453 @@ class BatchAddDialog(QtWidgets.QDialog):
                 self.existing_paths[lookup_p] = name
                 self.alternative_paths.add(lookup_p)
 
-        self._widgets_map = {}  # original path -> widget
+        self._widgets_map = {}  # original path -- widget
 
         self._build_ui()
-        self._start_scan()
+        if self.directory:
+            self._start_scan()
+        else:
+            self._populate_existing()
 
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
 
-        layout.addWidget(QtWidgets.QLabel(f"Scanning: <i>{self.directory}</i>"))
+        self.tabs = QtWidgets.QTabWidget()
+        layout.addWidget(self.tabs)
+
+        # --- Tab 1: Rigs ---
+        self.tab_rigs = QtWidgets.QWidget()
+        rigs_layout = QtWidgets.QVBoxLayout(self.tab_rigs)
+
+        self.lbl_scan_info = QtWidgets.QLabel(f"Scanning: <i>{self.directory}</i>" if self.directory else "")
+        self.lbl_scan_info.setVisible(bool(self.directory))
+        rigs_layout.addWidget(self.lbl_scan_info)
 
         # New Rigs Section
-        layout.addWidget(QtWidgets.QLabel("<b>Discovered New Rigs:</b>"))
-        self.scroll_new = QtWidgets.QScrollArea()
-        self.scroll_new.setWidgetResizable(True)
-        self.scroll_new.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
-        self.container_new = QtWidgets.QWidget()
-        self.layout_new = QtWidgets.QVBoxLayout(self.container_new)
-        self.layout_new.setContentsMargins(5, 5, 5, 5)
-        self.layout_new.setSpacing(2)
+        self.sec_new = CollapsibleSection("Discovered New Rigs")
+        self.sec_new.set_empty_text("Searching for rigs...")
+        self.sec_new.setVisible(bool(self.directory))
+        rigs_layout.addWidget(self.sec_new)
+        self.sec_new.btn.setChecked(True)  # Expand by default
 
-        # Status Label inside new scroll
-        self._status_lbl = QtWidgets.QLabel("Searching for rigs...")
-        self._status_lbl.setAlignment(QtCore.Qt.AlignCenter)
-        self._status_lbl.setStyleSheet("color: #888; font-style: italic; margin-top: 10px;")
-        self.layout_new.addWidget(self._status_lbl)
-
-        self.layout_new.addStretch()
-        self.scroll_new.setWidget(self.container_new)
-        layout.addWidget(self.scroll_new, 3)
+        # AI Button
+        self.ai_btn = QtWidgets.QPushButton("Auto-Tag New Rigs with Gemini AI")
+        self.ai_btn.clicked.connect(self._run_gemini)
+        # Always hidden initially until items are found or if not in scan mode
+        self.ai_btn.setVisible(False)
+        rigs_layout.addWidget(self.ai_btn)
 
         # Existing Rigs Section
         self.sec_exists = CollapsibleSection("In Database")
-        layout.addWidget(self.sec_exists)
+        self.sec_exists.set_empty_text(
+            "No rigs in database." if not self.directory else "No existing rigs found in this folder."
+        )
+        # If managing (no dir), expand by default
+        # If managing (no dir), expand by default
+        rigs_layout.addWidget(self.sec_exists)
+        if not self.directory:
+            self.sec_exists.btn.setChecked(True)
 
         # Blacklisted Section
         self.sec_black = CollapsibleSection("Blacklisted")
-        layout.addWidget(self.sec_black)
+        self.sec_black.set_empty_text("No blacklisted files.")
+        rigs_layout.addWidget(self.sec_black)
 
-        # Footer
-        btns = QtWidgets.QHBoxLayout()
-        btns.addStretch()
+        rigs_layout.addStretch()
+
+        self.tabs.addTab(self.tab_rigs, "Rigs")
+
+        # --- Tab 2: Settings ---
+        self.tab_settings = QtWidgets.QWidget()
+        self._build_settings_tab()
+        self.tabs.addTab(self.tab_settings, "Settings")
+
+        # Set initial tab
+        self.tabs.setCurrentIndex(self.initial_tab)
+
+        # --- Main Footer ---
+        footer = QtWidgets.QHBoxLayout()
+        # footer.setContentsMargins(10, 0, 10, 10) # Optional spacing
+
+        btn_scan = QtWidgets.QPushButton("Scan Folder")
+        btn_scan.setIcon(utils.get_icon("search.svg"))
+        btn_scan.clicked.connect(self._trigger_scan_folder)
+
+        btn_add = QtWidgets.QPushButton("Add Manually")
+        btn_add.setIcon(utils.get_icon("add.svg"))
+        btn_add.clicked.connect(self._trigger_add_manual)
+
         self.done_btn = QtWidgets.QPushButton("Done")
         self.done_btn.clicked.connect(self.accept)
-        btns.addWidget(self.done_btn)
-        layout.addLayout(btns)
+
+        footer.addWidget(btn_scan)
+        footer.addWidget(btn_add)
+        footer.addStretch()
+        footer.addWidget(self.done_btn)
+
+        layout.addLayout(footer)
+
+    def _build_settings_tab(self):
+        layout = QtWidgets.QVBoxLayout(self.tab_settings)
+
+        # Gemini API Key
+        grp_ai = QtWidgets.QGroupBox("Gemini AI Integration")
+        lay_ai = QtWidgets.QVBoxLayout(grp_ai)
+
+        lay_key = QtWidgets.QHBoxLayout()
+        lay_key.addWidget(QtWidgets.QLabel("API Key:"))
+        self.api_key_input = QtWidgets.QLineEdit()
+        self.api_key_input.setEchoMode(QtWidgets.QLineEdit.Password)
+        self.api_key_input.setText(self.settings.value("gemini_api_key", ""))
+        self.api_key_input.textChanged.connect(lambda txt: self.settings.setValue("gemini_api_key", txt))
+        lay_key.addWidget(self.api_key_input)
+        lay_ai.addLayout(lay_key)
+
+        lbl_info = QtWidgets.QLabel(
+            "<span style='font-size: 7.5pt;'>Get your API key from: <a href='https://aistudio.google.com/api-keys'>Google AI Studio</a></span>"
+        )
+        lbl_info.setOpenExternalLinks(True)
+        lay_ai.addWidget(lbl_info)
+
+        layout.addWidget(grp_ai)
+
+        # Path Replacements
+        grp_paths = QtWidgets.QGroupBox("Path Replacements (Local)")
+        lay_paths = QtWidgets.QVBoxLayout(grp_paths)
+        lay_paths.setSpacing(5)
+
+        # Header
+        head_lay = QtWidgets.QHBoxLayout()
+        head_lay.addWidget(QtWidgets.QLabel("Find Path:"))
+        head_lay.addWidget(QtWidgets.QLabel("Replace With:"))
+        head_lay.addSpacing(30)  # For delete button
+        lay_paths.addLayout(head_lay)
+
+        # Container for rows
+        self.replacements_container = QtWidgets.QWidget()
+        self.replacements_layout = QtWidgets.QVBoxLayout(self.replacements_container)
+        self.replacements_layout.setContentsMargins(0, 0, 0, 0)
+        self.replacements_layout.setSpacing(5)
+
+        # Scroll area for many replacements
+        self.replacements_scroll = ResponsiveScrollArea()
+        self.replacements_scroll.setWidget(self.replacements_container)
+        self.replacements_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+
+        lay_paths.addWidget(self.replacements_scroll)
+
+        # Add Button
+        add_btn = QtWidgets.QPushButton("Add Replacement")
+        add_btn.setIcon(utils.get_icon("add.svg"))
+        add_btn.setStyleSheet("""
+            QPushButton { text-align: left; padding: 5px; font-weight: bold;}
+            QPushButton:hover { background-color: #444; }
+        """)
+        add_btn.clicked.connect(lambda: self._add_replacement_row("", ""))
+        lay_paths.addWidget(add_btn)
+
+        layout.addWidget(grp_paths)
+        layout.addStretch()
+
+        # Load and populate
+        self._load_replacements_ui()
+
+    def _load_replacements_ui(self):
+        # Clear existing
+        while self.replacements_layout.count():
+            item = self.replacements_layout.takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
+
+        raw = self.settings.value("path_replacements", "[]")
+        try:
+            data = json.loads(raw)
+            if not isinstance(data, list):
+                data = []
+        except Exception:
+            data = []
+
+        for find_txt, rep_txt in data:
+            self._add_replacement_row(find_txt, rep_txt)
+
+    def _add_replacement_row(self, find_val, rep_val):
+        row_widget = QtWidgets.QWidget()
+        row_lay = QtWidgets.QHBoxLayout(row_widget)
+        row_lay.setContentsMargins(0, 0, 0, 0)
+
+        input_find = QtWidgets.QLineEdit(find_val)
+        input_find.setPlaceholderText("e.g. D:/Rigs")
+
+        input_rep = QtWidgets.QLineEdit(rep_val)
+        input_rep.setPlaceholderText("e.g. Z:/Rigs")
+
+        # Auto-save changes
+        input_find.textChanged.connect(self._save_path_replacements_from_ui)
+        input_rep.textChanged.connect(self._save_path_replacements_from_ui)
+
+        del_btn = QtWidgets.QPushButton()
+        del_btn.setIcon(utils.get_icon("trash.svg"))  # Assuming usage of standard icon or X
+        del_btn.setFixedSize(20, 20)
+        del_btn.setToolTip("Remove this replacement")
+        del_btn.clicked.connect(lambda: self._remove_replacement_row(row_widget))
+
+        row_lay.addWidget(input_find)
+
+        arrow_lbl = QtWidgets.QLabel()
+        arrow_lbl.setPixmap(utils.get_icon("right_arrow.svg").pixmap(16, 16))
+        row_lay.addWidget(arrow_lbl)
+
+        row_lay.addWidget(input_rep)
+        row_lay.addWidget(del_btn)
+
+        self.replacements_layout.addWidget(row_widget)
+
+        # If adding a fresh new row (empty), save immediately or wait?
+        # Saving immediately is safer for UI state consistency
+        self._save_path_replacements_from_ui()
+
+    def _remove_replacement_row(self, widget):
+        self.replacements_layout.removeWidget(widget)
+        widget.deleteLater()
+        # Schedule save after deletion
+        QtCore.QTimer.singleShot(10, self._save_path_replacements_from_ui)
+
+    def _save_path_replacements_from_ui(self):
+        data = []
+        for i in range(self.replacements_layout.count()):
+            item = self.replacements_layout.itemAt(i)
+            wid = item.widget()
+            if wid:
+                # Assuming layout structure: LineEdit, Label, LineEdit, Button
+                # index 0 and 2 are the line edits
+                layout = wid.layout()
+                if layout and layout.count() >= 3:
+                    find_edit = layout.itemAt(0).widget()
+                    rep_edit = layout.itemAt(2).widget()
+
+                    if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
+                        rep_edit, QtWidgets.QLineEdit
+                    ):
+                        f_txt = find_edit.text()
+                        r_txt = rep_edit.text()
+                        # Only save if at least find_txt has something
+                        if f_txt or r_txt:
+                            data.append([f_txt, r_txt])
+
+        json_str = json.dumps(data)
+        self.settings.setValue("path_replacements", json_str)
+
+    def _populate_existing(self):
+        # Populate sec_exists and sec_black from full database since no directory scan
+        self.sec_exists.set_empty_text("Database is empty.")
+
+        # We need fake "Item" widgets, but ScannerItemWidget expects a path.
+        # We can iterate rig_data
+        for name, data in self.rig_data.items():
+            path = data.get("path", "")
+            if path:
+                item = ScannerItemWidget(path, "exists")
+                item.editRequested.connect(self._on_edit_request)
+                item.blacklistRequested.connect(self._on_blacklist_request)
+                self.sec_exists.addWidget(item)
+                self._widgets_map[path] = item
+
+        for path in self.blacklist:
+            self.sec_black.addWidget(item)
+            self._widgets_map[path] = item
+
+    def _clear_lists(self):
+        """Clears all items from the lists."""
+        for section in [self.sec_new, self.sec_exists, self.sec_black]:
+            if not section:
+                continue
+            while section._items:
+                section.removeWidget(section._items[0])
+        self._widgets_map.clear()
+
+    def _trigger_scan_folder(self):
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory to Scan")
+        if not directory:
+            return
+
+        self.directory = os.path.normpath(directory)
+        self.lbl_scan_info.setText(f"Scanning: <i>{self.directory}</i>")
+        self.lbl_scan_info.setVisible(True)
+
+        # Clear lists to switch context
+        self._clear_lists()
+
+        # Reset UI for scan
+        self.sec_new.setVisible(True)
+        # Clear items in sec_new
+        while self.sec_new._items:
+            w = self.sec_new._items[0]
+            self.sec_new.removeWidget(w)
+
+        self.sec_new.set_empty_text("Scanning...")
+        self.sec_new.btn.setChecked(True)
+
+        self.ai_btn.setVisible(False)
+        self._start_scan()
+
+    def _trigger_add_manual(self):
+        file_filter = "Maya Files (*.ma *.mb);;Maya ASCII (*.ma);;Maya Binary (*.mb)"
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select Rig File", "", file_filter)
+        if not path:
+            return
+
+        path = os.path.normpath(path)
+
+        # Check duplicates
+        for name, data in self.rig_data.items():
+            if name.startswith("_"):
+                continue
+            all_paths = [data.get("path", "")] + data.get("alternatives", [])
+            norm_paths = [os.path.normpath(p) for p in all_paths if p]
+            if path in norm_paths:
+                # Found duplicate in database
+                # Find matching widget for this path
+                existing_item = self._widgets_map.get(
+                    os.path.normpath(path) if sys.platform != "win32" else os.path.normpath(path).lower()
+                )
+
+                # If not found by direct path, maybe check main path if it was an alt?
+                if not existing_item:
+                    main_p = data.get("path")
+                    if main_p:
+                        norm_main = os.path.normpath(main_p)
+                        lookup = norm_main if sys.platform != "win32" else norm_main.lower()
+                        existing_item = self._widgets_map.get(lookup)
+
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Duplicate Found",
+                    "The rig '{}' ({}) is already in the database.".format(
+                        name, getattr(utils, "truncate_path", lambda p: p)(path)
+                    ),
+                )
+
+                if existing_item:
+                    # Highlight existing
+                    self.sec_exists.btn.setChecked(True)
+                    self.sec_exists.scroll.ensureWidgetVisible(existing_item)
+
+                    orig_style = existing_item.styleSheet()
+                    # Flashing style
+                    existing_item.setStyleSheet("background-color: #554444; border: 1px solid #DD5555;")
+                    QtCore.QTimer.singleShot(1000, lambda: existing_item.setStyleSheet(orig_style))
+
+                return
+
+        dlg = RigSetupDialog(
+            existing_names=list(self.rig_data.keys()),
+            collections=self.collections,
+            authors=self.authors,
+            tags=self.tags,
+            mode="add",
+            file_path=path,
+            parent=self,
+        )
+
+        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+            res = dlg.result_data
+            if res:
+                self.rigAdded.emit(res["name"], res["data"])
+                self.rig_data[res["name"]] = res["data"]
+                # self.existing_paths[path] = res["name"] # Should update local map too
+
+                # Add to existing list directly
+                item = ScannerItemWidget(path, "exists")
+                item.set_added()  # Visual trick to show it's fresh?
+                item.editRequested.connect(self._on_edit_request)
+                item.blacklistRequested.connect(self._on_blacklist_request)
+                self.sec_exists.addWidget(item)
+                self._widgets_map[path] = item
+
+    def _run_gemini(self):
+        api_key = self.settings.value("gemini_api_key", "")
+        if not api_key:
+            QtWidgets.QMessageBox.warning(self, "No API Key", "Please set Gemini API Key in Settings tab.")
+            return
+
+        # Gather new paths
+        new_paths = []
+        # sec_new._items contains ScannerItemWidget
+        # But CollapsibleSection._items are widgets.
+        # We need to access the path from them.
+        for widget in self.sec_new._items:
+            if isinstance(widget, ScannerItemWidget):
+                new_paths.append(widget.path)
+
+        if not new_paths:
+            return
+
+        self.ai_btn.setEnabled(False)
+        self.ai_btn.setText("Processing with Gemini...")
+
+        self.gemini_worker = GeminiWorker(api_key, new_paths, self)
+        self.gemini_worker.finished.connect(self._on_gemini_finished)
+        self.gemini_worker.start()
+
+    def _on_gemini_finished(self, results):
+        self.ai_btn.setEnabled(True)
+        self.ai_btn.setText("Auto-Tag New Rigs with Gemini AI")
+
+        if not results:
+            QtWidgets.QMessageBox.warning(self, "Gemini Error", "Failed to process rigs or empty result.")
+            return
+
+        # Results is dict: { "CharacterName": { "path": ..., "tags": ... } }
+        # We need to match these back to our ScannerItemWidgets in sec_new.
+        # But our widgets are by PATH.
+        # The result keys are character names.
+
+        count = 0
+        for char_name, data in results.items():
+            path = data.get("path")
+            if not path:
+                continue
+
+            norm_p = os.path.normpath(path)
+            # Find widget?
+            # We have self._widgets_map[path] (original path)
+            # We might need to handle normalization matching if path format differs
+
+            # Simple try
+            # If path came from our list, it should match?
+            # Gemini might alter path formatting?
+            # Let's try direct look up first.
+            matching_widget = None
+            for p, wid in self._widgets_map.items():
+                if os.path.normpath(p) == norm_p:
+                    matching_widget = wid
+                    break
+
+            if matching_widget:
+                # Automate "Add"
+                # We Simulate the result data structure expected by rigAdded
+                res_data = {
+                    "path": path,
+                    "image": "",  # Gemini returns null
+                    "tags": data.get("tags", []),
+                    "collection": data.get("collection") or "Empty",
+                    "author": data.get("author") or "Empty",
+                    "link": data.get("link") or "Empty",
+                }
+
+                # Emit signal to Main UI to add to DB
+                self.rigAdded.emit(char_name, res_data)
+
+                # Update UI
+                matching_widget.set_added()
+
+                # Update internal data so we don't re-add
+                self.rig_data[char_name] = res_data
+                self.existing_paths[norm_p] = char_name
+
+                count += 1
+
+        QtWidgets.QMessageBox.information(self, "Gemini Batch", f"Successfully auto-added {count} rigs.")
 
     def _start_scan(self):
         # Create normalized sets for fast, case-consistent lookup
@@ -1224,21 +1718,18 @@ class BatchAddDialog(QtWidgets.QDialog):
 
     def _on_scan_finished(self):
         """Update status label if nothing was found."""
-        has_new = False
-        for wid in self._widgets_map.values():
-            if wid.category == "new":
-                has_new = True
-                break
-
-        if not has_new:
-            self._status_lbl.setText("No new rigs found in this directory.")
-            self._status_lbl.setVisible(True)
-        else:
-            self._status_lbl.setVisible(False)
+        if hasattr(self, "sec_new"):
+            if not self.sec_new._items:
+                self.sec_new.set_empty_text("No new rigs found in this directory.")
+                if hasattr(self, "ai_btn"):
+                    self.ai_btn.setVisible(False)
+            else:
+                if hasattr(self, "ai_btn"):
+                    self.ai_btn.setVisible(True)
 
     def _on_file_discovered(self, path, category):
-        if category == "new":
-            self._status_lbl.setVisible(False)
+        # if category == "new":
+        #    self._status_lbl.setVisible(False)
 
         item = ScannerItemWidget(path, category)
 
@@ -1259,7 +1750,7 @@ class BatchAddDialog(QtWidgets.QDialog):
         self._widgets_map[path] = item
 
         if category == "new":
-            self.layout_new.insertWidget(self.layout_new.count() - 1, item)
+            self.sec_new.addWidget(item)
         elif category == "exists":
             self.sec_exists.addWidget(item)
         elif category == "blacklisted":
@@ -1303,7 +1794,7 @@ class BatchAddDialog(QtWidgets.QDialog):
             if item:
                 # Move to blacklist section
                 if item.category == "new":
-                    self.layout_new.removeWidget(item)
+                    self.sec_new.removeWidget(item)
                 elif item.category == "exists":
                     self.sec_exists.removeWidget(item)
 
@@ -1336,7 +1827,7 @@ class BatchAddDialog(QtWidgets.QDialog):
                         )
                     self.sec_exists.addWidget(item)
                 else:
-                    self.layout_new.insertWidget(self.layout_new.count() - 1, item)
+                    self.sec_new.addWidget(item)
 
 
 class RigSetupDialog(QtWidgets.QDialog):

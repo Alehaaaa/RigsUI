@@ -57,6 +57,14 @@ RigsUI.show()
 - Python 3. Working on Python 2 compatibility.
 - Standard Maya Python environment (`maya.cmds`, `PySide2` or `PySide6`)
 
+## Changelog
+
+### v0.0.9
+- **Manage Rigs UI**: Improved stretch behavior and resizing logic for a cleaner experience when collapsing/expanding sections.
+- **Path Replacements**: Added a smart scrolling layout ensuring replacements fit the available space comfortably.
+- **Duplicate Warnings**: Improved validation when manually adding duplicate rigs, now displaying a clear warning message while maintaining item highlighting.
+- **User Interface**: General polish to the layout and interaction flow.
+
 ## Issues
 
 If you find any issues, please report them on the [GitHub issue tracker](https://github.com/Alehaaaa/RigsUI/issues).

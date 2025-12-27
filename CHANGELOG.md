@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2025-12-27
+### 📦 Changed
+- **Manage Rigs UI**: Improved resizing behavior for expandable sections and path replacement lists.
+- **Duplicate Handling**: Manually adding an existing rig now shows a warning message while still highlighting the original entry.
+- **Stability**: Fixed a crash when adding path replacements.
+
 ## [0.0.8] - 2025-12-27
 ### 🚀 Added
 - **Batch Add Rigs**: New tool to scan entire directories for Maya files. Categorizes rigs as *New*, *In Database*, or *Blacklisted*.

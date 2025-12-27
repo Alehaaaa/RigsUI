@@ -4,17 +4,31 @@ import io
 import sys
 import json
 import logging
-from .widgets import BatchAddDialog, FilterMenu, FlowLayout, OpenMenu, RigItemWidget, RigSetupDialog, SortMenu
+from .widgets import (
+    ManageRigsDialog,
+    FilterMenu,
+    FlowLayout,
+    OpenMenu,
+    RigItemWidget,
+    RigSetupDialog,
+    SortMenu,
+)
 
 import maya.cmds as cmds  # type: ignore
 from . import utils
 
 try:
     from PySide6 import QtWidgets, QtCore  # type: ignore
+    from PySide6.QtGui import QImage, QPixmap
+    from PySide6.QtCore import Qt
     from shiboken6 import wrapInstance  # type: ignore
 except ImportError:
     from PySide2 import QtWidgets, QtCore  # type: ignore
+    from PySide2.QtGui import QImage, QPixmap
+    from PySide2.QtCore import Qt
     from shiboken2 import wrapInstance  # type: ignore
+
+from base64 import decodebytes
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin  # type: ignore
 from maya.OpenMayaUI import MQtUtil  # type: ignore
@@ -232,8 +246,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.add_btn.setToolTip("Add new rig(s)")
 
         self.add_menu = OpenMenu(self)
-        self.add_menu.addAction("Add Single Rig...", self.add_new_rig)
-        self.add_menu.addAction("Batch Add Rigs from Folder...", self.batch_add_rigs)
+        self.add_menu.addAction("Add Manually", self.add_new_rig)
+        self.add_menu.addAction("Scan Folder", self.batch_add_rigs)
         self.add_btn.setMenu(self.add_menu)
         self.add_btn.setIconSize(QtCore.QSize(16, 16))
         self.add_btn.setStyleSheet(
@@ -285,6 +299,109 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.scroll.setWidget(self.container)
         main_layout.addWidget(self.scroll)
 
+        # Create Menu Bar (must be added after layout setup to sit at top correctly, or using QMenuBar)
+        self.create_menus()
+
+    def create_menus(self):
+        self.menu_bar = QtWidgets.QMenuBar()
+        self.layout().setMenuBar(self.menu_bar)
+
+        # Library Menu
+        lib_menu = self.menu_bar.addMenu("Library")
+
+        act_manage = lib_menu.addAction("Manage Rigs")
+        act_manage.triggered.connect(lambda: self.manage_database(0))
+        act_manage.setToolTip("Manage rigs database")
+
+        act_settings = lib_menu.addAction("Settings")
+        act_settings.triggered.connect(lambda: self.manage_database(1))
+        act_settings.setToolTip("Configure application settings")
+
+        # Help Menu
+        help_menu = self.menu_bar.addMenu("Help")
+
+        act_updates = help_menu.addAction("Check for Updates")
+        act_updates.triggered.connect(self.check_updates)
+
+        help_menu.addSeparator()
+
+        act_about = help_menu.addAction("About")
+        act_about.setIcon(utils.get_icon("info.svg"))
+        act_about.triggered.connect(self.show_coffee)
+
+    def check_updates(self):
+        is_update, remote_ver = utils.check_for_updates(VERSION)
+
+        if is_update and remote_ver:
+            QtWidgets.QMessageBox.information(
+                self,
+                "Update Available",
+                f"A new version ({remote_ver}) is available!\nYou are currently using v{VERSION}.\n\nPlease check the repository.",
+            )
+        elif remote_ver:
+            QtWidgets.QMessageBox.information(
+                self, "Up to Date", f"You are using the latest version (v{VERSION})."
+            )
+        else:
+            QtWidgets.QMessageBox.warning(
+                self,
+                "Check Failed",
+                "Could not retrieve update information.\nPlease check your internet connection.",
+            )
+
+    def show_coffee(self):
+        credits_dialog = QtWidgets.QMessageBox(self)
+        # credits_dialog.setWindowFlags(self.windowFlags() & Qt.FramelessWindowHint)
+
+        base64Data = "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"
+        image_64_decode = decodebytes(base64Data.encode("utf-8"))
+        image = QImage()
+        image.loadFromData(image_64_decode, "JPG")
+        pixmap = QPixmap(image).scaledToHeight(56, Qt.SmoothTransformation)
+        credits_dialog.setIconPixmap(pixmap)
+        credits_dialog.setWindowTitle("About")
+        credits_dialog.setText(
+            "Created by @Alehaaaa<br>"
+            'Website - <a href=https://alehaaaa.github.io><font color="white">alehaaaa.github.io</a><br>'
+            '<a href=https://www.linkedin.com/in/alejandro-martin-407527215><font color="white">Linkedin</a> - <a href=https://www.instagram.com/alejandro_anim><font color="white">Instagram</a>'
+            "<br><br>"
+            "If you liked this tool,<br>"
+            "you can send me some love!"
+        )
+        credits_dialog.setFixedSize(400, 300)
+        exec_fn = getattr(credits_dialog, "exec", None) or getattr(credits_dialog, "exec_", None)
+        exec_fn()
+
+    def _show_custom_message(self, title, message, icon=None):
+        """Helper to show a sleek message dialog instead of native QMessageBox."""
+        dlg = QtWidgets.QDialog(self)
+        dlg.setWindowTitle(title)
+        dlg.resize(300, 150)
+        dlg.setStyleSheet("QDialog { background-color: #333; color: #FFF; } QLabel { color: #EEE; }")
+
+        layout = QtWidgets.QVBoxLayout(dlg)
+
+        lbl = QtWidgets.QLabel(message)
+        lbl.setAlignment(QtCore.Qt.AlignCenter)
+        lbl.setWordWrap(True)
+        lbl.setStyleSheet("font-size: 11pt; padding: 10px;")
+        layout.addWidget(lbl)
+
+        btn = QtWidgets.QPushButton("OK")
+        btn.setCursor(QtCore.Qt.PointingHandCursor)
+        btn.clicked.connect(dlg.accept)
+        btn.setStyleSheet(
+            "QPushButton { background-color: #555; padding: 6px; border-radius: 4px; } QPushButton:hover { background-color: #666; }"
+        )
+
+        h_layout = QtWidgets.QHBoxLayout()
+        h_layout.addStretch()
+        h_layout.addWidget(btn)
+        h_layout.addStretch()
+
+        layout.addLayout(h_layout)
+        dlg.exec_()
+
     # ---------- Data Management ----------
 
     def load_data(self, restore_scroll=True):
@@ -305,6 +422,32 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 self.rig_data = {}
         else:
             self.rig_data = {}
+
+        # Apply Path Replacements
+        settings = QtCore.QSettings("LibraryUI", "RigManager")
+        raw_replacements = settings.value("path_replacements", "[]")
+        try:
+            replacements = json.loads(raw_replacements)
+        except Exception:
+            replacements = []
+
+        if replacements and self.rig_data:
+            # Apply to in-memory data
+            # replacements is list of [find, replace]
+            for key, data in self.rig_data.items():
+                if "path" in data and data["path"]:
+                    for find_str, rep_str in replacements:
+                        if find_str in data["path"]:
+                            data["path"] = data["path"].replace(find_str, rep_str)
+
+                if "alternatives" in data:
+                    new_alts = []
+                    for alt in data["alternatives"]:
+                        for find_str, rep_str in replacements:
+                            if find_str in alt:
+                                alt = alt.replace(find_str, rep_str)
+                        new_alts.append(alt)
+                    data["alternatives"] = new_alts
 
         self.load_blacklist()
 
@@ -623,9 +766,10 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             norm_paths = [os.path.normpath(p) for p in all_paths if p]
 
             if path in norm_paths:
-                QtWidgets.QMessageBox.warning(
-                    self, "Duplicate", "File already exists in library for rig: '{}'.".format(name)
-                )
+                # Instead of popup, highlight existing
+                self._highlight_rig_by_name(name)
+                # Ensure we reset any search filter that might hide it?
+                # For now assuming it is visible or user will understand
                 return
 
         self._open_setup_dialog(mode="add", file_path=path)
@@ -639,7 +783,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         path = os.path.normpath(path)
         cols, auths, tags = self._get_autocomplete_data()
 
-        dlg = BatchAddDialog(
+        dlg = ManageRigsDialog(
             directory=path,
             rig_data=self.rig_data,
             blacklist=self.blacklist,
@@ -657,14 +801,40 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.load_data()
 
     def _on_batch_rig_added(self, name, data):
-        """Callback from BatchAddDialog when a rig is configured and added."""
+        """Callback from ManageRigsDialog when a rig is configured and added."""
         self.rig_data[name] = data
         # We don't save/reload here to avoid UI lag, the dialog exec finished will handle it
 
     def _on_blacklist_changed(self, new_blacklist):
-        """Callback from BatchAddDialog when blacklist is updated."""
+        """Callback from ManageRigsDialog when blacklist is updated."""
         self.blacklist = new_blacklist
         self.save_blacklist()
+
+    def manage_database(self, tab_index=0):
+        """Opens the Manage Rigs dialog.
+
+        Args:
+            tab_index (int): 0 for Rigs, 1 for Settings.
+        """
+        cols, auths, tags = self._get_autocomplete_data()
+
+        dlg = ManageRigsDialog(
+            directory=None,
+            rig_data=self.rig_data,
+            blacklist=self.blacklist,
+            collections=cols,
+            authors=auths,
+            tags=tags,
+            initial_tab=tab_index,
+            parent=self,
+        )
+
+        dlg.rigAdded.connect(self._on_batch_rig_added)
+        dlg.blacklistChanged.connect(self._on_blacklist_changed)
+
+        dlg.exec_()
+        self.save_data()
+        self.load_data()
 
     def edit_rig(self, rig_name):
         """Opens dialog to edit an existing rig."""
@@ -787,3 +957,23 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         inst.show(dockable=True, retain=False)
         inst.set_windowPosition()
         return inst
+
+    def _highlight_rig_by_name(self, rig_name):
+        """Scrolls to and highlights a rig widget."""
+        if rig_name in self._widgets_map:
+            wid = self._widgets_map[rig_name]
+            self.scroll.ensureWidgetVisible(wid)
+
+            # Simple flash effect using style
+            orig_style = wid.styleSheet()
+            # Assuming RigItemWidget has a specific object name or we just set style on it
+            # Let's just set a border/bg change temporarily
+            wid.setStyleSheet(".RigItemWidget { background-color: #554444; border: 2px solid #DD5555; }")
+
+            def restore():
+                try:
+                    wid.setStyleSheet(orig_style)
+                except Exception:
+                    pass
+
+            QtCore.QTimer.singleShot(1000, restore)
