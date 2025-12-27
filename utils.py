@@ -16,7 +16,7 @@ LOG = logging.getLogger("LibraryUI")
 
 # -------------------- Constants --------------------
 try:
-    MODULE_DIR = os.path.dirname(__file__)
+    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 except NameError:
     MODULE_DIR = "/"
 
