@@ -1445,6 +1445,28 @@ class ResponsiveScrollArea(QtWidgets.QScrollArea):
         return super(ResponsiveScrollArea, self).sizeHint()
 
 
+class ReplacementListWidget(QtWidgets.QListWidget):
+    """List widget that supports drag-and-drop reordering."""
+    orderChanged = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super(ReplacementListWidget, self).__init__(parent)
+        self.setDragDropMode(QtWidgets.QAbstractItemView.InternalMove)
+        self.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.setDefaultDropAction(QtCore.Qt.MoveAction)
+        self.setContentsMargins(0, 0, 0, 0)
+        self.setSpacing(2)
+        self.setMouseTracking(True)
+        # Verify drag is enabled
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+
+    def dropEvent(self, event):
+        super(ReplacementListWidget, self).dropEvent(event)
+        self.orderChanged.emit()
+
+
 class ManageRigsDialog(QtWidgets.QDialog):
     """Dialog for scanning, batch-adding, and managing rigs/settings."""
 
@@ -1621,18 +1643,14 @@ class ManageRigsDialog(QtWidgets.QDialog):
         head_lay.addSpacing(30)  # For delete button
         lay_paths.addLayout(head_lay)
 
-        # Container for rows
-        self.replacements_container = QtWidgets.QWidget()
-        self.replacements_layout = QtWidgets.QVBoxLayout(self.replacements_container)
-        self.replacements_layout.setContentsMargins(2, 8, 2, 8)
-        self.replacements_layout.setSpacing(8)
-
-        # Scroll area for many replacements
-        self.replacements_scroll = ResponsiveScrollArea()
-        self.replacements_scroll.setWidget(self.replacements_container)
-        self.replacements_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
-
-        lay_paths.addWidget(self.replacements_scroll)
+        # List for replacements (Draggable)
+        self.replacements_list = ReplacementListWidget()
+        self.replacements_list.setStyleSheet(
+            "QListWidget { background: transparent; border: 1px solid #444; border-radius: 4px; }"
+            "QListWidget::item { border-bottom: 1px solid #333; }"
+        )
+        self.replacements_list.orderChanged.connect(self._save_path_replacements_from_ui)
+        lay_paths.addWidget(self.replacements_list)
 
         # Add Button
         lay_add = QtWidgets.QHBoxLayout()
@@ -1651,11 +1669,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self._load_replacements_ui()
 
     def _load_replacements_ui(self):
-        # Clear existing
-        while self.replacements_layout.count():
-            item = self.replacements_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        self.replacements_list.clear()
 
         raw = self.settings.value("path_replacements", "[]")
         try:
@@ -1669,9 +1683,23 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self._add_replacement_row(find_txt, rep_txt)
 
     def _add_replacement_row(self, find_val, rep_val):
+        item = QtWidgets.QListWidgetItem()
+        item.setSizeHint(QtCore.QSize(0, 42))  # Fixed height for row
+
         row_widget = QtWidgets.QWidget()
         row_lay = QtWidgets.QHBoxLayout(row_widget)
-        row_lay.setContentsMargins(0, 0, 0, 0)
+        row_lay.setContentsMargins(5, 5, 5, 5)
+        row_lay.setSpacing(8)
+
+        # Handle
+        handle_lbl = QtWidgets.QLabel("☰")  # Unicode trigram for handle
+        handle_lbl.setStyleSheet("color: #666; font-size: 16px; font-weight: bold;")
+        handle_lbl.setCursor(QtCore.Qt.OpenHandCursor)
+        handle_lbl.setMouseTracking(True)
+        handle_lbl.setFixedWidth(20)
+        handle_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        handle_lbl.setToolTip("Drag to reorder")
+        row_lay.addWidget(handle_lbl)
 
         input_find = QtWidgets.QLineEdit(find_val)
         input_find.setPlaceholderText("e.g. D:/Rigs")
@@ -1684,10 +1712,10 @@ class ManageRigsDialog(QtWidgets.QDialog):
         input_rep.textChanged.connect(self._save_path_replacements_from_ui)
 
         del_btn = QtWidgets.QPushButton()
-        del_btn.setIcon(utils.get_icon("trash.svg"))  # Assuming usage of standard icon or X
+        del_btn.setIcon(utils.get_icon("trash.svg"))
         del_btn.setFixedSize(20, 20)
         del_btn.setToolTip("Remove this replacement")
-        del_btn.clicked.connect(lambda: self._remove_replacement_row(row_widget))
+        del_btn.clicked.connect(lambda: self._remove_replacement_row(item))
 
         row_lay.addWidget(input_find)
 
@@ -1698,30 +1726,31 @@ class ManageRigsDialog(QtWidgets.QDialog):
         row_lay.addWidget(input_rep)
         row_lay.addWidget(del_btn)
 
-        self.replacements_layout.addWidget(row_widget)
+        self.replacements_list.addItem(item)
+        self.replacements_list.setItemWidget(item, row_widget)
 
-        # If adding a fresh new row (empty), save immediately or wait?
-        # Saving immediately is safer for UI state consistency
-        self._save_path_replacements_from_ui()
+        # Ensure save is called if this is a new empty row adding
+        if not find_val and not rep_val:
+            self._save_path_replacements_from_ui()
 
-    def _remove_replacement_row(self, widget):
-        self.replacements_layout.removeWidget(widget)
-        widget.deleteLater()
-        # Schedule save after deletion
+    def _remove_replacement_row(self, item):
+        row = self.replacements_list.row(item)
+        self.replacements_list.takeItem(row)
+        # Schedule save
         QtCore.QTimer.singleShot(10, self._save_path_replacements_from_ui)
 
     def _save_path_replacements_from_ui(self):
         data = []
-        for i in range(self.replacements_layout.count()):
-            item = self.replacements_layout.itemAt(i)
-            wid = item.widget()
+        for i in range(self.replacements_list.count()):
+            item = self.replacements_list.item(i)
+            wid = self.replacements_list.itemWidget(item)
             if wid:
-                # Assuming layout structure: LineEdit, Label, LineEdit, Button
-                # index 0 and 2 are the line edits
+                # Layout logic: [Handle, InputFind, Arrow, InputRep, DelBtn]
+                # indices: 0=Handle, 1=InputFind, 2=Arrow, 3=InputRep, 4=DelBtn
                 layout = wid.layout()
-                if layout and layout.count() >= 3:
-                    find_edit = layout.itemAt(0).widget()
-                    rep_edit = layout.itemAt(2).widget()
+                if layout and layout.count() >= 5:
+                    find_edit = layout.itemAt(1).widget()
+                    rep_edit = layout.itemAt(3).widget()
 
                     if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
                         rep_edit, QtWidgets.QLineEdit
