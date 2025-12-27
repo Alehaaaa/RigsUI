@@ -986,19 +986,20 @@ class PillWidget(QtWidgets.QFrame):
 
         # Label
         label = QtWidgets.QLabel(text)
-        label.setStyleSheet("padding-bottom: 2px;")
+        # label.setStyleSheet("padding-bottom: 2px;")
         layout.addWidget(label)
 
         # Optional Close Button
         if close_btn:
-            self.close_btn = QtWidgets.QPushButton("✕")
+            self.close_btn = QtWidgets.QPushButton()
+            self.close_btn.setIcon(utils.get_icon("remove.svg"))
+            self.close_btn.setIconSize(QtCore.QSize(12, 12))
             self.close_btn.setFixedSize(18, 18)
             self.close_btn.setCursor(QtCore.Qt.PointingHandCursor)
             self.close_btn.setStyleSheet("""
                 QPushButton {
                     color: #aaa;
                     border-radius: 9px;
-                    padding-bottom: 2px;
                 }
                 QPushButton:hover {
                     background-color: #666;
@@ -1244,7 +1245,7 @@ class ScannerItemWidget(QtWidgets.QWidget):
             self.edit_btn.setVisible(False)
         else:
             self.blacklist_btn = QtWidgets.QPushButton()
-            self.blacklist_btn.setIcon(utils.get_icon("blacklist.svg"))
+            self.blacklist_btn.setIcon(utils.get_icon("remove.svg"))
             self.blacklist_btn.setToolTip("Don't show this file again")
             self.blacklist_btn.setFixedSize(22, 22)
             self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
