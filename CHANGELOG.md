@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8] - 2025-12-27
+### 🚀 Added
+- **Batch Add Rigs**: New tool to scan entire directories for Maya files. Categorizes rigs as *New*, *In Database*, or *Blacklisted*.
+- **Standalone Blacklist**: New blacklist management with a dedicated `blacklist.json` file.
+- **Filter Button Counter**: The Filters button now displays the number of active filters (e.g., `Filters (2)`).
+
+### 📦 Changed
+- **Batch Add UX**: 
+    - Improved path display with two-tone eliding (grey directory, highlighted filename).
+    - Disabled the "Edit" button for rigs recognized as *Alternatives* to prevent accidental primary-entry overwrites.
+- **Data Integrity**: `load_data` now automatically cleans up the database by removing duplicate paths in alternatives.
+
+### 🐛 Fixed
+- **Scroll Position Persistence**: The library grid now maintains your scroll position when reloading data or refreshing the UI.
+
 ## [0.0.7] - 2025-12-27
 ### 🚀 Added
 - **Author "Empty" Support**: Rigs without an author are now grouped under the *Empty* Author tag.
@@ -12,7 +27,7 @@ All notable changes to this project will be documented in this file.
 - **Edit UI Refinement**: In the Rig Setup dialog, metadata fields containing "Empty" values now display as blank.
 
 ### 🤖 Testing
-- **Rig Scanner powered by AI**: Testing an integrated powerful Python-based scanner temporarily using the **Gemini API** to automatically index rig folders, extract metadata and more.
+- **Rig Scanner powered by AI**: Testing an integrated sed scanner temporarily using the **Gemini API** to automatically index rig folders, write metadata and more.
 
 ## [0.0.6] - 2025-12-26
 ### 🚀 Added

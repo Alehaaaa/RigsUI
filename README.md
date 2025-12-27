@@ -10,7 +10,8 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 - **Sorting**: Sort library by Name, Collection, or Author.
 - **Context Actions**: Right-click to Edit Details, Open Rig Scene, Show in Folder, or Remove Rig.
 - **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
-- **JSON Database**: Lightweight and portable data storage (`rigs_database.json`).
+- **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion.
+- **JSON Database**: Lightweight and portable data storage (`rigs_database.json` and `blacklist.json`).
 - **Python 2 & 3 Compatible**: Works across multiple Maya versions.
 
 ## Installation
@@ -30,10 +31,17 @@ RigsUI.show()
 ```
 
 ### Adding Rigs
-1. Click the **+** (Plus) button in the top-left corner.
+
+**Singular Add**:
+1. Click the **+** (Plus) button and select **Add Single Rig...**.
 2. Select a Maya file (`.ma` or `.mb`).
 3. Fill in the details (Name, Collection, Author, Tags).
 4. The rig is added to the library.
+
+**Batch Add**:
+1. Click the **+** (Plus) button and select **Batch Add Rigs from Folder...**.
+2. Select a directory to scan.
+3. Review discovered rigs, categorize them, or add them instantly using the scanner UI.
 
 ### Managing Rigs
 1. **Info & Edit**: Click the (i) button to view rig details. 
@@ -45,7 +53,8 @@ RigsUI.show()
 
 ## Requirements
 
-- Autodesk Maya (Supported versions: 2019+ recommended)
+- Autodesk Maya 2022+ or higher.
+- Python 3. Working on Python 2 compatibility.
 - Standard Maya Python environment (`maya.cmds`, `PySide2` or `PySide6`)
 
 ## Issues
@@ -58,7 +67,8 @@ Contributions are welcome! Please submit a pull request.
 
 ## Transparency
 
-The source code was written by me, **Alehaaaa**, with significant assistance from AI tools. Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
+The source code was written by me, **Alehaaaa**, with significant assistance from AI tools.
+Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
 
 - Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
 - And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)

@@ -17,6 +17,8 @@ from . import utils
 # -------------------- Logging --------------------
 LOG = logging.getLogger("LibraryUI")
 
+CONTEXTUAL_CURSOR = QtGui.QCursor(QtGui.QPixmap(":/rmbMenu.png"), hotX=11, hotY=8)
+
 
 # -------------------- Flow Layout --------------------
 class FlowLayout(QtWidgets.QLayout):
@@ -171,6 +173,8 @@ class FilterMenu(QtWidgets.QPushButton):
         super(FilterMenu, self).__init__(title, parent)
         self.menu = OpenMenu(self)
         self.setMenu(self.menu)
+        self._base_title = title
+        self._update_button_text()
 
     def set_items(self, sections):
         self.menu.clear()
@@ -195,8 +199,10 @@ class FilterMenu(QtWidgets.QPushButton):
         clear_action.setIcon(utils.get_icon("trash.svg"))
         clear_action.triggered.connect(self.clear_selection)
         self.menu.addAction(clear_action)
+        self._update_button_text()
 
     def _on_change(self, checked):
+        self._update_button_text()
         self.selectionChanged.emit()
 
     def clear_selection(self):
@@ -208,6 +214,7 @@ class FilterMenu(QtWidgets.QPushButton):
                 action.blockSignals(False)
                 valid = True
         if valid:
+            self._update_button_text()
             self.selectionChanged.emit()
 
     def get_selected(self):
@@ -241,6 +248,12 @@ class FilterMenu(QtWidgets.QPushButton):
                         action.blockSignals(True)
                         action.setChecked(should_check)
                         action.blockSignals(False)
+        self._update_button_text()
+
+    def _update_button_text(self):
+        selected = self.get_selected()
+        count = sum(len(vals) for vals in selected.values())
+        self.setText("{} ({})".format(self._base_title, count))
 
 
 class SortMenu(QtWidgets.QPushButton):
@@ -342,7 +355,6 @@ class ClickableLabel(QtWidgets.QLabel):
                     QtCore.Qt.SmoothTransformation,
                 )
             )
-            self.setCursor(QtCore.Qt.ArrowCursor)
             self._clickable = False
         else:
             self.setPixmap(QtGui.QPixmap())
@@ -408,6 +420,7 @@ class RigItemWidget(QtWidgets.QFrame):
 
         self.info_btn = QtWidgets.QPushButton()
         self.info_btn.setIcon(utils.get_icon("info.svg"))
+        self.info_btn.setCursor(CONTEXTUAL_CURSOR)
         self.info_btn.setFixedSize(25, 25)
         self.info_btn.clicked.connect(self.show_info)
         btn_layout.addWidget(self.info_btn, 0)
@@ -422,6 +435,7 @@ class RigItemWidget(QtWidgets.QFrame):
 
         # Edit Actions
         edit_action = menu.addAction("Edit Details")
+        edit_action.setIcon(utils.get_icon("edit.svg"))
         edit_action.triggered.connect(lambda: self.editRequested.emit(self.name))
 
         menu.addSeparator()
@@ -844,6 +858,486 @@ class TagsLineEdit(QtWidgets.QLineEdit):
 
         self.setText(new_text)
         self.setCursorPosition(len(new_text) - len(remaining))
+
+
+# -------------------- Batch Add / Scanner --------------------
+
+
+class ScannerWorker(QtCore.QThread):
+    """Background thread to scan for Maya files and categorize them."""
+
+    fileDiscovered = QtCore.Signal(str, str)  # path, category: 'new', 'exists', 'blacklisted'
+    finished = QtCore.Signal()
+
+    def __init__(self, directory, existing_paths, blacklist, parent=None):
+        super(ScannerWorker, self).__init__(parent)
+        self.directory = directory
+        self.existing_paths = existing_paths  # Set of normalized paths
+        self.blacklist = blacklist  # Set/List of normalized paths
+        self._is_running = True
+
+    def run(self):
+        for root, dirs, files in os.walk(self.directory):
+            if not self._is_running:
+                break
+
+            # Skip common hidden/system/cache folders
+            dirs[:] = [
+                d for d in dirs if not (d.startswith(".") or d.endswith(".anim") or d == "__pycache__")
+            ]
+
+            for f in files:
+                if not self._is_running:
+                    break
+                if f.lower().endswith((".ma", ".mb")):
+                    path = os.path.normpath(os.path.join(root, f))
+                    # Check against sets using normalized path
+                    lookup_path = path if sys.platform != "win32" else path.lower()
+                    if lookup_path in self.blacklist:
+                        self.fileDiscovered.emit(path, "blacklisted")
+                    elif lookup_path in self.existing_paths:
+                        self.fileDiscovered.emit(path, "exists")
+                    else:
+                        self.fileDiscovered.emit(path, "new")
+        self.finished.emit()
+
+    def stop(self):
+        self._is_running = False
+
+
+class ScannerItemWidget(QtWidgets.QWidget):
+    """Horizontal widget for a discovered file in the scanner list."""
+
+    editRequested = QtCore.Signal(str)
+    blacklistRequested = QtCore.Signal(str)
+    whitelistRequested = QtCore.Signal(str)
+
+    def __init__(self, path, category, parent=None):
+        super(ScannerItemWidget, self).__init__(parent)
+        self.path = path
+        self.category = category  # 'new', 'exists', 'blacklisted'
+
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(5, 2, 5, 2)
+        layout.setSpacing(5)
+
+        # Path Label (Elided)
+        self.path_lbl = QtWidgets.QLabel(path)
+        self.path_lbl.setToolTip(path)
+        self.path_lbl.setStyleSheet("font-size: 9pt;")
+        self.path_lbl.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
+        self._is_added = False
+        layout.addWidget(self.path_lbl, 1)
+
+        # Buttons
+        self.btn_layout = QtWidgets.QHBoxLayout()
+        self.btn_layout.setSpacing(4)
+        layout.addLayout(self.btn_layout)
+
+        self.edit_btn = QtWidgets.QPushButton()
+        if category == "new":
+            # self.edit_btn.setText("Add")
+            self.edit_btn.setIcon(utils.get_icon("add.svg"))
+            self.edit_btn.setToolTip("Configure and add/update this rig")
+            self.edit_btn.setFixedSize(22, 22)
+        else:
+            # self.edit_btn.setText("Edit")
+            self.edit_btn.setIcon(utils.get_icon("edit.svg"))
+            self.edit_btn.setToolTip("Configure and add/update this rig")
+            self.edit_btn.setFixedSize(22, 22)
+        self.edit_btn.clicked.connect(lambda: self.editRequested.emit(self.path))
+        self.btn_layout.addWidget(self.edit_btn)
+
+        if category == "blacklisted":
+            self.whitelist_btn = QtWidgets.QPushButton()
+            self.whitelist_btn.setIcon(utils.get_icon("whitelist.svg"))
+            # self.whitelist_btn.setText("Whitelist")
+            self.whitelist_btn.setToolTip("Remove from blacklist")
+            self.whitelist_btn.setFixedSize(22, 22)
+            self.whitelist_btn.clicked.connect(lambda: self.whitelistRequested.emit(self.path))
+            self.btn_layout.addWidget(self.whitelist_btn)
+            self.edit_btn.setVisible(False)
+        else:
+            self.blacklist_btn = QtWidgets.QPushButton()
+            self.blacklist_btn.setIcon(utils.get_icon("blacklist.svg"))
+            # self.blacklist_btn.setText("Blacklist")
+            self.blacklist_btn.setToolTip("Don't show this file again")
+            self.blacklist_btn.setFixedSize(22, 22)
+            self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
+            self.btn_layout.addWidget(self.blacklist_btn)
+
+            if category == "exists":
+                self.path_lbl.setStyleSheet("QLabel { color: #aaa; font-size: 9pt; }")
+
+    def paintEvent(self, event):
+        """Update elided text on the path label manually to ensure it fits with two-tone colors."""
+        super(ScannerItemWidget, self).paintEvent(event)
+        width = self.path_lbl.width()
+        if width <= 0:
+            return
+
+        metrics = QtGui.QFontMetrics(self.path_lbl.font())
+        elided = metrics.elidedText(self.path, QtCore.Qt.ElideLeft, width)
+
+        # Base colors
+        dir_color = "gray"
+        file_color = "#eee"
+
+        # State-based color overrides
+        if self._is_added:
+            dir_color = "gray"
+            file_color = "#7cb380"  # Soft green
+        elif self.category == "exists":
+            dir_color = "gray"
+            file_color = "#aaa"
+        elif self.category == "blacklisted":
+            dir_color = "gray"
+            file_color = "#aaa"
+
+        # Split elided text into directory and filename
+        idx = max(elided.rfind("/"), elided.rfind("\\"))
+        if idx != -1:
+            dir_part = elided[: idx + 1]
+            file_part = elided[idx + 1 :]
+
+            # Apply bold if added
+            if self._is_added:
+                file_part = "<b>{}</b>".format(file_part)
+
+            rich_text = "<span style='color: {};'>{}</span><span style='color: {};'>{}</span>".format(
+                dir_color, dir_part, file_color, file_part
+            )
+        else:
+            rich_text = "<span style='color: {};'>{}</span>".format(file_color, elided)
+
+        # Update if changed
+        if getattr(self, "_last_rich_text", "") != rich_text:
+            self._last_rich_text = rich_text
+            self.path_lbl.setText(rich_text)
+
+    def set_added(self):
+        """Update visual state when rig is added to DB."""
+        self._is_added = True
+        self.edit_btn.setText("Edit")
+        # styleSheet still sets basic props, paintEvent handles colors/bold
+        self.path_lbl.setStyleSheet("font-weight: bold; font-size: 9pt;")
+        self._last_rich_text = ""  # Force refresh
+        self.update()
+
+    def set_category(self, category):
+        """Switch the category and update UI buttons/styles."""
+        self.category = category
+
+        # Cleanup existing dynamic buttons
+        if hasattr(self, "blacklist_btn"):
+            self.blacklist_btn.setParent(None)
+            self.blacklist_btn.deleteLater()
+            del self.blacklist_btn
+        if hasattr(self, "whitelist_btn"):
+            self.whitelist_btn.setParent(None)
+            self.whitelist_btn.deleteLater()
+            del self.whitelist_btn
+
+        self.edit_btn.setText("Add" if category == "new" else "Edit")
+        self.edit_btn.setVisible(category != "blacklisted")
+
+        if category == "blacklisted":
+            self.whitelist_btn = QtWidgets.QPushButton()
+            self.whitelist_btn.setText("Whitelist")
+            self.whitelist_btn.setToolTip("Remove from blacklist")
+            self.whitelist_btn.setFixedSize(65, 22)
+            self.whitelist_btn.clicked.connect(lambda: self.whitelistRequested.emit(self.path))
+            self.btn_layout.addWidget(self.whitelist_btn)
+            self.path_lbl.setStyleSheet("font-size: 9pt;")  # Reset style, color handled by paintEvent
+        else:
+            self.blacklist_btn = QtWidgets.QPushButton()
+            self.blacklist_btn.setText("Blacklist")
+            self.blacklist_btn.setToolTip("Don't show this file again")
+            self.blacklist_btn.setFixedSize(65, 22)
+            self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
+            self.btn_layout.addWidget(self.blacklist_btn)
+
+            # Reset style, color handled by paintEvent
+            self.path_lbl.setStyleSheet("font-size: 9pt;")
+
+
+class CollapsibleSection(QtWidgets.QWidget):
+    """A section that can be toggled to show/hide its scrolled content."""
+
+    def __init__(self, title, parent=None):
+        super(CollapsibleSection, self).__init__(parent)
+        self._items = []
+
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(2)
+
+        self.btn = QtWidgets.QPushButton(title)
+        self.btn.setCheckable(True)
+        self.btn.setChecked(False)
+        self.btn.setStyleSheet(
+            "QPushButton { text-align: left; font-weight: bold; background: #333; padding: 6px; border: none; border-radius: 3px; }"
+            "QPushButton:hover { background: #3a3a3a; }"
+            "QPushButton:checked { background: #3a3a3a; }"
+        )
+        self.btn.toggled.connect(self._toggle)
+
+        # Scroll Area for content
+        self.scroll = QtWidgets.QScrollArea()
+        self.scroll.setWidgetResizable(True)
+        self.scroll.setMaximumHeight(200)
+        self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+        self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.scroll.setVisible(False)
+        self.scroll.setStyleSheet("QScrollArea { border: 1px solid #333; border-top: none; }")
+
+        self.container = QtWidgets.QWidget()
+        self.content_layout = QtWidgets.QVBoxLayout(self.container)
+        self.content_layout.setContentsMargins(5, 5, 5, 5)
+        self.content_layout.setSpacing(2)
+        self.content_layout.addStretch()
+        self.scroll.setWidget(self.container)
+
+        layout.addWidget(self.btn)
+        layout.addWidget(self.scroll)
+
+    def _toggle(self, checked):
+        self.scroll.setVisible(checked)
+        self.update_title()
+
+    def addWidget(self, widget):
+        self._items.append(widget)
+        self.content_layout.insertWidget(self.content_layout.count() - 1, widget)
+        self.update_title()
+
+    def removeWidget(self, widget):
+        if widget in self._items:
+            self._items.remove(widget)
+            self.content_layout.removeWidget(widget)
+            widget.setParent(None)
+            self.update_title()
+
+    def update_title(self):
+        base_title = self.btn.text().split(" (")[0]
+        self.btn.setText(f"{base_title} ({len(self._items)})")
+
+
+class BatchAddDialog(QtWidgets.QDialog):
+    """Main dialog for scanning and batch-adding rigs."""
+
+    rigAdded = QtCore.Signal(str, dict)
+    blacklistChanged = QtCore.Signal(list)
+
+    def __init__(self, directory, rig_data, blacklist, collections, authors, tags, parent=None):
+        super(BatchAddDialog, self).__init__(parent)
+        self.setWindowTitle("Batch Add Rigs - " + os.path.basename(directory))
+        self.resize(700, 600)
+
+        self.directory = directory
+        self.rig_data = rig_data
+        self.blacklist = list(blacklist)
+        self.collections = collections
+        self.authors = authors
+        self.tags = tags
+
+        self.existing_paths = {}  # Normalized lookup -> name
+        self.alternative_paths = set()  # Normalized lookup set
+        for name, d in rig_data.items():
+            if name.startswith("_"):
+                continue
+
+            # Map main path
+            main_p = d.get("path")
+            if main_p:
+                norm_p = os.path.normpath(main_p)
+                lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
+                self.existing_paths[lookup_p] = name
+
+            # Map alternatives
+            for alt in d.get("alternatives", []):
+                if not alt:
+                    continue
+                norm_p = os.path.normpath(alt)
+                lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
+                self.existing_paths[lookup_p] = name
+                self.alternative_paths.add(lookup_p)
+
+        self._widgets_map = {}  # original path -> widget
+
+        self._build_ui()
+        self._start_scan()
+
+    def _build_ui(self):
+        layout = QtWidgets.QVBoxLayout(self)
+
+        layout.addWidget(QtWidgets.QLabel(f"Scanning: <i>{self.directory}</i>"))
+
+        # New Rigs Section
+        layout.addWidget(QtWidgets.QLabel("<b>Discovered New Rigs:</b>"))
+        self.scroll_new = QtWidgets.QScrollArea()
+        self.scroll_new.setWidgetResizable(True)
+        self.scroll_new.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.container_new = QtWidgets.QWidget()
+        self.layout_new = QtWidgets.QVBoxLayout(self.container_new)
+        self.layout_new.setContentsMargins(5, 5, 5, 5)
+        self.layout_new.setSpacing(2)
+
+        # Status Label inside new scroll
+        self._status_lbl = QtWidgets.QLabel("Searching for rigs...")
+        self._status_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self._status_lbl.setStyleSheet("color: #888; font-style: italic; margin-top: 10px;")
+        self.layout_new.addWidget(self._status_lbl)
+
+        self.layout_new.addStretch()
+        self.scroll_new.setWidget(self.container_new)
+        layout.addWidget(self.scroll_new, 3)
+
+        # Existing Rigs Section
+        self.sec_exists = CollapsibleSection("In Database")
+        layout.addWidget(self.sec_exists)
+
+        # Blacklisted Section
+        self.sec_black = CollapsibleSection("Blacklisted")
+        layout.addWidget(self.sec_black)
+
+        # Footer
+        btns = QtWidgets.QHBoxLayout()
+        btns.addStretch()
+        self.done_btn = QtWidgets.QPushButton("Done")
+        self.done_btn.clicked.connect(self.accept)
+        btns.addWidget(self.done_btn)
+        layout.addLayout(btns)
+
+    def _start_scan(self):
+        # Create normalized sets for fast, case-consistent lookup
+        lookup_existing = set(self.existing_paths.keys())
+        lookup_blacklist = set()
+        for p in self.blacklist:
+            norm_p = os.path.normpath(p)
+            lookup_blacklist.add(norm_p if sys.platform != "win32" else norm_p.lower())
+
+        self.worker = ScannerWorker(self.directory, lookup_existing, lookup_blacklist, self)
+        self.worker.fileDiscovered.connect(self._on_file_discovered)
+        self.worker.finished.connect(self._on_scan_finished)
+        self.worker.start()
+
+    def _on_scan_finished(self):
+        """Update status label if nothing was found."""
+        has_new = False
+        for wid in self._widgets_map.values():
+            if wid.category == "new":
+                has_new = True
+                break
+
+        if not has_new:
+            self._status_lbl.setText("No new rigs found in this directory.")
+            self._status_lbl.setVisible(True)
+        else:
+            self._status_lbl.setVisible(False)
+
+    def _on_file_discovered(self, path, category):
+        if category == "new":
+            self._status_lbl.setVisible(False)
+
+        item = ScannerItemWidget(path, category)
+
+        # Disable edit if it's an alternative
+        if category == "exists":
+            norm_p = os.path.normpath(path)
+            lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
+            if lookup_p in self.alternative_paths:
+                item.edit_btn.setEnabled(False)
+                item.edit_btn.setToolTip(
+                    "Path exists as an alternative file for rig: '{}'".format(self.existing_paths[lookup_p])
+                )
+
+        item.editRequested.connect(self._on_edit_request)
+        item.blacklistRequested.connect(self._on_blacklist_request)
+        item.whitelistRequested.connect(self._on_whitelist_request)
+
+        self._widgets_map[path] = item
+
+        if category == "new":
+            self.layout_new.insertWidget(self.layout_new.count() - 1, item)
+        elif category == "exists":
+            self.sec_exists.addWidget(item)
+        elif category == "blacklisted":
+            self.sec_black.addWidget(item)
+
+    def _on_edit_request(self, path):
+        rig_name = self.existing_paths.get(path)
+        mode = "edit" if rig_name else "add"
+        rig_data = self.rig_data.get(rig_name) if rig_name else None
+
+        dlg = RigSetupDialog(
+            existing_names=list(self.rig_data.keys()),
+            collections=self.collections,
+            authors=self.authors,
+            tags=self.tags,
+            mode=mode,
+            file_path=path,
+            rig_name=rig_name,
+            rig_data=rig_data,
+            parent=self,
+        )
+
+        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+            res = dlg.result_data
+            if res:
+                self.rigAdded.emit(res["name"], res["data"])
+                self.rig_data[res["name"]] = res["data"]
+                self.existing_paths[path] = res["name"]
+
+                item = self._widgets_map.get(path)
+                if item:
+                    item.set_added()
+
+    def _on_blacklist_request(self, path):
+        norm_path = os.path.normpath(path)
+        if norm_path not in self.blacklist:
+            self.blacklist.append(norm_path)
+            self.blacklistChanged.emit(self.blacklist)
+
+            item = self._widgets_map.get(path)
+            if item:
+                # Move to blacklist section
+                if item.category == "new":
+                    self.layout_new.removeWidget(item)
+                elif item.category == "exists":
+                    self.sec_exists.removeWidget(item)
+
+                item.set_category("blacklisted")
+                self.sec_black.addWidget(item)
+
+    def _on_whitelist_request(self, path):
+        norm_path = os.path.normpath(path)
+        if norm_path in self.blacklist:
+            self.blacklist.remove(norm_path)
+            self.blacklistChanged.emit(self.blacklist)
+
+            item = self._widgets_map.get(path)
+            if item:
+                self.sec_black.removeWidget(item)
+
+                # Determine where it should go back
+                lookup_p = norm_path if sys.platform != "win32" else norm_path.lower()
+                is_exists = lookup_p in self.existing_paths
+                item.set_category("exists" if is_exists else "new")
+
+                if is_exists:
+                    # Re-check if it was an alternative to disable edit button
+                    if lookup_p in self.alternative_paths:
+                        item.edit_btn.setEnabled(False)
+                        item.edit_btn.setToolTip(
+                            "Path exists as an alternative file for rig: '{}'".format(
+                                self.existing_paths[lookup_p]
+                            )
+                        )
+                    self.sec_exists.addWidget(item)
+                else:
+                    self.layout_new.insertWidget(self.layout_new.count() - 1, item)
 
 
 class RigSetupDialog(QtWidgets.QDialog):

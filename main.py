@@ -4,7 +4,7 @@ import io
 import sys
 import json
 import logging
-from .widgets import FilterMenu, FlowLayout, RigItemWidget, RigSetupDialog, SortMenu
+from .widgets import BatchAddDialog, FilterMenu, FlowLayout, OpenMenu, RigItemWidget, RigSetupDialog, SortMenu
 
 import maya.cmds as cmds  # type: ignore
 from . import utils
@@ -36,9 +36,10 @@ try:
     with io.open(os.path.join(utils.MODULE_DIR, "VERSION"), "r", encoding="utf-8") as f:
         VERSION = f.read().strip()
 except Exception:
-    VERSION = "0.0.3 alpha"
+    VERSION = "0.0.0"
 
 RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs_database.json")
+BLACKLIST_JSON = os.path.join(utils.MODULE_DIR, "blacklist.json")
 
 # Ensure images dir exists
 if not os.path.exists(utils.IMAGES_DIR):
@@ -206,6 +207,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.settings = QtCore.QSettings(self.TOOL_TITLE, None)
 
         self.rig_data = {}
+        self.blacklist = []
         self._widgets_map = {}  # Cache for widgets: {name: RigItemWidget}
 
         # Threading
@@ -227,8 +229,18 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.add_btn = QtWidgets.QPushButton()
         self.add_btn.setIcon(utils.get_icon("add.svg"))
         self.add_btn.setFixedSize(25, 25)
-        self.add_btn.setToolTip("Add new rig from file")
-        self.add_btn.clicked.connect(self.add_new_rig)
+        self.add_btn.setToolTip("Add new rig(s)")
+
+        self.add_menu = OpenMenu(self)
+        self.add_menu.addAction("Add Single Rig...", self.add_new_rig)
+        self.add_menu.addAction("Batch Add Rigs from Folder...", self.batch_add_rigs)
+        self.add_btn.setMenu(self.add_menu)
+        self.add_btn.setIconSize(QtCore.QSize(16, 16))
+        self.add_btn.setStyleSheet(
+            "QPushButton { padding: 0px; margin: 0px; }"
+            "QPushButton::menu-indicator { image: none; width: 0px; }"
+        )
+
         top_layout.addWidget(self.add_btn)
 
         # Search
@@ -275,8 +287,15 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     # ---------- Data Management ----------
 
-    def load_data(self):
+    def load_data(self, restore_scroll=True):
         """Loads data from JSON and updates the UI filter menus and grid."""
+        scroll_pos = 0
+        if restore_scroll:
+            try:
+                scroll_pos = self.scroll.verticalScrollBar().value()
+            except Exception:
+                pass
+
         if os.path.exists(RIGS_JSON):
             try:
                 with io.open(RIGS_JSON, "r", encoding="utf-8") as f:
@@ -287,6 +306,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         else:
             self.rig_data = {}
 
+        self.load_blacklist()
+
         # Scan for metadata
         collections = set()
         all_tags = set()
@@ -295,7 +316,30 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         has_empty_collection = False
         has_empty_author = False
 
-        for details in self.rig_data.values():
+        for key, details in self.rig_data.items():
+            if key.startswith("_"):
+                continue
+
+            # Cleanup alternatives: remove duplicates and main path
+            main_path = details.get("path", "")
+            norm_main = os.path.normpath(main_path).lower() if main_path else ""
+
+            alts = details.get("alternatives", [])
+            if alts:
+                cleaned_alts = []
+                seen_alts = set()
+                for alt in alts:
+                    if not alt:
+                        continue
+                    norm_alt = os.path.normpath(alt).lower()
+                    if norm_alt == norm_main:
+                        continue
+                    if norm_alt in seen_alts:
+                        continue
+                    seen_alts.add(norm_alt)
+                    cleaned_alts.append(alt)
+                details["alternatives"] = cleaned_alts
+
             # Collections
             val = details.get("collection")
             if val and val != "Empty":
@@ -337,6 +381,30 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.load_filters()
         self._populate_grid()
+
+        if restore_scroll:
+            # Restore scroll after layout has had a chance to update
+            QtCore.QTimer.singleShot(10, lambda: self.scroll.verticalScrollBar().setValue(scroll_pos))
+
+    def load_blacklist(self):
+        """Loads blacklist from separate JSON."""
+        if os.path.exists(BLACKLIST_JSON):
+            try:
+                with io.open(BLACKLIST_JSON, "r", encoding="utf-8") as f:
+                    self.blacklist = json.load(f)
+            except Exception as e:
+                LOG.error("Failed to load blacklist: {}".format(e))
+                self.blacklist = []
+        else:
+            self.blacklist = []
+
+    def save_blacklist(self):
+        """Saves current blacklist to its own JSON."""
+        try:
+            with io.open(BLACKLIST_JSON, "w", encoding="utf-8") as f:
+                json.dump(self.blacklist, f, indent=4, ensure_ascii=False)
+        except Exception as e:
+            LOG.error("Failed to save blacklist: {}".format(e))
 
     def save_data(self):
         """Saves current rig_data to JSON."""
@@ -389,7 +457,20 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 return (val.lower(), name.lower())
             return name.lower()
 
-        sorted_items = sorted(self.rig_data.items(), key=sort_key_func, reverse=not ascending)
+        blacklist = set(self.blacklist)
+        rig_items = []
+        for n, d in self.rig_data.items():
+            if n.startswith("_"):
+                continue
+
+            # Skip if the main path is blacklisted
+            path = d.get("path")
+            if path and os.path.normpath(path) in blacklist:
+                continue
+
+            rig_items.append((n, d))
+
+        sorted_items = sorted(rig_items, key=sort_key_func, reverse=not ascending)
 
         # 4. Re-add widgets in order
         for name, data in sorted_items:
@@ -480,7 +561,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         authors = set()
         all_tags = set()
 
-        for details in self.rig_data.values():
+        for name, details in self.rig_data.items():
+            if name.startswith("_"):
+                continue
             if details.get("collection"):
                 collections.add(details.get("collection"))
             if details.get("author"):
@@ -493,7 +576,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     def _open_setup_dialog(self, mode, file_path=None, rig_name=None, rig_data=None):
         """Shared logic for opening the add/edit dialog."""
         cols, auths, tags = self._get_autocomplete_data()
-        existing_names = list(self.rig_data.keys())
+        existing_names = [n for n in self.rig_data.keys() if not n.startswith("_")]
 
         dlg = RigSetupDialog(
             existing_names=existing_names,
@@ -533,12 +616,55 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # Check for duplicates
         for name, data in self.rig_data.items():
-            existing_path = os.path.normpath(data.get("path", ""))
-            if existing_path == path:
-                QtWidgets.QMessageBox.warning(self, "Duplicate", "File already exists as '{}'.".format(name))
+            if name.startswith("_"):
+                continue
+            # Check main path and alternatives
+            all_paths = [data.get("path", "")] + data.get("alternatives", [])
+            norm_paths = [os.path.normpath(p) for p in all_paths if p]
+
+            if path in norm_paths:
+                QtWidgets.QMessageBox.warning(
+                    self, "Duplicate", "File already exists in library for rig: '{}'.".format(name)
+                )
                 return
 
         self._open_setup_dialog(mode="add", file_path=path)
+
+    def batch_add_rigs(self):
+        """Opens dialog to select a directory for batch adding rigs."""
+        path = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory to Scan for Rigs")
+        if not path:
+            return
+
+        path = os.path.normpath(path)
+        cols, auths, tags = self._get_autocomplete_data()
+
+        dlg = BatchAddDialog(
+            directory=path,
+            rig_data=self.rig_data,
+            blacklist=self.blacklist,
+            collections=cols,
+            authors=auths,
+            tags=tags,
+            parent=self,
+        )
+
+        dlg.rigAdded.connect(self._on_batch_rig_added)
+        dlg.blacklistChanged.connect(self._on_blacklist_changed)
+
+        dlg.exec_()
+        self.save_data()
+        self.load_data()
+
+    def _on_batch_rig_added(self, name, data):
+        """Callback from BatchAddDialog when a rig is configured and added."""
+        self.rig_data[name] = data
+        # We don't save/reload here to avoid UI lag, the dialog exec finished will handle it
+
+    def _on_blacklist_changed(self, new_blacklist):
+        """Callback from BatchAddDialog when blacklist is updated."""
+        self.blacklist = new_blacklist
+        self.save_blacklist()
 
     def edit_rig(self, rig_name):
         """Opens dialog to edit an existing rig."""

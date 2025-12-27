@@ -1339,20 +1339,22 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\casey_rig.ma",
         "image": null,
         "tags": [
-            "human"
+            "human",
+            "baby",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
-        "alternatives": []
+        "exists": true
     },
     "Dex": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\dex_rig.ma",
         "image": null,
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1364,34 +1366,37 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\ellie_rig.ma",
         "image": null,
         "tags": [
-            "female",
-            "human"
+            "kid",
+            "human",
+            "basic",
+            "female"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
-        "alternatives": []
+        "exists": true
     },
     "Fred": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\fred_rig.ma",
         "image": null,
         "tags": [
+            "male",
             "human",
-            "male"
+            "old",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
-        "alternatives": []
+        "exists": true
     },
     "Herc": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\herc_rig.ma",
         "image": null,
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1404,7 +1409,8 @@
         "image": null,
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1417,20 +1423,8 @@
         "image": null,
         "tags": [
             "female",
-            "human"
-        ],
-        "collection": "Body Mechanics Rigs",
-        "author": "Joe Daniels",
-        "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
-        "alternatives": []
-    },
-    "Jj": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jj_rig.ma",
-        "image": null,
-        "tags": [
             "human",
-            "male"
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1443,7 +1437,8 @@
         "image": null,
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1456,7 +1451,8 @@
         "image": null,
         "tags": [
             "female",
-            "human"
+            "human",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1469,7 +1465,8 @@
         "image": null,
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
@@ -1960,6 +1957,21 @@
         ],
         "collection": "Empty",
         "author": "Jonathan Cooper",
-        "link": "https://joedanimation.gumroad.com/l/juiceboxrigmaya"
+        "link": "https://joedanimation.gumroad.com/l/juiceboxrigmaya",
+        "exists": true
+    },
+    "JJ": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jj_rig.ma",
+        "image": null,
+        "tags": [
+            "male",
+            "human",
+            "kid",
+            "basic"
+        ],
+        "collection": "Body Mechanics Rigs",
+        "author": "Joe Daniels",
+        "link": "https://joedanimation.gumroad.com/l/xhRK",
+        "exists": true
     }
 }
