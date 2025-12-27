@@ -128,9 +128,7 @@ class FlowLayout(QtWidgets.QLayout):
 
 class OpenMenu(QtWidgets.QMenu):
     def __init__(self, title=None, parent=None):
-        super(OpenMenu, self).__init__(title, parent) if title else super(OpenMenu, self).__init__(
-            parent
-        )
+        super(OpenMenu, self).__init__(title, parent) if title else super(OpenMenu, self).__init__(parent)
         self.setSeparatorsCollapsible(False)
         if parent and hasattr(parent, "destroyed"):
             parent.destroyed.connect(self.close)
@@ -140,7 +138,20 @@ class OpenMenu(QtWidgets.QMenu):
         if isinstance(action, QtWidgets.QWidgetAction):
             return
 
+    def showEvent(self, event):
+        self._show_time = QtCore.QDateTime.currentMSecsSinceEpoch()
+        self._show_pos = QtGui.QCursor.pos()
+        super(OpenMenu, self).showEvent(event)
+
     def mouseReleaseEvent(self, e):
+        # Prevent accidental trigger if menu was just opened via QPushButton click
+        # Ignoring release if it's within 200ms and mouse hasn't moved much
+        if hasattr(self, "_show_time"):
+            time_diff = QtCore.QDateTime.currentMSecsSinceEpoch() - self._show_time
+            pos_diff = (QtGui.QCursor.pos() - self._show_pos).manhattanLength()
+            if time_diff < 200 and pos_diff < 5:
+                return
+
         action = self.actionAt(e.pos())
         if action and action.isEnabled():
             action.setEnabled(False)
@@ -355,6 +366,7 @@ class RigItemWidget(QtWidgets.QFrame):
     filterRequested = QtCore.Signal(str, str)
     editRequested = QtCore.Signal(str)
     removeRequested = QtCore.Signal(str)
+    refreshRequested = QtCore.Signal()
 
     def __init__(self, name, data, parent=None):
         super(RigItemWidget, self).__init__(parent)
@@ -372,6 +384,9 @@ class RigItemWidget(QtWidgets.QFrame):
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(5, 5, 5, 5)
         layout.setSpacing(5)
+
+        self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+        self.customContextMenuRequested.connect(self.show_context_menu)
 
         # Image
         self.image_lbl = ClickableLabel()
@@ -395,15 +410,15 @@ class RigItemWidget(QtWidgets.QFrame):
         self.info_btn.setIcon(utils.get_icon("info.svg"))
         self.info_btn.setFixedSize(25, 25)
         self.info_btn.clicked.connect(self.show_info)
-        self.info_btn.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
-        self.info_btn.customContextMenuRequested.connect(self.show_info_btn_context_menu)
         btn_layout.addWidget(self.info_btn, 0)
 
         layout.addLayout(btn_layout)
         self._formatTooltip()
 
-    def show_info_btn_context_menu(self, pos):
-        menu = QtWidgets.QMenu(self.info_btn)
+    def show_context_menu(self, pos):
+        menu = QtWidgets.QMenu(self)
+        menu.setTitle(self.name)
+        menu.setTearOffEnabled(True)
 
         # Edit Actions
         edit_action = menu.addAction("Edit Details")
@@ -412,7 +427,7 @@ class RigItemWidget(QtWidgets.QFrame):
         menu.addSeparator()
 
         # File Actions
-        action_open = menu.addAction("Open Source File")
+        action_open = menu.addAction("Open Rig Scene")
         action_open.setToolTip("Open this rig file in a new scene")
         action_open.triggered.connect(self._on_open_file)
 
@@ -426,7 +441,7 @@ class RigItemWidget(QtWidgets.QFrame):
         remove_action.setIcon(utils.get_icon("trash.svg"))
         remove_action.triggered.connect(self._on_remove_request)
 
-        menu.exec_(self.info_btn.mapToGlobal(pos))
+        menu.exec_(self.mapToGlobal(pos))
 
     def _on_open_file(self):
         path = self.data.get("path")
@@ -446,6 +461,7 @@ class RigItemWidget(QtWidgets.QFrame):
                 cmds.file(path, open=True, force=True)
             except Exception as e:
                 QtWidgets.QMessageBox.critical(self, "Error", "Failed to open file:\n" + str(e))
+            self.refreshRequested.emit()
 
     def _on_show_in_folder(self):
         path = self.data.get("path")
@@ -668,9 +684,7 @@ class InfoDialog(QtWidgets.QDialog):
         if img_name and os.path.exists(img_path):
             pix = QtGui.QPixmap(img_path)
             self.image_lbl.setPixmap(
-                pix.scaled(
-                    self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-                )
+                pix.scaled(self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
             )
         else:
             self.image_lbl.setText("No Image")
@@ -873,9 +887,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)")
         self.image_lbl.setFixedSize(150, 150)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
-        self.image_lbl.setStyleSheet(
-            "background-color: #222; border: 1px solid #555; border-radius: 5px;"
-        )
+        self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #555; border-radius: 5px;")
         self.image_lbl.setCursor(QtCore.Qt.PointingHandCursor)
         self.image_lbl.mousePressEvent = self.on_image_click
 
@@ -918,7 +930,8 @@ class RigSetupDialog(QtWidgets.QDialog):
             comp = QtWidgets.QCompleter(self.collections)
             comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
             self.coll_input.setCompleter(comp)
-        self.coll_input.setText(self.rig_data.get("collection", ""))
+        coll_val = self.rig_data.get("collection") or ""
+        self.coll_input.setText("" if coll_val == "Empty" else coll_val)
         form.addRow("Collection:", self.coll_input)
 
         # Author
@@ -927,12 +940,14 @@ class RigSetupDialog(QtWidgets.QDialog):
             comp = QtWidgets.QCompleter(self.authors)
             comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
             self.auth_input.setCompleter(comp)
-        self.auth_input.setText(self.rig_data.get("author", ""))
+        auth_val = self.rig_data.get("author") or ""
+        self.auth_input.setText("" if auth_val == "Empty" else auth_val)
         form.addRow("Author:", self.auth_input)
 
         # Link
         self.link_input = QtWidgets.QLineEdit()
-        self.link_input.setText(self.rig_data.get("link", ""))
+        link_val = self.rig_data.get("link") or ""
+        self.link_input.setText("" if link_val == "Empty" else link_val)
         form.addRow("Link:", self.link_input)
 
         layout.addLayout(form)
@@ -981,7 +996,7 @@ class RigSetupDialog(QtWidgets.QDialog):
 
     def accept_data(self):
         name = self.name_input.text().strip()
-        tags = [t.strip() for t in self.tags_input.text().split(",") if t.strip()]
+        tags = list(set([t.strip() for t in self.tags_input.text().split(",") if t.strip()]))
 
         # Image handling
         img_name = self.rig_data.get("image", "")

@@ -2,10 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.7] - 2025-12-27
+### 🚀 Added
+- **Author "Empty" Support**: Rigs without an author are now grouped under the *Empty* Author tag.
+- **Database Cleanup**: Significant cleanup and standardization of tags and metadata for several rig packs (Maurice Racoon, ProRigs, individual characters, ...).
+
+### 📦 Changed
+- **UI UX Protective Toggle**: Menus opened via buttons (Filters, Sort) now ignore accidental triggers.
+- **Edit UI Refinement**: In the Rig Setup dialog, metadata fields containing "Empty" values now display as blank.
+
+### 🤖 Testing
+- **Rig Scanner powered by AI**: Testing an integrated powerful Python-based scanner temporarily using the **Gemini API** to automatically index rig folders, extract metadata and more.
+
 ## [0.0.6] - 2025-12-26
 ### 🚀 Added
 - **Context Menu Actions**: Expanded the right-click menu on rig cards with new actions:
-    - **Open Source File**: Opens the rig's source file in a new Maya scene (includes safety warning).
+    - **Open Rig Scene**: Opens the rig's source file in a new Maya scene (includes safety warning).
     - **Show in Folder**: Opens the system file explorer with the rig file selected/highlighted.
     - **Remove Rig**: Allows removing a rig from the library database (does not delete the physical file).
 - **File Explorer Integration**: Enhanced "Show in Folder" and path links in the Info Dialog to select the specific file in Windows Explorer/Finder instead of just opening the parent directory.

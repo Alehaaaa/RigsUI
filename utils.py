@@ -55,12 +55,9 @@ def get_icon(file_name):
     """
     Returns a QIcon from the _icons directory.
     """
-    if not file_name:
-        return QtGui.QIcon()
-        
-    path = os.path.join(ICONS_DIR, file_name)
-    if os.path.exists(path):
-        return QtGui.QIcon(path)
-    
+    if file_name:
+        path = os.path.join(ICONS_DIR, file_name)
+        if os.path.exists(path):
+            return QtGui.QIcon(path)
     LOG.warning("Icon not found: {}".format(path))
     return QtGui.QIcon()

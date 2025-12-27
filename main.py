@@ -275,7 +275,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     # ---------- Data Management ----------
 
-    def load_data(self, delay=False):
+    def load_data(self):
         """Loads data from JSON and updates the UI filter menus and grid."""
         if os.path.exists(RIGS_JSON):
             try:
@@ -293,6 +293,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         authors = set()
 
         has_empty_collection = False
+        has_empty_author = False
 
         for details in self.rig_data.values():
             # Collections
@@ -311,6 +312,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             val_auth = details.get("author")
             if val_auth and val_auth != "Empty":
                 authors.add(val_auth)
+            else:
+                has_empty_author = True
 
             # Update File Existence
             details["exists"] = bool(os.path.exists(details.get("path", "")))
@@ -320,11 +323,15 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         if has_empty_collection:
             cols_sorted = ["Empty"] + cols_sorted
 
+        auths_sorted = sorted(list(authors))
+        if has_empty_author:
+            auths_sorted = ["Empty"] + auths_sorted
+
         self.filter_menu.set_items(
             sections={
                 "Tags": sorted(list(all_tags)),
                 "Collections": cols_sorted,
-                "Author": sorted(list(authors)),
+                "Author": auths_sorted,
             }
         )
 
@@ -402,6 +409,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     wid.filterRequested.connect(self.apply_single_filter)
                     wid.editRequested.connect(self.edit_rig)
                     wid.removeRequested.connect(self.remove_rig)
+                    wid.refreshRequested.connect(self.load_data)
                     wid.set_exists(data["exists"])
                     self._widgets_map[name] = wid
                 except Exception as e:
@@ -527,9 +535,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         for name, data in self.rig_data.items():
             existing_path = os.path.normpath(data.get("path", ""))
             if existing_path == path:
-                QtWidgets.QMessageBox.warning(
-                    self, "Duplicate", "File already exists as '{}'.".format(name)
-                )
+                QtWidgets.QMessageBox.warning(self, "Duplicate", "File already exists as '{}'.".format(name))
                 return
 
         self._open_setup_dialog(mode="add", file_path=path)
