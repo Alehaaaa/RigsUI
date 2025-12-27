@@ -4,6 +4,7 @@ import json
 import logging
 import urllib.request
 import urllib.error
+import ssl
 
 try:
     from PySide6 import QtGui
@@ -15,10 +16,7 @@ LOG = logging.getLogger("LibraryUI")
 
 
 # -------------------- Constants --------------------
-try:
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-except NameError:
-    MODULE_DIR = "/"
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 IMAGES_DIR = os.path.join(MODULE_DIR, "images")
 ICONS_DIR = os.path.join(MODULE_DIR, "_icons")
@@ -124,7 +122,8 @@ Expected JSON Structure:
         req = urllib.request.Request(
             url, data=json.dumps(data).encode("utf-8"), headers=headers, method="POST"
         )
-        with urllib.request.urlopen(req) as response:
+        context = ssl._create_unverified_context()
+        with urllib.request.urlopen(req, context=context) as response:
             if response.status == 200:
                 result = json.loads(response.read().decode("utf-8"))
                 candidates = result.get("candidates", [])
@@ -154,9 +153,15 @@ def check_for_updates(current_version):
     remote_url = "https://raw.githubusercontent.com/Alehaaaa/RigsUI/main/VERSION"
 
     try:
-        with urllib.request.urlopen(remote_url, timeout=5) as response:
+        context = ssl._create_unverified_context()
+        with urllib.request.urlopen(remote_url, timeout=5, context=context) as response:
             if response.status == 200:
-                remote_ver = response.read().decode("utf-8").strip()
+                content = response.read()
+                try:
+                    remote_ver = content.decode("utf-8").strip()
+                except UnicodeDecodeError:
+                    remote_ver = content.decode("utf-16").strip()
+
                 if remote_ver != current_version:
                     return True, remote_ver
                 return False, remote_ver

@@ -9,12 +9,12 @@
         "collection": "Apollo&Artemis",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/ApolloRig",
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Apollo\\Memnon.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Apollo\\ApolloMod.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Apollo\\ApolloUndies.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Outfits\\ApolloTracksuit.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/Memnon.ma",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/ApolloMod.ma",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/ApolloUndies.ma",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Outfits/ApolloTracksuit.ma"
         ]
     },
     "Artemis": {
@@ -27,11 +27,11 @@
         "collection": "Apollo&Artemis",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/ArtemisRig",
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Artemis\\ArtemisMod.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Artemis\\ArtemisUndies.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Outfits\\ArtemisTracksuit.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Artemis/ArtemisMod.ma",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Artemis/ArtemisUndies.ma",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Outfits/ArtemisTracksuit.ma"
         ]
     },
     "Mars": {
@@ -44,7 +44,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mazu": {
@@ -57,7 +57,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Minerva": {
@@ -70,7 +70,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mireuk": {
@@ -83,7 +83,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Modjadji": {
@@ -96,7 +96,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mukuru": {
@@ -109,7 +109,7 @@
         "collection": "M-Bundle",
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mandalorian": {
@@ -121,26 +121,23 @@
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/qvdmc",
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Mandalorian\\scenes\\Mandalorian_Rig_v.1.00.mb",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Mandalorian\\scenes\\Mandalorian_Guide_v.1.00.mb"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/Mandalorian/scenes/Mandalorian_Rig_v.1.00.mb",
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/Mandalorian/scenes/Mandalorian_Guide_v.1.00.mb"
         ]
     },
     "The Child": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
         "image": "the_child.jpg",
         "tags": [
-            "creature"
+            "creature",
+            "kid"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
-        "exists": true,
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_RigGroom_v.1.00.mb",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Guide_v.1.00.mb"
-        ]
+        "exists": false
     },
     "Stormtrooper": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Stormtrooper\\scenes\\Stormtrooper_Rig_v5.mb",
@@ -151,7 +148,7 @@
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/joFBP",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "BD-1": {
@@ -163,9 +160,9 @@
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/AaAwS",
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\BD-1\\scenes\\BD-1_Rig_v1.0.mb"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/BD-1/scenes/BD-1_Rig_v1.0.mb"
         ]
     },
     "AT_ST": {
@@ -178,9 +175,9 @@
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/QhZQK",
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\AT_ST\\scenes\\AT_ST_Walking_Animation.mb"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/AT_ST/scenes/AT_ST_Walking_Animation.mb"
         ]
     },
     "Sheriff": {
@@ -193,7 +190,7 @@
         "collection": "",
         "author": "BreinerRigger",
         "link": "https://breiner3drigger.gumroad.com/l/Sheriff_FreeRig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Sunny": {
@@ -206,7 +203,7 @@
         "collection": "",
         "author": "Animation Methods",
         "link": "https://animationmethods.gumroad.com/l/sunny",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Bloody Young Samurai": {
@@ -219,7 +216,7 @@
         "collection": "",
         "author": "Khaled Hussein",
         "link": "https://khaledhussein.gumroad.com/l/cbmnp",
-        "exists": true
+        "exists": false
     },
     "Miles": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Spider-verse\\MILES_V38\\Miles_Rig_V38.mb",
@@ -231,7 +228,7 @@
         "collection": "Spider-verse",
         "author": "Khaled Hussein",
         "link": "https://sahilanims.gumroad.com/l/ocetz",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Peter B Parker": {
@@ -244,7 +241,7 @@
         "collection": "Spider-verse",
         "author": "Khaled Hussein",
         "link": "https://sahilanims.gumroad.com/l/mccgv",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "The Spot": {
@@ -257,8 +254,7 @@
         "collection": "Spider-verse",
         "author": "Khaled Hussein",
         "link": "https://sahilanims.gumroad.com/l/gitghe",
-        "exists": true,
-        "alternatives": []
+        "exists": false
     },
     "SpiderGwen": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\SpiderGwen\\SpiderGwen_Rig.ma",
@@ -270,7 +266,7 @@
         "collection": "Spider-verse",
         "author": "Alex Salmar",
         "link": "https://alexsalmar.gumroad.com/l/spidergwen",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Rumi": {
@@ -283,7 +279,7 @@
         "collection": "",
         "author": "Cromacore",
         "link": "https://cromacore.gumroad.com/l/rumirig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Golem Frog": {
@@ -295,7 +291,7 @@
         "collection": "Golems",
         "author": "Tristen",
         "link": "https://tristenanimates.gumroad.com/l/jztyxn",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Golem Bug": {
@@ -307,7 +303,7 @@
         "collection": "Golems",
         "author": "Tristen",
         "link": "https://tristenanimates.gumroad.com/l/huluss",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Golem Critter": {
@@ -319,7 +315,7 @@
         "collection": "Golems",
         "author": "Tristen",
         "link": "https://tristenanimates.gumroad.com/l/nywts",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Blood Bat": {
@@ -331,7 +327,7 @@
         "collection": "Golems",
         "author": "Tristen",
         "link": "https://tristenanimates.gumroad.com/l/brwjf",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Alpha": {
@@ -344,7 +340,7 @@
         "collection": "Agora",
         "author": "Agora.Community",
         "link": "https://agora.community/content/alpha-maya",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Leo": {
@@ -357,7 +353,7 @@
         "collection": "",
         "author": "Wonderwell Studios",
         "link": "https://wonderwellstudios.gumroad.com/l/LeoRig",
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Leo_Final\\Leo_ACES.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Leo_Final\\Leo_Proxy.ma"
@@ -374,7 +370,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Charlie": {
@@ -388,7 +384,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Lucas": {
@@ -402,7 +398,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Maria": {
@@ -416,7 +412,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mikey": {
@@ -430,7 +426,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Will": {
@@ -444,7 +440,7 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Jinx": {
@@ -457,7 +453,7 @@
         "collection": "Arcane",
         "author": "Iona Dolidzer",
         "link": "https://www.artstation.com/marketplace/p/lbrLv/maya-rig-arcane-jinx-non-commercial",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ellen": {
@@ -470,7 +466,7 @@
         "collection": "",
         "author": "Antonio M\u00e9ndez",
         "link": "https://tonyomendez.gumroad.com/l/ellenrig",
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Ellen_rig_v1_01\\ellen_rig_v1_01_Maya2020.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Ellen_rig_v1_01\\ellen_rig_v1_01_Maya2018.ma"
@@ -486,7 +482,7 @@
         "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/WHuVm",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Dana": {
@@ -499,7 +495,7 @@
         "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/kKyvP",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "David": {
@@ -512,19 +508,19 @@
         "collection": "Gabriel Salas",
         "author": "Gabriel Salas",
         "link": "https://gabrielsalas.gumroad.com/l/zWtTC?layout=profile",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Douglas": {
-        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/01 ANIMALS-PROPS/Douglas_v1.3.1/rig/Douglas_v1.3.1.ma",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Douglas_v1.3.1\\rig\\Douglas_v1.3.1.ma",
         "image": "douglas.jpg",
         "tags": [
             "animal"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Brandon Schaal",
         "link": "https://brandonschaal.gumroad.com/l/Douglas",
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Douglas_v1.3.1\\rig\\Douglas_proxy_v1.3.1.ma"
         ]
@@ -536,10 +532,10 @@
             "human",
             "female"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Cromacore",
         "link": "https://cromacore.gumroad.com/l/aloyrig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Dr. Strange": {
@@ -549,10 +545,10 @@
             "superhero",
             "male"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Cromacore",
         "link": "https://cromacore.gumroad.com/l/drstrangerig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Kratos": {
@@ -562,10 +558,10 @@
             "superhero",
             "male"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Cromacore",
         "link": "https://cromacore.gumroad.com/l/kratosrig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Black Panther": {
@@ -575,10 +571,10 @@
             "superhero",
             "male"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Cromacore",
         "link": "https://cromacore.gumroad.com/l/blackpantherrig",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Sebastian": {
@@ -588,10 +584,10 @@
             "animal",
             "male"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Characterrigs.com",
         "link": "https://charrig.gumroad.com/l/ydvjk",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ashley": {
@@ -605,7 +601,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Carl": {
@@ -619,7 +615,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Chris": {
@@ -633,7 +629,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Izzy": {
@@ -647,7 +643,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Sam": {
@@ -661,7 +657,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Megan": {
@@ -674,7 +670,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Daniel": {
@@ -687,7 +683,7 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Chair": {
@@ -699,7 +695,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Cat": {
@@ -711,7 +707,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_joint_based.ma"
         ]
@@ -725,7 +721,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\elephant\\elephant_redshift_render.ma"
         ]
@@ -737,10 +733,10 @@
             "prop",
             "vehicle"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Irex": {
@@ -750,10 +746,10 @@
             "creature",
             "dinosaur"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Maurice Racoon": {
@@ -766,7 +762,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Accordion": {
@@ -779,7 +775,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Apron": {
@@ -792,7 +788,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Chef Hat": {
@@ -806,7 +802,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Hat": {
@@ -820,7 +816,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Leek": {
@@ -833,7 +829,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Teddy Bear": {
@@ -846,7 +842,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Trash Bin": {
@@ -858,7 +854,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Violin": {
@@ -871,7 +867,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Washboard": {
@@ -885,7 +881,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Wok": {
@@ -898,7 +894,7 @@
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Backpack": {
@@ -908,10 +904,10 @@
             "prop",
             "clothing"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_opened_001.ma"
         ]
@@ -927,7 +923,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Spiderman_SpideySense\\Spiderman.ma"
         ]
@@ -942,7 +938,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Wolf\\wolf_rig_render_setup_arnold_maya2018.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Wolf\\wolf_rig_render_setup_redshift3d_maya2018.ma"
@@ -957,7 +953,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ballie": {
@@ -969,7 +965,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Beaver": {
@@ -981,7 +977,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Bird Ball": {
@@ -994,7 +990,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Monster Ball": {
@@ -1006,7 +1002,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Pendulum": {
@@ -1018,9 +1014,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Pendulum\\Pendulum_v01.02_L.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/ProRigs/ProRigs_Basics/ProRigs_Pendulum/Pendulum_v01.02_L.ma"
         ]
     },
     "Tailor": {
@@ -1032,7 +1028,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Sloan": {
@@ -1045,7 +1041,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Stan": {
@@ -1058,7 +1054,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Stella": {
@@ -1071,9 +1067,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\stella_rig.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Body Mechanics Rigs/stella_rig.ma"
         ]
     },
     "Stewie": {
@@ -1086,7 +1082,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Fuzzbot": {
@@ -1099,7 +1095,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Imp Pinky": {
@@ -1112,7 +1108,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Imp Rock": {
@@ -1125,7 +1121,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Imp Twig": {
@@ -1138,7 +1134,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Sarge": {
@@ -1151,7 +1147,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Aia": {
@@ -1164,9 +1160,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Aia\\extras\\aia_extras.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Aia/extras/aia_extras.ma"
         ]
     },
     "Bishop": {
@@ -1179,9 +1175,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Bishop\\extras\\bishop_extras.mb"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Bishop/extras/bishop_extras.mb"
         ]
     },
     "Blip": {
@@ -1194,7 +1190,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Enforcer": {
@@ -1207,7 +1203,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Franklin": {
@@ -1220,7 +1216,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Jules": {
@@ -1233,9 +1229,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Jules\\extras\\jules_extras.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Jules/extras/jules_extras.ma"
         ]
     },
     "Kayla": {
@@ -1248,9 +1244,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Kayla\\shelf_library\\poseLibrary_2014\\poseLibrary2014.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kayla/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
     },
     "Koala Bob": {
@@ -1262,7 +1258,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Kyle": {
@@ -1275,9 +1271,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Kyle\\shelf_library\\poseLibrary_2014\\poseLibrary2014.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kyle/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
     },
     "Overlord": {
@@ -1290,7 +1286,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Quinn": {
@@ -1303,7 +1299,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ronan": {
@@ -1316,7 +1312,7 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Shaman": {
@@ -1330,9 +1326,9 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Shaman Aristotle\\extras\\shaman_staff_rig.ma"
+            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Shaman Aristotle/extras/shaman_staff_rig.ma"
         ]
     },
     "Casey": {
@@ -1346,7 +1342,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true
+        "exists": false
     },
     "Dex": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\dex_rig.ma",
@@ -1359,7 +1355,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ellie": {
@@ -1374,7 +1370,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true
+        "exists": false
     },
     "Fred": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\fred_rig.ma",
@@ -1388,7 +1384,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true
+        "exists": false
     },
     "Herc": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\herc_rig.ma",
@@ -1401,7 +1397,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Jack": {
@@ -1415,7 +1411,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Jill": {
@@ -1429,7 +1425,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Marv": {
@@ -1443,7 +1439,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Tina": {
@@ -1457,7 +1453,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Ugg": {
@@ -1471,7 +1467,7 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Female Mannequin": {
@@ -1484,8 +1480,8 @@
         ],
         "collection": "M-Bundle",
         "author": "Ramon Arango",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Male Mannequin": {
@@ -1498,8 +1494,8 @@
         ],
         "collection": "M-Bundle",
         "author": "Ramon Arango",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Adult Man": {
@@ -1512,8 +1508,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Adult Woman": {
@@ -1526,8 +1522,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Athletic Man": {
@@ -1540,8 +1536,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Athletic Woman": {
@@ -1554,8 +1550,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Ball Legs": {
@@ -1567,8 +1563,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Ball Tail": {
@@ -1580,8 +1576,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Giant Man": {
@@ -1595,8 +1591,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Heavy Man": {
@@ -1610,8 +1606,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Heavy Woman": {
@@ -1625,8 +1621,8 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Young Man": {
@@ -1641,7 +1637,7 @@
         "collection": "ProRigs Basics",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Young Woman": {
@@ -1656,7 +1652,7 @@
         "collection": "ProRigs Basics",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Frank": {
@@ -1670,7 +1666,7 @@
         "collection": "ProRigs Couples",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Mae": {
@@ -1684,7 +1680,7 @@
         "collection": "ProRigs Couples",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Big Rig": {
@@ -1695,8 +1691,8 @@
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Clunky": {
@@ -1707,8 +1703,8 @@
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Droid 27": {
@@ -1719,8 +1715,8 @@
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Piston": {
@@ -1731,8 +1727,8 @@
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Retro": {
@@ -1743,8 +1739,8 @@
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Adult Elephant": {
@@ -1756,8 +1752,8 @@
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Baby Elephant": {
@@ -1770,8 +1766,8 @@
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Gorilla": {
@@ -1785,7 +1781,7 @@
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Monkey": {
@@ -1799,7 +1795,7 @@
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Orangutan": {
@@ -1813,7 +1809,7 @@
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Amanda": {
@@ -1826,25 +1822,21 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Deadpool": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool.ma",
-        "image": null,
+        "image": "deadpool.jpg",
         "tags": [
             "human",
             "male",
             "superhero"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool_GameReady.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool_Proxy.ma"
-        ]
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false
     },
     "Eugene": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\eugene_v15\\eugene_rig_MASTER.ma",
@@ -1856,7 +1848,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "Hybrid 02": {
@@ -1869,7 +1861,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Hybrid 02\\Rig.mb"
         ]
@@ -1882,10 +1874,10 @@
             "environment",
             "utility"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "ProRigs",
-        "link": "Empty",
-        "exists": true,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Miosha": {
@@ -1898,7 +1890,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\MioshaRig_v1.12\\MioshaRig_Arnold.ma"
         ]
@@ -1911,10 +1903,10 @@
             "human",
             "male"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Arnold.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_nCloth.ma",
@@ -1932,7 +1924,7 @@
         "collection": null,
         "author": null,
         "link": null,
-        "exists": true,
+        "exists": false,
         "alternatives": []
     },
     "JoshCam": {
@@ -1941,10 +1933,10 @@
         "tags": [
             "utility"
         ],
-        "collection": "Empty",
-        "author": "Empty",
-        "link": "Empty",
-        "exists": true,
+        "collection": null,
+        "author": null,
+        "link": null,
+        "exists": false,
         "alternatives": []
     },
     "Juicebox": {
@@ -1955,10 +1947,10 @@
             "prop",
             "cartoon"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Jonathan Cooper",
         "link": "https://joedanimation.gumroad.com/l/juiceboxrigmaya",
-        "exists": true
+        "exists": false
     },
     "JJ": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jj_rig.ma",
@@ -1972,6 +1964,6 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": true
+        "exists": false
     }
 }

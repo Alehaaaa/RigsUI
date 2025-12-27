@@ -16,6 +16,7 @@ from .widgets import (
 
 import maya.cmds as cmds  # type: ignore
 from . import utils
+from . import VERSION
 
 try:
     from PySide6 import QtWidgets, QtCore  # type: ignore
@@ -46,11 +47,6 @@ LOG.disabled = True
 
 # -------------------- Constants --------------------
 TOOL_TITLE = "Rigs Library"
-try:
-    with io.open(os.path.join(utils.MODULE_DIR, "VERSION"), "r", encoding="utf-8") as f:
-        VERSION = f.read().strip()
-except Exception:
-    VERSION = "0.0.0"
 
 RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs_database.json")
 BLACKLIST_JSON = os.path.join(utils.MODULE_DIR, "blacklist.json")
@@ -77,11 +73,12 @@ class SearchWorker(QtCore.QObject):
 
     finished = QtCore.Signal(list)
 
-    def __init__(self, rig_data, search_text, filters):
+    def __init__(self, rig_data, search_text, filters, referenced_set=None):
         super(SearchWorker, self).__init__()
         self.rig_data = rig_data
         self.search_text = search_text
         self.filters = filters
+        self.referenced_set = referenced_set or set()
         self._is_running = True
 
     def run(self):
@@ -168,8 +165,20 @@ class SearchWorker(QtCore.QObject):
                 match_dropdown = True
                 sel = self.filters
 
+                # Status
+                if sel.get("Status"):
+                    statuses = sel.get("Status")
+                    if "Available" in statuses and not data.get("exists"):
+                        match_dropdown = False
+                    
+                    if match_dropdown and "Referenced" in statuses:
+                        p = data.get("path")
+                        norm = os.path.normpath(p).lower() if p else ""
+                        if not norm or norm not in self.referenced_set:
+                            match_dropdown = False
+
                 # Collections
-                if sel.get("Collections"):
+                if match_dropdown and sel.get("Collections"):
                     rig_coll = data.get("collection")
                     # Match if in selection OR (is effectively empty AND "Empty" selected)
                     is_match = (rig_coll and rig_coll in sel.get("Collections")) or (
@@ -220,7 +229,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.setObjectName(self.TOOL_OBJECT_NAME)
         self.settings = QtCore.QSettings(self.TOOL_TITLE, None)
 
-        self.rig_data = {}
+        self.rig_data = {}      # Raw data from JSON (Persistent)
+        self.display_data = {}  # Runtime data with path replacements applied
         self.blacklist = []
         self._widgets_map = {}  # Cache for widgets: {name: RigItemWidget}
 
@@ -229,7 +239,24 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self._search_worker = None
 
         self._build_ui()
-        self.load_data()
+        
+        # Initial Load Sequence:
+        # 1. Load raw data from disk
+        self._load_rig_database() # Populates self.rig_data
+        self._load_blacklist()    # Populates self.blacklist
+        
+        # 2. Build filter menu structure based on loaded data
+        self._update_metadata_and_menus()
+        
+        # 3. Restore filter states (now that menus exist)
+        self.load_filters() 
+        # Also sync window position from settings if possible, or wait for show()
+
+    def showEvent(self, event):
+        super(LibraryUI, self).showEvent(event)
+        # 4. Defer heavyweight widget creation until shown to ensure correct geometry
+        #    This replaces the previous 'load_data' call in showEvent
+        QtCore.QTimer.singleShot(0, lambda: self._populate_grid(trigger_search=True))
 
     # ---------- UI Setup ----------
 
@@ -275,14 +302,14 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.sort_menu = SortMenu("Sort")
         self.sort_menu.setFixedHeight(25)
         self.sort_menu.setToolTip("Sort rigs")
-        self.sort_menu.sortChanged.connect(self._populate_grid)
+        self.sort_menu.sortChanged.connect(lambda k, b: self._populate_grid())
         top_layout.addWidget(self.sort_menu)
 
         # Refresh
         self.refresh_btn = QtWidgets.QPushButton("Refresh")
         self.refresh_btn.setIcon(utils.get_icon("refresh.svg"))
         self.refresh_btn.setFixedHeight(25)
-        self.refresh_btn.setToolTip("Refresh rig data from disk")
+        self.refresh_btn.setToolTip("Refresh rigs from database")
         self.refresh_btn.clicked.connect(lambda: self.load_data())
         top_layout.addWidget(self.refresh_btn)
 
@@ -405,7 +432,10 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     # ---------- Data Management ----------
 
     def load_data(self, restore_scroll=True):
-        """Loads data from JSON and updates the UI filter menus and grid."""
+        """
+        Full Refresh: Reloads everything from disk and updates UI.
+        Used by the 'Refresh' button or after major changes.
+        """
         scroll_pos = 0
         if restore_scroll:
             try:
@@ -413,6 +443,26 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             except Exception:
                 pass
 
+        # 1. Load Data
+        self._load_rig_database()
+        self._load_blacklist()
+        
+        # 2. Update UI Metadata (Filter options)
+        # IMPORTANT: We must preserve current usage selection if possible, 
+        # or rely on load_filters if we want to reset to saved settings.
+        # Here we re-apply saved settings to be safe.
+        self._update_metadata_and_menus()
+        self.load_filters()
+
+        # 3. Populate Grid (Create widgets)
+        self._populate_grid(trigger_search=True)
+
+        # Restore scroll
+        if restore_scroll and scroll_pos > 0:
+            QtCore.QTimer.singleShot(10, lambda: self.scroll.verticalScrollBar().setValue(scroll_pos))
+
+    def _load_rig_database(self):
+        """Loads main database from JSON. replacements are applied to a separate runtime dict."""
         if os.path.exists(RIGS_JSON):
             try:
                 with io.open(RIGS_JSON, "r", encoding="utf-8") as f:
@@ -422,36 +472,59 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 self.rig_data = {}
         else:
             self.rig_data = {}
+            
+        # Create Display Data (Clone)
+        self.display_data = json.loads(json.dumps(self.rig_data))
 
-        # Apply Path Replacements
-        settings = QtCore.QSettings("LibraryUI", "RigManager")
-        raw_replacements = settings.value("path_replacements", "[]")
-        try:
-            replacements = json.loads(raw_replacements)
-        except Exception:
-            replacements = []
+        # Apply Replacements to Display Data ONLY
+        replacements = self._get_replacements()
 
-        if replacements and self.rig_data:
-            # Apply to in-memory data
-            # replacements is list of [find, replace]
-            for key, data in self.rig_data.items():
+        if replacements and self.display_data:
+            for key, data in self.display_data.items():
                 if "path" in data and data["path"]:
-                    for find_str, rep_str in replacements:
-                        if find_str in data["path"]:
-                            data["path"] = data["path"].replace(find_str, rep_str)
+                    data["path"] = self._apply_path_replacements(data["path"], replacements)
 
                 if "alternatives" in data:
                     new_alts = []
                     for alt in data["alternatives"]:
-                        for find_str, rep_str in replacements:
-                            if find_str in alt:
-                                alt = alt.replace(find_str, rep_str)
-                        new_alts.append(alt)
+                        new_alts.append(self._apply_path_replacements(alt, replacements))
                     data["alternatives"] = new_alts
 
-        self.load_blacklist()
+    def _get_replacements(self):
+        settings = QtCore.QSettings("LibraryUI", "RigManager")
+        raw_replacements = settings.value("path_replacements", "[]")
+        try:
+            return json.loads(raw_replacements)
+        except Exception:
+            return []
 
-        # Scan for metadata
+    def _apply_path_replacements(self, path, replacements):
+        if not path:
+            return path
+        # Normalize first
+        path = os.path.normpath(path).replace("\\", "/")
+        for find_str, rep_str in replacements:
+            print(find_str)
+            print(rep_str)
+            print(path)
+            if find_str in path:
+                path = path.replace(find_str, rep_str)
+            print(path)
+        return path
+
+    def _load_blacklist(self):
+        if os.path.exists(BLACKLIST_JSON):
+            try:
+                with io.open(BLACKLIST_JSON, "r", encoding="utf-8") as f:
+                    self.blacklist = json.load(f)
+            except Exception as e:
+                LOG.error("Failed to load blacklist: {}".format(e))
+                self.blacklist = []
+        else:
+            self.blacklist = []
+
+    def _update_metadata_and_menus(self):
+        """Scans rig_data for unique tags/collections and updates filter menu."""
         collections = set()
         all_tags = set()
         authors = set()
@@ -459,29 +532,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         has_empty_collection = False
         has_empty_author = False
 
-        for key, details in self.rig_data.items():
+        for key, details in self.display_data.items():
             if key.startswith("_"):
                 continue
 
-            # Cleanup alternatives: remove duplicates and main path
-            main_path = details.get("path", "")
-            norm_main = os.path.normpath(main_path).lower() if main_path else ""
-
-            alts = details.get("alternatives", [])
-            if alts:
-                cleaned_alts = []
-                seen_alts = set()
-                for alt in alts:
-                    if not alt:
-                        continue
-                    norm_alt = os.path.normpath(alt).lower()
-                    if norm_alt == norm_main:
-                        continue
-                    if norm_alt in seen_alts:
-                        continue
-                    seen_alts.add(norm_alt)
-                    cleaned_alts.append(alt)
-                details["alternatives"] = cleaned_alts
+            # Update existence check cheaply here
+            details["exists"] = bool(os.path.exists(details.get("path", "")))
 
             # Collections
             val = details.get("collection")
@@ -502,10 +558,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             else:
                 has_empty_author = True
 
-            # Update File Existence
-            details["exists"] = bool(os.path.exists(details.get("path", "")))
-
-        # Update Filter Menus
+        # Build Menu Items
         cols_sorted = sorted(list(collections))
         if has_empty_collection:
             cols_sorted = ["Empty"] + cols_sorted
@@ -516,30 +569,14 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.filter_menu.set_items(
             sections={
+                "Status": ["Available", "Referenced"],
                 "Tags": sorted(list(all_tags)),
                 "Collections": cols_sorted,
                 "Author": auths_sorted,
             }
         )
-
-        self.load_filters()
-        self._populate_grid()
-
-        if restore_scroll:
-            # Restore scroll after layout has had a chance to update
-            QtCore.QTimer.singleShot(10, lambda: self.scroll.verticalScrollBar().setValue(scroll_pos))
-
-    def load_blacklist(self):
-        """Loads blacklist from separate JSON."""
-        if os.path.exists(BLACKLIST_JSON):
-            try:
-                with io.open(BLACKLIST_JSON, "r", encoding="utf-8") as f:
-                    self.blacklist = json.load(f)
-            except Exception as e:
-                LOG.error("Failed to load blacklist: {}".format(e))
-                self.blacklist = []
-        else:
-            self.blacklist = []
+        # Note: This resets the menu items (clearing checks). 
+        # Call load_filters() immediately after this if you want to restore state.
 
     def save_blacklist(self):
         """Saves current blacklist to its own JSON."""
@@ -557,7 +594,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         except Exception as e:
             LOG.error("Failed to save JSON: {}".format(e))
 
-    def _populate_grid(self):
+    def _populate_grid(self, trigger_search=True):
         """
         Populate the grid with widgets.
         Uses a reconciliation strategy to reuse widgets and avoid UI flicker.
@@ -566,7 +603,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self._widgets_map = {}
 
         # 1. Remove stale widgets
-        current_names = set(self.rig_data.keys())
+        current_names = set(self.display_data.keys())
         cached_names = set(self._widgets_map.keys())
         to_remove = cached_names - current_names
 
@@ -580,29 +617,30 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # 2. Detach all remaining widgets from layout (to re-sort)
         while self.flow_layout.count():
             self.flow_layout.takeAt(0)
-            # Do not delete, just remove from layout list
 
         # 3. Determine Sort Order
         sort_mode, ascending = self.sort_menu.get_current_sort()
 
         def sort_key_func(item):
             name, data = item
+            val = ""
             if sort_mode == "Collection":
                 val = data.get("collection")
-                # Treat "Empty" or None as "" so it sorts at the extreme
-                if not val or val == "Empty":
-                    val = ""
-                return (val.lower(), name.lower())
             elif sort_mode == "Author":
                 val = data.get("author")
-                if not val or val == "Empty":
-                    val = ""
-                return (val.lower(), name.lower())
-            return name.lower()
+            
+            if not val or val == "Empty":
+                val = ""
+                
+            # Always return a tuple for consistent comparison
+            if sort_mode == "Name":
+                return (name.lower(), "")
+            
+            return (val.lower(), name.lower())
 
         blacklist = set(self.blacklist)
         rig_items = []
-        for n, d in self.rig_data.items():
+        for n, d in self.display_data.items():
             if n.startswith("_"):
                 continue
 
@@ -629,7 +667,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 # Create
                 try:
                     wid = RigItemWidget(name, data, parent=self.container)
-                    wid.imageUpdated.connect(self.save_data)
+                    wid.dataChanged.connect(lambda k, v, n=name: self._on_widget_data_changed(n, k, v))
                     wid.filterRequested.connect(self.apply_single_filter)
                     wid.editRequested.connect(self.edit_rig)
                     wid.removeRequested.connect(self.remove_rig)
@@ -641,15 +679,23 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     continue
 
             self.flow_layout.addWidget(wid)
-            wid.setVisible(True)  # Ensure visible before search filter runs
+            # NOTE: We DO NOT force setVisible(True) here to avoid flashing content 
+            # that might be hidden by filters immediately after.
+            # Instead, we rely on trigger_search to set visibility.
 
-        # Apply Search
-        self.trigger_search()
+        if trigger_search:
+            self.trigger_search(sync=False)
 
     # ---------- Search & Filtering ----------
 
-    def trigger_search(self):
-        """Start background search worker."""
+    def trigger_search(self, sync=False):
+        """
+        Runs the search logic. 
+        Args:
+            sync (bool): If True, runs immediately in main thread (blocking).
+                         Use this during startup to ensure correct initial state.
+        """
+        # Cancel existing thread
         if self._search_thread:
             try:
                 if self._search_thread.isRunning():
@@ -663,17 +709,58 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         search_text = self.search_input.text()
         filters = self.filter_menu.get_selected()
 
-        self._search_thread = QtCore.QThread()
-        self._search_worker = SearchWorker(self.rig_data, search_text, filters)
-        self._search_worker.moveToThread(self._search_thread)
+        # Get Referenced Sets to filter by usage
+        referenced_set = set()
+        try:
+            refs = cmds.file(q=True, reference=True)
+            if refs:
+                for r in refs:
+                    referenced_set.add(os.path.normpath(r).lower())
+        except Exception:
+            pass
 
-        self._search_thread.started.connect(self._search_worker.run)
-        self._search_worker.finished.connect(self._on_search_finished)
-        self._search_worker.finished.connect(self._search_thread.quit)
-        self._search_worker.finished.connect(self._search_worker.deleteLater)
-        self._search_thread.finished.connect(self._search_thread.deleteLater)
+        # Create worker
+        # Use display_data for searching so we match resolved paths/tags
+        worker = SearchWorker(self.display_data, search_text, filters, referenced_set)
 
-        self._search_thread.start()
+        if sync:
+            # Synchronous Execution
+            worker.run()
+            # Manually trigger finish callback since signals might be queued
+            # But wait, worker.finished is a signal. In sync mode we can just direct call?
+            # SearchWorker.run emits finished(list). We can connect a lambda capture or change worker.
+            # Actually, SearchWorker.run() in this code emits a signal. 
+            # Signals within same thread are immediate.
+            
+            # Connect temporarily
+            loop = QtCore.QEventLoop()
+            worker.finished.connect(self._on_search_finished)
+            worker.finished.connect(loop.quit)
+            
+            # Since we just called run() inside the same thread (main), and run() emits finished(),
+            # the slot should be called immediately if connection type is Direct.
+            # However, SearchWorker inherits QObject. 
+            # Let's modify SearchWorker.run to RETURN data as well? 
+            # Or just rely on signal.
+            
+            # Simpler: worker.run() logic is just logic. 
+            # Let's trust that emitting `finished` works.
+            worker.finished.connect(self._on_search_finished)
+            worker.run()
+            
+        else:
+            # Async Execution
+            self._search_thread = QtCore.QThread()
+            self._search_worker = worker # Keep ref
+            self._search_worker.moveToThread(self._search_thread)
+
+            self._search_thread.started.connect(self._search_worker.run)
+            self._search_worker.finished.connect(self._on_search_finished)
+            self._search_worker.finished.connect(self._search_thread.quit)
+            self._search_worker.finished.connect(self._search_worker.deleteLater)
+            self._search_thread.finished.connect(self._search_thread.deleteLater)
+
+            self._search_thread.start()
 
     def _on_search_finished(self, visible_names):
         """Apply search results to widget visibility."""
@@ -696,6 +783,31 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.filter_menu.set_selected({category: [value]})
         self.trigger_search()
 
+    def _on_widget_data_changed(self, name, key, value):
+        """Handle data changes from widgets (image, path) safely."""
+        if name in self.rig_data:
+            # Update RAW data (for database)
+            self.rig_data[name][key] = value
+            self.save_data()
+
+            # Update Display Data (for runtime)
+            if key == "path":
+                # Re-apply replacements for display
+                replacements = self._get_replacements()
+                new_path = self._apply_path_replacements(value, replacements)
+                # Check existence
+                self.display_data[name]["path"] = new_path
+                self.display_data[name]["exists"] = bool(os.path.exists(new_path))
+            else:
+                self.display_data[name][key] = value
+
+            # Notify widget of the official display data state
+            if name in self._widgets_map:
+                try:
+                    self._widgets_map[name].update_data(self.display_data[name])
+                except RuntimeError:
+                    pass
+
     # ---------- Rig Management (Add/Edit) ----------
 
     def _get_autocomplete_data(self):
@@ -704,7 +816,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         authors = set()
         all_tags = set()
 
-        for name, details in self.rig_data.items():
+        for name, details in self.display_data.items():
             if name.startswith("_"):
                 continue
             if details.get("collection"):
@@ -747,6 +859,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 self.rig_data[new_name] = new_data
                 self.save_data()
                 self.load_data()
+                return True
+        return False
 
     def add_new_rig(self):
         """Opens dialog to add a new rig."""
@@ -841,7 +955,19 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         if rig_name not in self.rig_data:
             return
 
-        self._open_setup_dialog(mode="edit", rig_name=rig_name, rig_data=self.rig_data[rig_name])
+        # Keep ref to widget to close info dialog if needed
+        # Note: Logic inside _open_setup_dialog calls load_data -> _populate_grid 
+        # which might schedule this widget for deletion, but python ref keeps it valid 
+        # enough to call a method that closes its child dialog.
+        wid = self._widgets_map.get(rig_name)
+
+        saved = self._open_setup_dialog(mode="edit", rig_name=rig_name, rig_data=self.rig_data[rig_name])
+        
+        if saved and wid:
+            try:
+                wid.close_info_dialog()
+            except Exception:
+                pass
 
     def remove_rig(self, rig_name):
         """Removes a rig from the database."""
@@ -869,9 +995,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 tl = qt_control.mapToGlobal(geo.topLeft())
                 self.settings.setValue("position", (tl.x(), tl.y()))
                 self.settings.setValue("size", (geo.width(), geo.height()))
-            else:
-                area = cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, q=True, dockArea=True)
-                self.settings.setValue("dockArea", area)
             self.settings.sync()
         except Exception as e:
             LOG.error("Error saving position: {}".format(e))

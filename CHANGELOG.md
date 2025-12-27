@@ -1,6 +1,17 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+## [0.0.10] - 2025-12-27
+### 🚀 Added
+- **Status Filters**: New filters filter rigs by status:
+    - **Available**: Shows only rigs where the file exists on disk.
+    - **Referenced**: Shows only rigs currently referenced in the active Maya scene.
+- **Tag Editor**: Redesigned input for tags using interactive "pills":
+    - Visual representation of tags with remove (x) buttons.
+    - Smart auto-complete dropdown from existing tags.
+
+### 📦 Changed
+- **Path Replacements**: Rewrote the logic to apply path replacements *only* in memory, not saved to the database.
 
 ## [0.0.9] - 2025-12-27
 ### 📦 Changed

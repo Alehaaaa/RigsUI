@@ -11,10 +11,14 @@ import io
 # Expose version
 try:
     _v_path = os.path.join(os.path.dirname(__file__), "VERSION")
-    with io.open(_v_path, "r", encoding="utf-8") as _f:
-        __version__ = _f.read().strip()
+    with io.open(_v_path, "rb") as _f:
+        _content = _f.read()
+        try:
+            VERSION = _content.decode("utf-8").strip()
+        except UnicodeDecodeError:
+            VERSION = _content.decode("utf-16").strip()
 except Exception:
-    __version__ = "0.0.0"
+    VERSION = "0.0.0"
 
 
 def show(mod_name="RigsUI"):

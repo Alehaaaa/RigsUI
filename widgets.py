@@ -35,6 +35,21 @@ class FlowLayout(QtWidgets.QLayout):
     def addItem(self, item):
         self._itemList.append(item)
 
+    def addWidget(self, widget):
+        self.addItem(QtWidgets.QWidgetItem(widget))
+        widget.setParent(self.parentWidget())
+        self.invalidate()
+
+    def insertWidget(self, index, widget):
+        widget.setParent(self.parentWidget())
+        item = QtWidgets.QWidgetItem(widget)
+        self._itemList.insert(index, item)
+        self.invalidate()
+
+    def insertItem(self, index, item):
+        self._itemList.insert(index, item)
+        self.invalidate()
+
     def horizontalSpacing(self):
         if self._hSpace >= 0:
             return self._hSpace
@@ -375,6 +390,7 @@ class RigItemWidget(QtWidgets.QFrame):
     """Widget representing a single rig card in the grid."""
 
     imageUpdated = QtCore.Signal()
+    dataChanged = QtCore.Signal(str, object)  # key, value
     filterRequested = QtCore.Signal(str, str)
     editRequested = QtCore.Signal(str)
     removeRequested = QtCore.Signal(str)
@@ -391,6 +407,13 @@ class RigItemWidget(QtWidgets.QFrame):
 
         self._build_ui()
         self.update_state()
+
+    def update_data(self, data):
+        """Updates internal data and refreshes UI."""
+        self.data = data
+        self.update_image_display()
+        self.set_exists(data.get("exists", True))
+        self._formatTooltip()
 
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
@@ -533,9 +556,7 @@ class RigItemWidget(QtWidgets.QFrame):
         if path:
             new_name = utils.save_image_local(path, self.name)
             if new_name:
-                self.data["image"] = new_name
-                self.imageUpdated.emit()
-                self.update_image_display()
+                self.dataChanged.emit("image", new_name)
 
     # ---------- State & Actions ----------
 
@@ -569,9 +590,7 @@ class RigItemWidget(QtWidgets.QFrame):
             self, "Locate Rig File", directory, "Maya Files (*.ma *.mb);;All Files (*.*)"
         )
         if path:
-            self.data["path"] = path
-            self.imageUpdated.emit()
-            self.set_exists(True)
+            self.dataChanged.emit("path", path)
 
     def update_state(self):
         # Check current references in scene
@@ -657,10 +676,115 @@ class RigItemWidget(QtWidgets.QFrame):
                 self.update_state()
 
     def show_info(self):
-        dlg = InfoDialog(self.name, self.data, self)
-        dlg.filterRequested.connect(self.filterRequested.emit)
-        dlg.editRequested.connect(lambda: self.editRequested.emit(self.name))
-        dlg.exec_()
+        self._curr_info_dlg = InfoDialog(self.name, self.data, self)
+        self._curr_info_dlg.filterRequested.connect(self.filterRequested.emit)
+        self._curr_info_dlg.editRequested.connect(lambda: self.editRequested.emit(self.name))
+        self._curr_info_dlg.exec_()
+        self._curr_info_dlg = None
+
+    def close_info_dialog(self):
+        """Force close the info dialog if open."""
+        if getattr(self, "_curr_info_dlg", None):
+            self._curr_info_dlg.accept()
+
+
+
+class ElidedClickableLabel(QtWidgets.QLabel):
+    """Label that elides text from the left and supports clicking."""
+    clicked = QtCore.Signal()
+
+    def __init__(self, text, parent=None):
+        super(ElidedClickableLabel, self).__init__(text, parent)
+        self._full_text = text
+        # Expanding allows shrinking down to minimumSizeHint, unlike MinimumExpanding which uses sizeHint as minimum
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+        self.setToolTip(text)
+
+    def setText(self, text):
+        self._full_text = text
+        self.setToolTip(text)
+        self.updateGeometry()
+        self.update()
+
+    def minimumSizeHint(self):
+        # Allow shrinking very small so window isn't forced wide
+        return QtCore.QSize(10, super(ElidedClickableLabel, self).minimumSizeHint().height())
+
+    def sizeHint(self):
+        # Ideally request full width
+        fm = self.fontMetrics()
+        w = fm.horizontalAdvance(self._full_text) if hasattr(fm, "horizontalAdvance") else fm.width(self._full_text)
+        return QtCore.QSize(w, super(ElidedClickableLabel, self).sizeHint().height())
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        metrics = painter.fontMetrics()
+        
+        # Elide from left as requested
+        elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideLeft, self.width())
+        
+        # Draw styling for link-like appearance
+        if self.underMouse():
+             painter.setPen(QtGui.QColor("#7aa3ba")) # lighter blue hover
+        else:
+             painter.setPen(QtGui.QColor("#5285a6")) # standard link blue
+
+        painter.drawText(self.rect(), self.alignment() | QtCore.Qt.AlignVCenter, elided)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self.clicked.emit()
+
+
+class TagFlowWidget(QtWidgets.QWidget):
+    """Widget wrapper for FlowLayout to handle height-for-width correctly."""
+    def __init__(self, parent=None):
+        super(TagFlowWidget, self).__init__(parent)
+        self.setLayout(FlowLayout(margin=0, hSpacing=4, vSpacing=4))
+        self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+
+    def add_tag(self, text, callback):
+        btn = QtWidgets.QPushButton(str(text))
+        btn.setCursor(QtCore.Qt.PointingHandCursor)
+        btn.setFixedHeight(22)
+        btn.setStyleSheet("""
+            QPushButton {
+                background-color: #444;
+                border: 1px solid #555;
+                border-radius: 10px;
+                color: #eee;
+                padding: 0px 10px;
+                font-size: 11px;
+            }
+            QPushButton:hover {
+                background-color: #555;
+                color: #fff;
+                border-color: #666;
+            }
+            QPushButton:pressed {
+                background-color: #222;
+            }
+        """)
+        btn.clicked.connect(callback)
+        self.layout().addWidget(btn)
+
+    def hasHeightForWidth(self):
+        return True
+
+    def heightForWidth(self, width):
+        return self.layout().heightForWidth(width)
+
+    def sizeHint(self):
+        # Provide a default reasonable size hint logic
+        w = self.width() if self.width() > 0 else 300
+        h = self.layout().heightForWidth(w)
+        return QtCore.QSize(w, h)
+        
+    def resizeEvent(self, event):
+        # Critical: Inform parent layout that our height might have changed due to new width
+        self.updateGeometry()
+        super(TagFlowWidget, self).resizeEvent(event)
 
 
 # -------------------- Info Dialog --------------------
@@ -673,7 +797,8 @@ class InfoDialog(QtWidgets.QDialog):
     def __init__(self, name, data, parent=None):
         super(InfoDialog, self).__init__(parent)
         self.setWindowTitle(name)
-        self.resize(300, 400)
+        self.setMinimumHeight(450)
+        self.resize(350, 500)
         self.data = data
         self.name = name
 
@@ -741,39 +866,57 @@ class InfoDialog(QtWidgets.QDialog):
         if not value and not filter_cat:
             value = "Empty"
 
+        # 1. Tags (List) -> TagFlowWidget
+        if filter_cat == "Tags" and isinstance(value, list):
+            if not value:
+                lbl = QtWidgets.QLabel("Empty")
+                lbl.setStyleSheet("color: #888; font-style: italic;")
+                self.form_layout.addRow(label + ":", lbl)
+                return
+
+            container = TagFlowWidget()
+            for tag in value:
+                # Capture tag for lambda
+                callback = lambda checked=False, t=tag: self._emit_filter("Tags", t)
+                container.add_tag(tag, callback)
+            
+            self.form_layout.addRow(label + ":", container)
+            return
+
+        # 2. Path or Link -> ElidedClickableLabel
+        if (is_link or is_path) and value != "Empty":
+            elided_lbl = ElidedClickableLabel(value)
+            heading_lbl = QtWidgets.QLabel(label + ":")
+            
+            if is_link:
+                href = value if value.startswith("http") else "http://" + value
+                elided_lbl.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(href)))
+            elif is_path:
+                elided_lbl.clicked.connect(lambda: self._open_folder(value))
+                
+            self.form_layout.addRow(heading_lbl, elided_lbl)
+            return
+
+        # 3. Standard Text / Filter Links (Collection/Author)
         lbl = QtWidgets.QLabel()
         lbl.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
         lbl.setWordWrap(True)
 
-        if is_link and value != "Empty":
-            href = value if value.startswith("http") else "http://" + value
-            lbl.setText(self._link_tmpl % (href, href))
-            lbl.setOpenExternalLinks(True)
+        if filter_cat:
+            # Collection/Author
+            disp = value or "Empty"
+            filt = value or "Empty"
+            if disp == "Empty":
+                disp = "<i>Empty</i>"
 
-        elif is_path and value != "Empty":
-            lbl.setText(self._link_tmpl % (value, value))
-            lbl.setToolTip("Click to open folder")
-            lbl.linkActivated.connect(self._open_folder)
-
-        elif filter_cat:
-            # Handle list (Tags) or string (Collection)
-            if isinstance(value, list):  # Tags
-                if not value:
-                    lbl.setText("Empty")
-                else:
-                    links = [self._filter_tmpl % (i, i) for i in value]
-                    lbl.setText(", ".join(links))
-                    lbl.linkActivated.connect(lambda v: self._emit_filter(filter_cat, v))
-            else:  # Collection/Author
-                disp = value if value else "Empty"
-                filt = value if value else "Empty"
-                if disp == "Empty":
-                    disp = "<i>Empty</i>"
-
-                lbl.setText(self._filter_tmpl % (filt, disp))
-                lbl.linkActivated.connect(lambda v: self._emit_filter(filter_cat, v))
+            lbl.setText(self._filter_tmpl % (filt, disp))
+            lbl.linkActivated.connect(lambda v: self._emit_filter(filter_cat, v))
         else:
-            lbl.setText(str(value))
+            if value == "Empty":
+                lbl.setText("<i>Empty</i>")
+                lbl.setStyleSheet("color: #888;")
+            else:
+                lbl.setText(str(value))
             lbl.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
 
         self.form_layout.addRow(label + ":", lbl)
@@ -784,7 +927,6 @@ class InfoDialog(QtWidgets.QDialog):
 
     def _on_edit(self):
         self.editRequested.emit()
-        self.accept()
 
     def _open_folder(self, path):
         path = os.path.normpath(path)
@@ -801,63 +943,175 @@ class InfoDialog(QtWidgets.QDialog):
             subprocess.Popen(["xdg-open", target])
 
 
-# -------------------- Edit Dialog --------------------
 
+class TagEditor(QtWidgets.QWidget):
+    """Widget for editing tags with visual pills."""
 
-class TagsLineEdit(QtWidgets.QLineEdit):
-    """QLineEdit with comma-separated auto-completion."""
+    def __init__(self, tags=None, parent=None):
+        super(TagEditor, self).__init__(parent)
 
-    def __init__(self, tags, parent=None):
-        super(TagsLineEdit, self).__init__(parent)
-        self.completer = QtWidgets.QCompleter(tags, self)
-        self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
-        self.completer.setWidget(self)
-        self.completer.activated.connect(self.insert_completion)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.all_tags = sorted(list(tags)) if tags else []
+        self.current_tags = []
 
-    def keyPressEvent(self, event):
-        super(TagsLineEdit, self).keyPressEvent(event)
+        self.setLayout(FlowLayout(margin=0, hSpacing=4, vSpacing=4))
 
-        text = self.text()[: self.cursorPosition()]
+        # Input Field
+        self.input_line = QtWidgets.QLineEdit()
+        self.input_line.setPlaceholderText("Add tag...")
+        self.input_line.setFixedHeight(22)
+        self.input_line.setStyleSheet("background: transparent; border: none; color: #eee;")
+        self.input_line.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
+        
+        self.input_line.textChanged.connect(self._update_input_width)
+        self.input_line.returnPressed.connect(self._on_return_pressed)
+        self.input_line.installEventFilter(self)
+
+        # Completer
+        if self.all_tags:
+            self.completer = QtWidgets.QCompleter(self.all_tags, self)
+            self.completer.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+            self.completer.setFilterMode(QtCore.Qt.MatchContains)
+            self.completer.activated.connect(self._on_completer_activated)
+            self.input_line.setCompleter(self.completer)
+            
+        self._refresh_ui()
+        self._update_input_width()
+
+    def _update_input_width(self, text=None):
+        if text is None:
+            text = self.input_line.text()
+            
+        fm = self.input_line.fontMetrics()
+        
+        def get_width(t):
+            if hasattr(fm, "horizontalAdvance"):
+                return fm.horizontalAdvance(t)
+            return fm.width(t)
+
+        w_text = get_width(text)
+        w_place = get_width(self.input_line.placeholderText())
+        
+        # Ensure it fits "Add tag..." or current text, plus padding
+        width = max(w_text, w_place) + 20
+        self.input_line.setFixedWidth(width)
+
+    def eventFilter(self, source, event):
+        if source == self.input_line and event.type() == QtCore.QEvent.KeyPress:
+            if event.key() == QtCore.Qt.Key_Backspace and not self.input_line.text():
+                if self.current_tags:
+                    self.remove_tag(self.current_tags[-1])
+                    return True
+        return super(TagEditor, self).eventFilter(source, event)
+
+    def _on_completer_activated(self, text):
+        if text:
+            self.add_tag(text)
+
+    def _on_return_pressed(self):
+        text = self.input_line.text().strip()
         if not text:
-            self.completer.popup().hide()
             return
 
-        prefix = text.split(",")[-1].strip()
-        if prefix:
-            self.completer.setCompletionPrefix(prefix)
-            if self.completer.completionCount() > 0:
-                rect = self.cursorRect()
-                rect.setWidth(self.completer.popup().sizeHintForColumn(0) + 10)
-                self.completer.complete(rect)
-            else:
-                self.completer.popup().hide()
-        else:
-            self.completer.popup().hide()
+        parts = [t.strip() for t in text.split(",") if t.strip()]
+        for part in parts:
+            self.add_tag(part)
 
-    def insert_completion(self, completion):
-        completion = str(completion)
-        text = self.text()
-        pos = self.cursorPosition()
+    def add_tag(self, text):
+        if not text:
+            return
+            
+        # Case-insensitive check
+        if any(t.lower() == text.lower() for t in self.current_tags):
+            return
 
-        # Find the start of the current tag being edited
-        start_index = text.rfind(",", 0, pos) + 1
+        self.current_tags.append(text)
+        self._refresh_ui()
 
-        # Check if we need to add a separator after completion
-        remaining = text[pos:]
-        separator = ", "
-        if remaining.lstrip().startswith(","):
-            separator = ""
+        # Defer clearing to handle QCompleter's default behavior which might restore text
+        QtCore.QTimer.singleShot(0, self._post_add_cleanup)
 
-        # Construct new text
-        new_text = text[:start_index] + " " + completion + separator + remaining
+    def _post_add_cleanup(self):
+        self.input_line.clear()
+        self.input_line.setFocus()
 
-        # Clean up
-        new_text = new_text.replace("  ", " ")
-        if new_text.startswith(" "):
-            new_text = new_text[1:]
+    def remove_tag(self, text):
+        if text in self.current_tags:
+            self.current_tags.remove(text)
+            self._refresh_ui()
 
-        self.setText(new_text)
-        self.setCursorPosition(len(new_text) - len(remaining))
+    def _create_pill_widget(self, text):
+        pill = QtWidgets.QFrame()
+        pill.setObjectName("TagPill")
+        pill.setFixedHeight(22)
+        pill.setStyleSheet("""
+            #TagPill {
+                background-color: #444;
+                border: 1px solid #555;
+                border-radius: 10px;
+            }
+        """)
+
+        layout = QtWidgets.QHBoxLayout(pill)
+        layout.setContentsMargins(8, 0, 4, 0)
+        layout.setSpacing(4)
+
+        label = QtWidgets.QLabel(text)
+        label.setStyleSheet("background: transparent; border: none; color: #eee; font-size: 11px;")
+        layout.addWidget(label)
+
+        close_btn = QtWidgets.QPushButton("✕")
+        close_btn.setFixedSize(16, 16)
+        close_btn.setCursor(QtCore.Qt.PointingHandCursor)
+        close_btn.setStyleSheet("""
+            QPushButton {
+                border: none;
+                background: transparent;
+                color: #aaa;
+                font-weight: bold;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #666;
+                color: #fff;
+            }
+        """)
+        # Using default arg to capture 'text' value correctly in loop/scope
+        close_btn.clicked.connect(lambda checked=False, t=text: self.remove_tag(t))
+        layout.addWidget(close_btn)
+        
+        return pill
+
+    def _refresh_ui(self):
+        layout = self.layout()
+        
+        # Remove all items safely
+        while layout.count():
+            item = layout.takeAt(0)
+            w = item.widget()
+            if w and w != self.input_line:
+                w.deleteLater()
+            
+        # Add pills
+        for tag in self.current_tags:
+            pill = self._create_pill_widget(tag)
+            layout.addWidget(pill)
+            pill.show()
+            
+        # Add input line
+        layout.addWidget(self.input_line)
+        self.input_line.show()
+
+    def getTags(self):
+        return list(self.current_tags)
+
+    def setTags(self, tags):
+        self.current_tags = list(tags) if tags else []
+        self._refresh_ui()
+
+    def setPlaceholderText(self, text):
+        self.input_line.setPlaceholderText(text)
+
 
 
 # -------------------- Batch Add / Scanner --------------------
@@ -924,7 +1178,6 @@ class ScannerItemWidget(QtWidgets.QWidget):
         # Path Label (Elided)
         self.path_lbl = QtWidgets.QLabel(path)
         self.path_lbl.setToolTip(path)
-        self.path_lbl.setStyleSheet("font-size: 9pt;")
         self.path_lbl.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
         self._is_added = False
         layout.addWidget(self.path_lbl, 1)
@@ -936,12 +1189,9 @@ class ScannerItemWidget(QtWidgets.QWidget):
 
         self.edit_btn = QtWidgets.QPushButton()
         if category == "new":
-            # self.edit_btn.setText("Add")
-            self.edit_btn.setIcon(utils.get_icon("add.svg"))
             self.edit_btn.setToolTip("Configure and add/update this rig")
             self.edit_btn.setFixedSize(22, 22)
         else:
-            # self.edit_btn.setText("Edit")
             self.edit_btn.setIcon(utils.get_icon("edit.svg"))
             self.edit_btn.setToolTip("Configure and add/update this rig")
             self.edit_btn.setFixedSize(22, 22)
@@ -960,14 +1210,13 @@ class ScannerItemWidget(QtWidgets.QWidget):
         else:
             self.blacklist_btn = QtWidgets.QPushButton()
             self.blacklist_btn.setIcon(utils.get_icon("blacklist.svg"))
-            # self.blacklist_btn.setText("Blacklist")
             self.blacklist_btn.setToolTip("Don't show this file again")
             self.blacklist_btn.setFixedSize(22, 22)
             self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
             self.btn_layout.addWidget(self.blacklist_btn)
 
             if category == "exists":
-                self.path_lbl.setStyleSheet("QLabel { color: #aaa; font-size: 9pt; }")
+                self.path_lbl.setStyleSheet("QLabel { color: #aaa;}")
 
     def paintEvent(self, event):
         """Update elided text on the path label manually to ensure it fits with two-tone colors."""
@@ -1020,7 +1269,7 @@ class ScannerItemWidget(QtWidgets.QWidget):
         self._is_added = True
         self.edit_btn.setText("Edit")
         # styleSheet still sets basic props, paintEvent handles colors/bold
-        self.path_lbl.setStyleSheet("font-weight: bold; font-size: 9pt;")
+        self.path_lbl.setStyleSheet("font-weight: bold;")
         self._last_rich_text = ""  # Force refresh
         self.update()
 
@@ -1048,7 +1297,6 @@ class ScannerItemWidget(QtWidgets.QWidget):
             self.whitelist_btn.setFixedSize(65, 22)
             self.whitelist_btn.clicked.connect(lambda: self.whitelistRequested.emit(self.path))
             self.btn_layout.addWidget(self.whitelist_btn)
-            self.path_lbl.setStyleSheet("font-size: 9pt;")  # Reset style, color handled by paintEvent
         else:
             self.blacklist_btn = QtWidgets.QPushButton()
             self.blacklist_btn.setText("Blacklist")
@@ -1056,9 +1304,6 @@ class ScannerItemWidget(QtWidgets.QWidget):
             self.blacklist_btn.setFixedSize(65, 22)
             self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
             self.btn_layout.addWidget(self.blacklist_btn)
-
-            # Reset style, color handled by paintEvent
-            self.path_lbl.setStyleSheet("font-size: 9pt;")
 
 
 class CollapsibleSection(QtWidgets.QWidget):
@@ -1087,7 +1332,6 @@ class CollapsibleSection(QtWidgets.QWidget):
         # Scroll Area for content
         self.scroll = QtWidgets.QScrollArea()
         self.scroll.setWidgetResizable(True)
-        # self.scroll.setMaximumHeight(200)
         self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setVisible(False)
@@ -1380,8 +1624,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
         # Container for rows
         self.replacements_container = QtWidgets.QWidget()
         self.replacements_layout = QtWidgets.QVBoxLayout(self.replacements_container)
-        self.replacements_layout.setContentsMargins(0, 0, 0, 0)
-        self.replacements_layout.setSpacing(5)
+        self.replacements_layout.setContentsMargins(2, 8, 2, 8)
+        self.replacements_layout.setSpacing(8)
 
         # Scroll area for many replacements
         self.replacements_scroll = ResponsiveScrollArea()
@@ -1391,14 +1635,14 @@ class ManageRigsDialog(QtWidgets.QDialog):
         lay_paths.addWidget(self.replacements_scroll)
 
         # Add Button
+        lay_add = QtWidgets.QHBoxLayout()
         add_btn = QtWidgets.QPushButton("Add Replacement")
         add_btn.setIcon(utils.get_icon("add.svg"))
-        add_btn.setStyleSheet("""
-            QPushButton { text-align: left; padding: 5px; font-weight: bold;}
-            QPushButton:hover { background-color: #444; }
-        """)
+        add_btn.setStyleSheet("font-weight: bold;")
         add_btn.clicked.connect(lambda: self._add_replacement_row("", ""))
-        lay_paths.addWidget(add_btn)
+        lay_add.addWidget(add_btn)
+        lay_add.addStretch()
+        lay_paths.addLayout(lay_add)
 
         layout.addWidget(grp_paths)
         layout.addStretch()
@@ -1482,8 +1726,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
                         rep_edit, QtWidgets.QLineEdit
                     ):
-                        f_txt = find_edit.text()
-                        r_txt = rep_edit.text()
+                        f_txt = self.normpath_posix_keep_trailing(find_edit.text())
+                        r_txt = self.normpath_posix_keep_trailing(rep_edit.text())
                         # Only save if at least find_txt has something
                         if f_txt or r_txt:
                             data.append([f_txt, r_txt])
@@ -1491,11 +1735,18 @@ class ManageRigsDialog(QtWidgets.QDialog):
         json_str = json.dumps(data)
         self.settings.setValue("path_replacements", json_str)
 
+    @staticmethod
+    def normpath_posix_keep_trailing(path):
+        has_trailing = path.endswith(("/", "\\"))
+        norm = os.path.normpath(path).replace("\\", "/")
+        if has_trailing and not norm.endswith("/"):
+            norm += "/"
+        return norm
+
     def _populate_existing(self):
         # Populate sec_exists and sec_black from full database since no directory scan
         self.sec_exists.set_empty_text("Database is empty.")
 
-        # We need fake "Item" widgets, but ScannerItemWidget expects a path.
         # We can iterate rig_data
         for name, data in self.rig_data.items():
             path = data.get("path", "")
@@ -1626,9 +1877,6 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         # Gather new paths
         new_paths = []
-        # sec_new._items contains ScannerItemWidget
-        # But CollapsibleSection._items are widgets.
-        # We need to access the path from them.
         for widget in self.sec_new._items:
             if isinstance(widget, ScannerItemWidget):
                 new_paths.append(widget.path)
@@ -1652,8 +1900,6 @@ class ManageRigsDialog(QtWidgets.QDialog):
             return
 
         # Results is dict: { "CharacterName": { "path": ..., "tags": ... } }
-        # We need to match these back to our ScannerItemWidgets in sec_new.
-        # But our widgets are by PATH.
         # The result keys are character names.
 
         count = 0
@@ -1663,14 +1909,6 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 continue
 
             norm_p = os.path.normpath(path)
-            # Find widget?
-            # We have self._widgets_map[path] (original path)
-            # We might need to handle normalization matching if path format differs
-
-            # Simple try
-            # If path came from our list, it should match?
-            # Gemini might alter path formatting?
-            # Let's try direct look up first.
             matching_widget = None
             for p, wid in self._widgets_map.items():
                 if os.path.normpath(p) == norm_p:
@@ -1902,10 +2140,12 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         # Tags
         orig_tags = self.rig_data.get("tags", [])
-        tag_str = ", ".join(orig_tags) if isinstance(orig_tags, list) else (orig_tags or "")
-        self.tags_input = TagsLineEdit(self.tags)
-        self.tags_input.setText(tag_str)
-        self.tags_input.setPlaceholderText("human, biped, prop...")
+        # Ensure orig_tags is a list
+        if not isinstance(orig_tags, list):
+            orig_tags = [t.strip() for t in str(orig_tags).split(",") if t.strip()]
+            
+        self.tags_input = TagEditor(self.tags)
+        self.tags_input.setTags(orig_tags)
         form.addRow("Tags:", self.tags_input)
 
         # Collection
@@ -1980,7 +2220,7 @@ class RigSetupDialog(QtWidgets.QDialog):
 
     def accept_data(self):
         name = self.name_input.text().strip()
-        tags = list(set([t.strip() for t in self.tags_input.text().split(",") if t.strip()]))
+        tags = self.tags_input.getTags()
 
         # Image handling
         img_name = self.rig_data.get("image", "")

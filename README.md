@@ -11,8 +11,9 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 - **Context Actions**: Right-click to Edit Details, Open Rig Scene, Show in Folder, or Remove Rig.
 - **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
 - **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion.
+- **Path Replacements**: Define local path swaps (e.g., `D:/Rigs` -> `Z:/Server/Rigs`) to share databases across different machines/OS without breaking paths.
+- **AI Auto-Tagging**: Optional Google Gemini integration to automatically analyze file names and suggest metadata for batch imports.
 - **JSON Database**: Lightweight and portable data storage (`rigs_database.json` and `blacklist.json`).
-- **Python 2 & 3 Compatible**: Works across multiple Maya versions.
 
 ## Installation
 
@@ -59,11 +60,11 @@ RigsUI.show()
 
 ## Changelog
 
-### v0.0.9
-- **Manage Rigs UI**: Improved stretch behavior and resizing logic for a cleaner experience when collapsing/expanding sections.
-- **Path Replacements**: Added a smart scrolling layout ensuring replacements fit the available space comfortably.
-- **Duplicate Warnings**: Improved validation when manually adding duplicate rigs, now displaying a clear warning message while maintaining item highlighting.
-- **User Interface**: General polish to the layout and interaction flow.
+### v0.0.10
+- **Status Filters**: New "Available" and "Referenced" filters to quickly check file status.
+- **Tag Editor 2.0**: New visual tag editor with "pills", auto-complete, and improved interaction.
+- **Safe Path Replacements**: Non-destructive path swapping at runtime ensures your database remains portable.
+- **Manage Rigs UI**: Improved stretch behavior and resizing logic.
 
 ## Issues
 
