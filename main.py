@@ -979,7 +979,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 kwargs["tabToControl"] = [dock_target, -1]
             else:
                 kwargs["floating"] = True
-
         try:
             cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, **kwargs)
             if floating and pos and size:
@@ -1011,6 +1010,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self.sort_menu.set_sort(key, asc)
         except Exception as e:
             LOG.error("Error loading filters: {}".format(e))
+
+    def floatingChanged(self, floating):
+        self.settings.setValue("floating", floating)
 
     def dockCloseEventTriggered(self):
         self.save_windowPosition()
