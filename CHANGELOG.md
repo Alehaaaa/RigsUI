@@ -1,11 +1,23 @@
 # Changelog
 
 All notable changes to this project will be documented in this file.
+
+## [0.0.11] - 2025-12-27
+### 📦 Changed
+- **Visual Polish**: 
+    - Updated `PillWidget` styling for better visibility and easier interaction.
+    - Standardized naming and title constants across the application.
+- **Code Cleanup**: Removed redundant debug prints and internal implementation comments.
+
+### 🐛 Fixed
+- **Manage Rigs Database Population**: Fixed a bug where blacklisted items could incorrectly display data from a previous rig entry during scanning.
+- **Tag Editor UX**: Improved the responsiveness of tag removal. Clicking the "✕" button on a tag pill now reliably removes the tag.
+
 ## [0.0.10] - 2025-12-27
 ### 🚀 Added
 - **Status Filters**: New filters filter rigs by status:
-    - **Available**: Shows only rigs where the file exists on disk.
-    - **Referenced**: Shows only rigs currently referenced in the active Maya scene.
+    - **Only Available**: Shows only rigs where the file exists on disk.
+    - **Only Referenced**: Shows only rigs currently referenced in the active Maya scene.
 - **Tag Editor**: Redesigned input for tags using interactive "pills":
     - Visual representation of tags with remove (x) buttons.
     - Smart auto-complete dropdown from existing tags.

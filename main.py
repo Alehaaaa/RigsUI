@@ -16,7 +16,7 @@ from .widgets import (
 
 import maya.cmds as cmds  # type: ignore
 from . import utils
-from . import VERSION
+from . import VERSION, TOOL_TITLE
 
 try:
     from PySide6 import QtWidgets, QtCore  # type: ignore
@@ -46,8 +46,6 @@ LOG.setLevel(logging.DEBUG)
 LOG.disabled = True
 
 # -------------------- Constants --------------------
-TOOL_TITLE = "Rigs Library"
-
 RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs_database.json")
 BLACKLIST_JSON = os.path.join(utils.MODULE_DIR, "blacklist.json")
 
@@ -168,10 +166,10 @@ class SearchWorker(QtCore.QObject):
                 # Status
                 if sel.get("Status"):
                     statuses = sel.get("Status")
-                    if "Available" in statuses and not data.get("exists"):
+                    if "Only Available" in statuses and not data.get("exists"):
                         match_dropdown = False
-                    
-                    if match_dropdown and "Referenced" in statuses:
+
+                    if match_dropdown and "Only Referenced" in statuses:
                         p = data.get("path")
                         norm = os.path.normpath(p).lower() if p else ""
                         if not norm or norm not in self.referenced_set:
@@ -218,7 +216,6 @@ class SearchWorker(QtCore.QObject):
 
 
 class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
-    TOOL_TITLE = TOOL_TITLE
     TOOL_OBJECT_NAME = TOOL_TITLE.replace(" ", "")
     WINDOW_TITLE = "{} v{}".format(TOOL_TITLE, VERSION)
     WORKSPACE_CONTROL_NAME = "{}WorkspaceControl".format(TOOL_OBJECT_NAME)
@@ -227,9 +224,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         parent = parent or _get_maya_main_window()
         super(LibraryUI, self).__init__(parent)
         self.setObjectName(self.TOOL_OBJECT_NAME)
-        self.settings = QtCore.QSettings(self.TOOL_TITLE, None)
+        self.settings = QtCore.QSettings(TOOL_TITLE, None)
 
-        self.rig_data = {}      # Raw data from JSON (Persistent)
+        self.rig_data = {}  # Raw data from JSON (Persistent)
         self.display_data = {}  # Runtime data with path replacements applied
         self.blacklist = []
         self._widgets_map = {}  # Cache for widgets: {name: RigItemWidget}
@@ -239,23 +236,22 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self._search_worker = None
 
         self._build_ui()
-        
+
         # Initial Load Sequence:
         # 1. Load raw data from disk
-        self._load_rig_database() # Populates self.rig_data
-        self._load_blacklist()    # Populates self.blacklist
-        
+        self._load_rig_database()  # Populates self.rig_data
+        self._load_blacklist()  # Populates self.blacklist
+
         # 2. Build filter menu structure based on loaded data
         self._update_metadata_and_menus()
-        
+
         # 3. Restore filter states (now that menus exist)
-        self.load_filters() 
+        self.load_filters()
         # Also sync window position from settings if possible, or wait for show()
 
     def showEvent(self, event):
         super(LibraryUI, self).showEvent(event)
-        # 4. Defer heavyweight widget creation until shown to ensure correct geometry
-        #    This replaces the previous 'load_data' call in showEvent
+        # Defer heavyweight widget creation until shown to ensure correct geometry
         QtCore.QTimer.singleShot(0, lambda: self._populate_grid(trigger_search=True))
 
     # ---------- UI Setup ----------
@@ -265,14 +261,15 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # Top Bar
         top_layout = QtWidgets.QHBoxLayout()
+        main_layout.addLayout(top_layout)
 
         # Add Button
-        self.add_btn = QtWidgets.QPushButton()
+        self.add_btn = QtWidgets.QPushButton(self)
         self.add_btn.setIcon(utils.get_icon("add.svg"))
         self.add_btn.setFixedSize(25, 25)
         self.add_btn.setToolTip("Add new rig(s)")
 
-        self.add_menu = OpenMenu(self)
+        self.add_menu = OpenMenu(parent=self)
         self.add_menu.addAction("Add Manually", self.add_new_rig)
         self.add_menu.addAction("Scan Folder", self.batch_add_rigs)
         self.add_btn.setMenu(self.add_menu)
@@ -285,52 +282,50 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         top_layout.addWidget(self.add_btn)
 
         # Search
-        self.search_input = QtWidgets.QLineEdit()
+        self.search_input = QtWidgets.QLineEdit(self)
         self.search_input.setFixedHeight(25)
         self.search_input.setPlaceholderText("Search name, tag:human, collection:M-Bundle...")
         self.search_input.textChanged.connect(self.trigger_search)
         top_layout.addWidget(self.search_input)
 
         # Filters
-        self.filter_menu = FilterMenu("Filters")
+        self.filter_menu = FilterMenu("Filters", parent=self)
         self.filter_menu.setFixedHeight(25)
         self.filter_menu.setToolTip("Filter rigs by category")
         self.filter_menu.selectionChanged.connect(self.trigger_search)
         top_layout.addWidget(self.filter_menu)
 
         # Sort
-        self.sort_menu = SortMenu("Sort")
+        self.sort_menu = SortMenu("Sort", parent=self)
         self.sort_menu.setFixedHeight(25)
         self.sort_menu.setToolTip("Sort rigs")
         self.sort_menu.sortChanged.connect(lambda k, b: self._populate_grid())
         top_layout.addWidget(self.sort_menu)
 
         # Refresh
-        self.refresh_btn = QtWidgets.QPushButton("Refresh")
+        self.refresh_btn = QtWidgets.QPushButton("Refresh", self)
         self.refresh_btn.setIcon(utils.get_icon("refresh.svg"))
         self.refresh_btn.setFixedHeight(25)
         self.refresh_btn.setToolTip("Refresh rigs from database")
         self.refresh_btn.clicked.connect(lambda: self.load_data())
         top_layout.addWidget(self.refresh_btn)
 
-        main_layout.addLayout(top_layout)
-
         # Scroll Area
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = QtWidgets.QScrollArea(self)
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
 
-        self.container = QtWidgets.QWidget()
+        self.container = QtWidgets.QWidget(self.scroll)
         self.flow_layout = FlowLayout(self.container)
 
         self.scroll.setWidget(self.container)
         main_layout.addWidget(self.scroll)
 
-        # Create Menu Bar (must be added after layout setup to sit at top correctly, or using QMenuBar)
+        # Create Menu Bar
         self.create_menus()
 
     def create_menus(self):
-        self.menu_bar = QtWidgets.QMenuBar()
+        self.menu_bar = QtWidgets.QMenuBar(self)
         self.layout().setMenuBar(self.menu_bar)
 
         # Library Menu
@@ -408,13 +403,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         layout = QtWidgets.QVBoxLayout(dlg)
 
-        lbl = QtWidgets.QLabel(message)
+        lbl = QtWidgets.QLabel(message, dlg)
         lbl.setAlignment(QtCore.Qt.AlignCenter)
         lbl.setWordWrap(True)
         lbl.setStyleSheet("font-size: 11pt; padding: 10px;")
         layout.addWidget(lbl)
 
-        btn = QtWidgets.QPushButton("OK")
+        btn = QtWidgets.QPushButton("OK", dlg)
         btn.setCursor(QtCore.Qt.PointingHandCursor)
         btn.clicked.connect(dlg.accept)
         btn.setStyleSheet(
@@ -446,11 +441,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # 1. Load Data
         self._load_rig_database()
         self._load_blacklist()
-        
+
         # 2. Update UI Metadata (Filter options)
-        # IMPORTANT: We must preserve current usage selection if possible, 
-        # or rely on load_filters if we want to reset to saved settings.
-        # Here we re-apply saved settings to be safe.
         self._update_metadata_and_menus()
         self.load_filters()
 
@@ -472,7 +464,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 self.rig_data = {}
         else:
             self.rig_data = {}
-            
+
         # Create Display Data (Clone)
         self.display_data = json.loads(json.dumps(self.rig_data))
 
@@ -504,12 +496,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # Normalize first
         path = os.path.normpath(path).replace("\\", "/")
         for find_str, rep_str in replacements:
-            print(find_str)
-            print(rep_str)
-            print(path)
             if find_str in path:
                 path = path.replace(find_str, rep_str)
-            print(path)
         return path
 
     def _load_blacklist(self):
@@ -569,13 +557,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.filter_menu.set_items(
             sections={
-                "Status": ["Available", "Referenced"],
+                "Status": ["Only Available", "Only Referenced"],
                 "Tags": sorted(list(all_tags)),
                 "Collections": cols_sorted,
                 "Author": auths_sorted,
             }
         )
-        # Note: This resets the menu items (clearing checks). 
+        # Note: This resets the menu items (clearing checks).
         # Call load_filters() immediately after this if you want to restore state.
 
     def save_blacklist(self):
@@ -610,6 +598,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         for name in to_remove:
             wid = self._widgets_map.pop(name)
             if wid:
+                wid.hide()
                 self.flow_layout.removeWidget(wid)
                 wid.setParent(None)
                 wid.deleteLater()
@@ -628,14 +617,14 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 val = data.get("collection")
             elif sort_mode == "Author":
                 val = data.get("author")
-            
+
             if not val or val == "Empty":
                 val = ""
-                
+
             # Always return a tuple for consistent comparison
             if sort_mode == "Name":
                 return (name.lower(), "")
-            
+
             return (val.lower(), name.lower())
 
         blacklist = set(self.blacklist)
@@ -679,9 +668,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     continue
 
             self.flow_layout.addWidget(wid)
-            # NOTE: We DO NOT force setVisible(True) here to avoid flashing content 
-            # that might be hidden by filters immediately after.
-            # Instead, we rely on trigger_search to set visibility.
 
         if trigger_search:
             self.trigger_search(sync=False)
@@ -690,7 +676,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     def trigger_search(self, sync=False):
         """
-        Runs the search logic. 
+        Runs the search logic.
         Args:
             sync (bool): If True, runs immediately in main thread (blocking).
                          Use this during startup to ensure correct initial state.
@@ -720,38 +706,17 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             pass
 
         # Create worker
-        # Use display_data for searching so we match resolved paths/tags
         worker = SearchWorker(self.display_data, search_text, filters, referenced_set)
 
         if sync:
             # Synchronous Execution
-            worker.run()
-            # Manually trigger finish callback since signals might be queued
-            # But wait, worker.finished is a signal. In sync mode we can just direct call?
-            # SearchWorker.run emits finished(list). We can connect a lambda capture or change worker.
-            # Actually, SearchWorker.run() in this code emits a signal. 
-            # Signals within same thread are immediate.
-            
-            # Connect temporarily
-            loop = QtCore.QEventLoop()
-            worker.finished.connect(self._on_search_finished)
-            worker.finished.connect(loop.quit)
-            
-            # Since we just called run() inside the same thread (main), and run() emits finished(),
-            # the slot should be called immediately if connection type is Direct.
-            # However, SearchWorker inherits QObject. 
-            # Let's modify SearchWorker.run to RETURN data as well? 
-            # Or just rely on signal.
-            
-            # Simpler: worker.run() logic is just logic. 
-            # Let's trust that emitting `finished` works.
             worker.finished.connect(self._on_search_finished)
             worker.run()
-            
+
         else:
             # Async Execution
             self._search_thread = QtCore.QThread()
-            self._search_worker = worker # Keep ref
+            self._search_worker = worker  # Keep ref
             self._search_worker.moveToThread(self._search_thread)
 
             self._search_thread.started.connect(self._search_worker.run)
@@ -882,8 +847,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             if path in norm_paths:
                 # Instead of popup, highlight existing
                 self._highlight_rig_by_name(name)
-                # Ensure we reset any search filter that might hide it?
-                # For now assuming it is visible or user will understand
                 return
 
         self._open_setup_dialog(mode="add", file_path=path)
@@ -917,7 +880,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     def _on_batch_rig_added(self, name, data):
         """Callback from ManageRigsDialog when a rig is configured and added."""
         self.rig_data[name] = data
-        # We don't save/reload here to avoid UI lag, the dialog exec finished will handle it
 
     def _on_blacklist_changed(self, new_blacklist):
         """Callback from ManageRigsDialog when blacklist is updated."""
@@ -956,13 +918,10 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             return
 
         # Keep ref to widget to close info dialog if needed
-        # Note: Logic inside _open_setup_dialog calls load_data -> _populate_grid 
-        # which might schedule this widget for deletion, but python ref keeps it valid 
-        # enough to call a method that closes its child dialog.
         wid = self._widgets_map.get(rig_name)
 
         saved = self._open_setup_dialog(mode="edit", rig_name=rig_name, rig_data=self.rig_data[rig_name])
-        
+
         if saved and wid:
             try:
                 wid.close_info_dialog()
@@ -1087,10 +1046,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             wid = self._widgets_map[rig_name]
             self.scroll.ensureWidgetVisible(wid)
 
-            # Simple flash effect using style
+            # Flash effect
             orig_style = wid.styleSheet()
-            # Assuming RigItemWidget has a specific object name or we just set style on it
-            # Let's just set a border/bg change temporarily
             wid.setStyleSheet(".RigItemWidget { background-color: #554444; border: 2px solid #DD5555; }")
 
             def restore():

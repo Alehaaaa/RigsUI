@@ -8,6 +8,9 @@ except ImportError:
 import os
 import io
 
+TOOL_TITLE = "Rigs Library"
+MOD_NAME = "RigsUI"
+
 # Expose version
 try:
     _v_path = os.path.join(os.path.dirname(__file__), "VERSION")
@@ -21,7 +24,7 @@ except Exception:
     VERSION = "0.0.0"
 
 
-def show(mod_name="RigsUI"):
+def show(mod_name=MOD_NAME):
     for name in list(sys.modules.keys()):
         if name == mod_name or name.startswith(mod_name + "."):
             sys.modules.pop(name, None)

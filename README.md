@@ -60,8 +60,13 @@ RigsUI.show()
 
 ## Changelog
 
+### v0.0.11
+- **Visual Polish & Stability**: Major fix for "popping" floating layouts and flicker during UI initialization.
+- **Tag Editor Fixes**: Robust tag removal and improved pill aesthetics.
+- **Improved UX**: Corrected menu parenting and standardized application titles.
+
 ### v0.0.10
-- **Status Filters**: New "Available" and "Referenced" filters to quickly check file status.
+- **Status Filters**: New "Only Available" and "Only Referenced" filters to quickly check file status.
 - **Tag Editor 2.0**: New visual tag editor with "pills", auto-complete, and improved interaction.
 - **Safe Path Replacements**: Non-destructive path swapping at runtime ensures your database remains portable.
 - **Manage Rigs UI**: Improved stretch behavior and resizing logic.

@@ -7,7 +7,7 @@ from maya import cmds
 
 try:
     from PySide6 import QtWidgets, QtCore, QtGui  # type: ignore
-    from PySide6.QtGui import QAction, QActionGroup
+    from PySide6.QtGui import QAction, QActionGroup  # type: ignore
 except ImportError:
     from PySide2 import QtWidgets, QtCore, QtGui  # type: ignore
     from PySide2.QtWidgets import QAction, QActionGroup
@@ -186,7 +186,7 @@ class FilterMenu(QtWidgets.QPushButton):
 
     def __init__(self, title, parent=None):
         super(FilterMenu, self).__init__(title, parent)
-        self.menu = OpenMenu(self)
+        self.menu = OpenMenu(parent=self)
         self.setMenu(self.menu)
         self._base_title = title
         self._update_button_text()
@@ -278,7 +278,7 @@ class SortMenu(QtWidgets.QPushButton):
 
     def __init__(self, title="Sort", parent=None):
         super(SortMenu, self).__init__(title, parent)
-        self.menu = OpenMenu(self)
+        self.menu = OpenMenu(parent=self)
         self.setMenu(self.menu)
         self._current_key = "Name"
         self._ascending = True
@@ -424,24 +424,24 @@ class RigItemWidget(QtWidgets.QFrame):
         self.customContextMenuRequested.connect(self.show_context_menu)
 
         # Image
-        self.image_lbl = ClickableLabel()
+        self.image_lbl = ClickableLabel(self)
         self.image_lbl.clicked.connect(self.change_image)
         layout.addWidget(self.image_lbl)
         self.update_image_display()
 
         # Name
-        self.name_lbl = QtWidgets.QLabel(self.name)
+        self.name_lbl = QtWidgets.QLabel(self.name, self)
         self.name_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.name_lbl.setStyleSheet("font-weight: bold;")
         layout.addWidget(self.name_lbl)
 
         # Buttons
         btn_layout = QtWidgets.QHBoxLayout()
-        self.action_btn = QtWidgets.QPushButton("ADD")
+        self.action_btn = QtWidgets.QPushButton("ADD", self)
         self.action_btn.setMinimumHeight(25)
         btn_layout.addWidget(self.action_btn, 2)
 
-        self.info_btn = QtWidgets.QPushButton()
+        self.info_btn = QtWidgets.QPushButton(self)
         self.info_btn.setIcon(utils.get_icon("info.svg"))
         self.info_btn.setCursor(CONTEXTUAL_CURSOR)
         self.info_btn.setFixedSize(25, 25)
@@ -587,7 +587,10 @@ class RigItemWidget(QtWidgets.QFrame):
         directory = os.path.dirname(old_path) if old_path else ""
 
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Locate Rig File", directory, "Maya Files (*.ma *.mb);;All Files (*.*)"
+            self,
+            "Locate Rig File",
+            directory,
+            "Maya Files (*.ma *.mb);;All Files (*.*)",
         )
         if path:
             self.dataChanged.emit("path", path)
@@ -688,9 +691,9 @@ class RigItemWidget(QtWidgets.QFrame):
             self._curr_info_dlg.accept()
 
 
-
 class ElidedClickableLabel(QtWidgets.QLabel):
     """Label that elides text from the left and supports clicking."""
+
     clicked = QtCore.Signal()
 
     def __init__(self, text, parent=None):
@@ -714,22 +717,22 @@ class ElidedClickableLabel(QtWidgets.QLabel):
     def sizeHint(self):
         # Ideally request full width
         fm = self.fontMetrics()
-        w = fm.horizontalAdvance(self._full_text) if hasattr(fm, "horizontalAdvance") else fm.width(self._full_text)
+        w = (
+            fm.horizontalAdvance(self._full_text)
+            if hasattr(fm, "horizontalAdvance")
+            else fm.width(self._full_text)
+        )
         return QtCore.QSize(w, super(ElidedClickableLabel, self).sizeHint().height())
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         metrics = painter.fontMetrics()
-        
+
         # Elide from left as requested
         elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideLeft, self.width())
-        
-        # Draw styling for link-like appearance
-        if self.underMouse():
-             painter.setPen(QtGui.QColor("#7aa3ba")) # lighter blue hover
-        else:
-             painter.setPen(QtGui.QColor("#5285a6")) # standard link blue
 
+        # Draw styling for link-like appearance
+        painter.setPen(QtGui.QColor("#74accc"))  # lighter blue hover
         painter.drawText(self.rect(), self.alignment() | QtCore.Qt.AlignVCenter, elided)
 
     def mousePressEvent(self, event):
@@ -739,35 +742,16 @@ class ElidedClickableLabel(QtWidgets.QLabel):
 
 class TagFlowWidget(QtWidgets.QWidget):
     """Widget wrapper for FlowLayout to handle height-for-width correctly."""
+
     def __init__(self, parent=None):
         super(TagFlowWidget, self).__init__(parent)
         self.setLayout(FlowLayout(margin=0, hSpacing=4, vSpacing=4))
         self.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
 
     def add_tag(self, text, callback):
-        btn = QtWidgets.QPushButton(str(text))
-        btn.setCursor(QtCore.Qt.PointingHandCursor)
-        btn.setFixedHeight(22)
-        btn.setStyleSheet("""
-            QPushButton {
-                background-color: #444;
-                border: 1px solid #555;
-                border-radius: 10px;
-                color: #eee;
-                padding: 0px 10px;
-                font-size: 11px;
-            }
-            QPushButton:hover {
-                background-color: #555;
-                color: #fff;
-                border-color: #666;
-            }
-            QPushButton:pressed {
-                background-color: #222;
-            }
-        """)
-        btn.clicked.connect(callback)
-        self.layout().addWidget(btn)
+        pill = PillWidget(text)
+        pill.clicked.connect(callback)
+        self.layout().addWidget(pill)
 
     def hasHeightForWidth(self):
         return True
@@ -780,7 +764,7 @@ class TagFlowWidget(QtWidgets.QWidget):
         w = self.width() if self.width() > 0 else 300
         h = self.layout().heightForWidth(w)
         return QtCore.QSize(w, h)
-        
+
     def resizeEvent(self, event):
         # Critical: Inform parent layout that our height might have changed due to new width
         self.updateGeometry()
@@ -812,7 +796,7 @@ class InfoDialog(QtWidgets.QDialog):
         layout.setContentsMargins(15, 15, 15, 15)
 
         # Image
-        self.image_lbl = QtWidgets.QLabel()
+        self.image_lbl = QtWidgets.QLabel(self)
         self.image_lbl.setFixedSize(200, 200)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #444;")
@@ -823,7 +807,11 @@ class InfoDialog(QtWidgets.QDialog):
         if img_name and os.path.exists(img_path):
             pix = QtGui.QPixmap(img_path)
             self.image_lbl.setPixmap(
-                pix.scaled(self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                pix.scaled(
+                    self.image_lbl.size(),
+                    QtCore.Qt.KeepAspectRatio,
+                    QtCore.Qt.SmoothTransformation,
+                )
             )
         else:
             self.image_lbl.setText("No Image")
@@ -831,7 +819,7 @@ class InfoDialog(QtWidgets.QDialog):
         layout.addWidget(self.image_lbl, 0, QtCore.Qt.AlignHCenter)
 
         # Name
-        name_lbl = QtWidgets.QLabel(self.name)
+        name_lbl = QtWidgets.QLabel(self.name, self)
         name_lbl.setStyleSheet("font-weight: bold; font-size: 12pt;")
         name_lbl.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(name_lbl)
@@ -851,11 +839,11 @@ class InfoDialog(QtWidgets.QDialog):
 
         # Buttons
         btn_layout = QtWidgets.QHBoxLayout()
-        edit_btn = QtWidgets.QPushButton("Edit")
+        edit_btn = QtWidgets.QPushButton("Edit", self)
         edit_btn.clicked.connect(self._on_edit)
         btn_layout.addWidget(edit_btn)
 
-        close_btn = QtWidgets.QPushButton("Close")
+        close_btn = QtWidgets.QPushButton("Close", self)
         close_btn.clicked.connect(self.accept)
         btn_layout.addWidget(close_btn)
 
@@ -877,9 +865,11 @@ class InfoDialog(QtWidgets.QDialog):
             container = TagFlowWidget()
             for tag in value:
                 # Capture tag for lambda
-                callback = lambda checked=False, t=tag: self._emit_filter("Tags", t)
+                def callback(checked=False, t=tag):
+                    return self._emit_filter("Tags", t)
+
                 container.add_tag(tag, callback)
-            
+
             self.form_layout.addRow(label + ":", container)
             return
 
@@ -887,13 +877,13 @@ class InfoDialog(QtWidgets.QDialog):
         if (is_link or is_path) and value != "Empty":
             elided_lbl = ElidedClickableLabel(value)
             heading_lbl = QtWidgets.QLabel(label + ":")
-            
+
             if is_link:
                 href = value if value.startswith("http") else "http://" + value
                 elided_lbl.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(href)))
             elif is_path:
                 elided_lbl.clicked.connect(lambda: self._open_folder(value))
-                
+
             self.form_layout.addRow(heading_lbl, elided_lbl)
             return
 
@@ -943,6 +933,88 @@ class InfoDialog(QtWidgets.QDialog):
             subprocess.Popen(["xdg-open", target])
 
 
+class PillWidget(QtWidgets.QFrame):
+    clicked = QtCore.Signal()
+    close_clicked = QtCore.Signal()
+
+    def __init__(self, text, close_btn=False, parent=None):
+        super(PillWidget, self).__init__(parent)
+        self.setObjectName("TagPill")
+        self.setFixedHeight(24)
+
+        # Design Tokens
+        color = "#aaa"
+        bg_color = "#444"
+        border_color = "#7d7d7d"
+
+        # Hover
+        hover_bg_color = "#555"
+        hover_border_color = "#949494"
+
+        # Pressed
+        pressed_bg_color = "#222"
+
+        # Base Style
+        style = """
+            #TagPill {
+                background-color: %s;
+                border: 1px solid %s;
+                border-radius: 12px;
+                color: %s;
+            }
+        """ % (bg_color, border_color, color)
+
+        # Interactivity
+        if not close_btn:
+            self.setCursor(QtCore.Qt.PointingHandCursor)
+            style += """
+                #TagPill:hover {
+                    background-color: %s;
+                    border-color: %s;
+                }
+                #TagPill:pressed {
+                    background-color: %s;
+                }
+            """ % (hover_bg_color, hover_border_color, pressed_bg_color)
+
+        self.setStyleSheet(style)
+
+        # Layout
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(5, 0, 2 if close_btn else 5, 0)
+        layout.setSpacing(0)
+
+        # Label
+        label = QtWidgets.QLabel(text)
+        label.setStyleSheet("padding-bottom: 2px;")
+        layout.addWidget(label)
+
+        # Optional Close Button
+        if close_btn:
+            self.close_btn = QtWidgets.QPushButton("✕")
+            self.close_btn.setFixedSize(18, 18)
+            self.close_btn.setCursor(QtCore.Qt.PointingHandCursor)
+            self.close_btn.setStyleSheet("""
+                QPushButton {
+                    color: #aaa;
+                    border-radius: 9px;
+                    padding-bottom: 2px;
+                }
+                QPushButton:hover {
+                    background-color: #666;
+                    color: #d6d6d6;
+                }
+            """)
+            self.close_btn.clicked.connect(self.close_clicked.emit)
+            layout.addWidget(self.close_btn)
+
+    def mousePressEvent(self, event):
+        if hasattr(self, "close_btn"):
+            return
+        if event.button() == QtCore.Qt.LeftButton:
+            self.clicked.emit()
+        super(PillWidget, self).mousePressEvent(event)
+
 
 class TagEditor(QtWidgets.QWidget):
     """Widget for editing tags with visual pills."""
@@ -957,12 +1029,12 @@ class TagEditor(QtWidgets.QWidget):
         self.setLayout(FlowLayout(margin=0, hSpacing=4, vSpacing=4))
 
         # Input Field
-        self.input_line = QtWidgets.QLineEdit()
+        self.input_line = QtWidgets.QLineEdit(self)
         self.input_line.setPlaceholderText("Add tag...")
         self.input_line.setFixedHeight(22)
         self.input_line.setStyleSheet("background: transparent; border: none; color: #eee;")
         self.input_line.setSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.Fixed)
-        
+
         self.input_line.textChanged.connect(self._update_input_width)
         self.input_line.returnPressed.connect(self._on_return_pressed)
         self.input_line.installEventFilter(self)
@@ -974,16 +1046,16 @@ class TagEditor(QtWidgets.QWidget):
             self.completer.setFilterMode(QtCore.Qt.MatchContains)
             self.completer.activated.connect(self._on_completer_activated)
             self.input_line.setCompleter(self.completer)
-            
+
         self._refresh_ui()
         self._update_input_width()
 
     def _update_input_width(self, text=None):
         if text is None:
             text = self.input_line.text()
-            
+
         fm = self.input_line.fontMetrics()
-        
+
         def get_width(t):
             if hasattr(fm, "horizontalAdvance"):
                 return fm.horizontalAdvance(t)
@@ -991,7 +1063,7 @@ class TagEditor(QtWidgets.QWidget):
 
         w_text = get_width(text)
         w_place = get_width(self.input_line.placeholderText())
-        
+
         # Ensure it fits "Add tag..." or current text, plus padding
         width = max(w_text, w_place) + 20
         self.input_line.setFixedWidth(width)
@@ -1020,7 +1092,7 @@ class TagEditor(QtWidgets.QWidget):
     def add_tag(self, text):
         if not text:
             return
-            
+
         # Case-insensitive check
         if any(t.lower() == text.lower() for t in self.current_tags):
             return
@@ -1041,63 +1113,27 @@ class TagEditor(QtWidgets.QWidget):
             self._refresh_ui()
 
     def _create_pill_widget(self, text):
-        pill = QtWidgets.QFrame()
-        pill.setObjectName("TagPill")
-        pill.setFixedHeight(22)
-        pill.setStyleSheet("""
-            #TagPill {
-                background-color: #444;
-                border: 1px solid #555;
-                border-radius: 10px;
-            }
-        """)
+        pill = PillWidget(text, close_btn=True, parent=self)
+        pill.close_clicked.connect(lambda checked=False, t=text: self.remove_tag(t))
 
-        layout = QtWidgets.QHBoxLayout(pill)
-        layout.setContentsMargins(8, 0, 4, 0)
-        layout.setSpacing(4)
-
-        label = QtWidgets.QLabel(text)
-        label.setStyleSheet("background: transparent; border: none; color: #eee; font-size: 11px;")
-        layout.addWidget(label)
-
-        close_btn = QtWidgets.QPushButton("✕")
-        close_btn.setFixedSize(16, 16)
-        close_btn.setCursor(QtCore.Qt.PointingHandCursor)
-        close_btn.setStyleSheet("""
-            QPushButton {
-                border: none;
-                background: transparent;
-                color: #aaa;
-                font-weight: bold;
-                border-radius: 8px;
-            }
-            QPushButton:hover {
-                background-color: #666;
-                color: #fff;
-            }
-        """)
-        # Using default arg to capture 'text' value correctly in loop/scope
-        close_btn.clicked.connect(lambda checked=False, t=text: self.remove_tag(t))
-        layout.addWidget(close_btn)
-        
         return pill
 
     def _refresh_ui(self):
         layout = self.layout()
-        
+
         # Remove all items safely
         while layout.count():
             item = layout.takeAt(0)
             w = item.widget()
             if w and w != self.input_line:
                 w.deleteLater()
-            
+
         # Add pills
         for tag in self.current_tags:
             pill = self._create_pill_widget(tag)
             layout.addWidget(pill)
             pill.show()
-            
+
         # Add input line
         layout.addWidget(self.input_line)
         self.input_line.show()
@@ -1111,7 +1147,6 @@ class TagEditor(QtWidgets.QWidget):
 
     def setPlaceholderText(self, text):
         self.input_line.setPlaceholderText(text)
-
 
 
 # -------------------- Batch Add / Scanner --------------------
@@ -1176,7 +1211,7 @@ class ScannerItemWidget(QtWidgets.QWidget):
         layout.setSpacing(5)
 
         # Path Label (Elided)
-        self.path_lbl = QtWidgets.QLabel(path)
+        self.path_lbl = QtWidgets.QLabel(path, self)
         self.path_lbl.setToolTip(path)
         self.path_lbl.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Preferred)
         self._is_added = False
@@ -1318,7 +1353,7 @@ class CollapsibleSection(QtWidgets.QWidget):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(2)
 
-        self.btn = QtWidgets.QPushButton(title)
+        self.btn = QtWidgets.QPushButton(title, self)
         self.btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.btn.setCheckable(True)
         self.btn.setChecked(False)
@@ -1330,19 +1365,19 @@ class CollapsibleSection(QtWidgets.QWidget):
         self.btn.toggled.connect(self._toggle)
 
         # Scroll Area for content
-        self.scroll = QtWidgets.QScrollArea()
+        self.scroll = QtWidgets.QScrollArea(self)
         self.scroll.setWidgetResizable(True)
         self.scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
         self.scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
         self.scroll.setVisible(False)
         self.scroll.setStyleSheet("QScrollArea { border: 1px solid #333; border-top: none; }")
 
-        self.container = QtWidgets.QWidget()
+        self.container = QtWidgets.QWidget(self.scroll)
         self.content_layout = QtWidgets.QVBoxLayout(self.container)
         self.content_layout.setContentsMargins(5, 5, 5, 5)
         self.content_layout.setSpacing(2)
 
-        self.empty_lbl = QtWidgets.QLabel("No items")
+        self.empty_lbl = QtWidgets.QLabel("No items", self.container)
         self.empty_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.empty_lbl.setStyleSheet("color: #888; font-style: italic; margin: 10px;")
         self.empty_lbl.setVisible(True)  # Visible by default since items is empty
@@ -1384,6 +1419,7 @@ class CollapsibleSection(QtWidgets.QWidget):
         if widget in self._items:
             self._items.remove(widget)
             self.content_layout.removeWidget(widget)
+            widget.hide()
             widget.setParent(None)
 
             if not self._items:
@@ -1447,6 +1483,7 @@ class ResponsiveScrollArea(QtWidgets.QScrollArea):
 
 class ReplacementListWidget(QtWidgets.QListWidget):
     """List widget that supports drag-and-drop reordering."""
+
     orderChanged = QtCore.Signal()
 
     def __init__(self, parent=None):
@@ -1532,33 +1569,35 @@ class ManageRigsDialog(QtWidgets.QDialog):
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
 
-        self.tabs = QtWidgets.QTabWidget()
+        self.tabs = QtWidgets.QTabWidget(self)
         layout.addWidget(self.tabs)
 
         # --- Tab 1: Rigs ---
-        self.tab_rigs = QtWidgets.QWidget()
+        self.tab_rigs = QtWidgets.QWidget(self.tabs)
         rigs_layout = QtWidgets.QVBoxLayout(self.tab_rigs)
 
-        self.lbl_scan_info = QtWidgets.QLabel(f"Scanning: <i>{self.directory}</i>" if self.directory else "")
+        self.lbl_scan_info = QtWidgets.QLabel(
+            f"Scanning: <i>{self.directory}</i>" if self.directory else "", self.tab_rigs
+        )
         self.lbl_scan_info.setVisible(bool(self.directory))
         rigs_layout.addWidget(self.lbl_scan_info)
 
         # New Rigs Section
-        self.sec_new = CollapsibleSection("Discovered New Rigs")
+        self.sec_new = CollapsibleSection("Discovered New Rigs", parent=self.tab_rigs)
         self.sec_new.set_empty_text("Searching for rigs...")
         self.sec_new.setVisible(bool(self.directory))
         rigs_layout.addWidget(self.sec_new)
         self.sec_new.btn.setChecked(True)  # Expand by default
 
         # AI Button
-        self.ai_btn = QtWidgets.QPushButton("Auto-Tag New Rigs with Gemini AI")
+        self.ai_btn = QtWidgets.QPushButton("Auto-Tag New Rigs with Gemini AI", self.tab_rigs)
         self.ai_btn.clicked.connect(self._run_gemini)
         # Always hidden initially until items are found or if not in scan mode
         self.ai_btn.setVisible(False)
         rigs_layout.addWidget(self.ai_btn)
 
         # Existing Rigs Section
-        self.sec_exists = CollapsibleSection("In Database")
+        self.sec_exists = CollapsibleSection("In Database", parent=self.tab_rigs)
         self.sec_exists.set_empty_text(
             "No rigs in database." if not self.directory else "No existing rigs found in this folder."
         )
@@ -1569,7 +1608,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self.sec_exists.btn.setChecked(True)
 
         # Blacklisted Section
-        self.sec_black = CollapsibleSection("Blacklisted")
+        self.sec_black = CollapsibleSection("Blacklisted", parent=self.tab_rigs)
         self.sec_black.set_empty_text("No blacklisted files.")
         rigs_layout.addWidget(self.sec_black)
 
@@ -1578,7 +1617,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self.tabs.addTab(self.tab_rigs, "Rigs")
 
         # --- Tab 2: Settings ---
-        self.tab_settings = QtWidgets.QWidget()
+        self.tab_settings = QtWidgets.QWidget(self.tabs)
         self._build_settings_tab()
         self.tabs.addTab(self.tab_settings, "Settings")
 
@@ -1589,15 +1628,15 @@ class ManageRigsDialog(QtWidgets.QDialog):
         footer = QtWidgets.QHBoxLayout()
         # footer.setContentsMargins(10, 0, 10, 10) # Optional spacing
 
-        btn_scan = QtWidgets.QPushButton("Scan Folder")
+        btn_scan = QtWidgets.QPushButton("Scan Folder", self)
         btn_scan.setIcon(utils.get_icon("search.svg"))
         btn_scan.clicked.connect(self._trigger_scan_folder)
 
-        btn_add = QtWidgets.QPushButton("Add Manually")
+        btn_add = QtWidgets.QPushButton("Add Manually", self)
         btn_add.setIcon(utils.get_icon("add.svg"))
         btn_add.clicked.connect(self._trigger_add_manual)
 
-        self.done_btn = QtWidgets.QPushButton("Done")
+        self.done_btn = QtWidgets.QPushButton("Done", self)
         self.done_btn.clicked.connect(self.accept)
 
         footer.addWidget(btn_scan)
@@ -1656,8 +1695,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         lay_add = QtWidgets.QHBoxLayout()
         add_btn = QtWidgets.QPushButton("Add Replacement")
         add_btn.setIcon(utils.get_icon("add.svg"))
-        add_btn.setStyleSheet("font-weight: bold;")
-        add_btn.clicked.connect(lambda: self._add_replacement_row("", ""))
+        add_btn.clicked.connect(lambda: self._add_replacement_row())
         lay_add.addWidget(add_btn)
         lay_add.addStretch()
         lay_paths.addLayout(lay_add)
@@ -1679,21 +1717,24 @@ class ManageRigsDialog(QtWidgets.QDialog):
         except Exception:
             data = []
 
-        for find_txt, rep_txt in data:
-            self._add_replacement_row(find_txt, rep_txt)
+        if data:
+            for find_txt, rep_txt in data:
+                self._add_replacement_row(find_txt, rep_txt)
+        else:
+            self._add_replacement_row()
 
-    def _add_replacement_row(self, find_val, rep_val):
+    def _add_replacement_row(self, find_val="", rep_val=""):
         item = QtWidgets.QListWidgetItem()
         item.setSizeHint(QtCore.QSize(0, 42))  # Fixed height for row
 
-        row_widget = QtWidgets.QWidget()
+        row_widget = QtWidgets.QWidget(self.replacements_list)
         row_lay = QtWidgets.QHBoxLayout(row_widget)
         row_lay.setContentsMargins(5, 5, 5, 5)
         row_lay.setSpacing(8)
 
         # Handle
-        handle_lbl = QtWidgets.QLabel("☰")  # Unicode trigram for handle
-        handle_lbl.setStyleSheet("color: #666; font-size: 16px; font-weight: bold;")
+        handle_lbl = QtWidgets.QLabel("☰", row_widget)  # Unicode trigram for handle
+        handle_lbl.setStyleSheet("color: #7d7d7d; font-size: 15px; font-weight: bold;")
         handle_lbl.setCursor(QtCore.Qt.OpenHandCursor)
         handle_lbl.setMouseTracking(True)
         handle_lbl.setFixedWidth(20)
@@ -1701,17 +1742,17 @@ class ManageRigsDialog(QtWidgets.QDialog):
         handle_lbl.setToolTip("Drag to reorder")
         row_lay.addWidget(handle_lbl)
 
-        input_find = QtWidgets.QLineEdit(find_val)
+        input_find = QtWidgets.QLineEdit(find_val, row_widget)
         input_find.setPlaceholderText("e.g. D:/Rigs")
 
-        input_rep = QtWidgets.QLineEdit(rep_val)
+        input_rep = QtWidgets.QLineEdit(rep_val, row_widget)
         input_rep.setPlaceholderText("e.g. Z:/Rigs")
 
         # Auto-save changes
         input_find.textChanged.connect(self._save_path_replacements_from_ui)
         input_rep.textChanged.connect(self._save_path_replacements_from_ui)
 
-        del_btn = QtWidgets.QPushButton()
+        del_btn = QtWidgets.QPushButton(row_widget)
         del_btn.setIcon(utils.get_icon("trash.svg"))
         del_btn.setFixedSize(20, 20)
         del_btn.setToolTip("Remove this replacement")
@@ -1719,7 +1760,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         row_lay.addWidget(input_find)
 
-        arrow_lbl = QtWidgets.QLabel()
+        arrow_lbl = QtWidgets.QLabel(row_widget)
         arrow_lbl.setPixmap(utils.get_icon("right_arrow.svg").pixmap(16, 16))
         row_lay.addWidget(arrow_lbl)
 
@@ -1755,11 +1796,16 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
                         rep_edit, QtWidgets.QLineEdit
                     ):
-                        f_txt = self.normpath_posix_keep_trailing(find_edit.text())
-                        r_txt = self.normpath_posix_keep_trailing(rep_edit.text())
+                        f_txt = find_edit.text()
+                        r_txt = rep_edit.text()
                         # Only save if at least find_txt has something
                         if f_txt or r_txt:
-                            data.append([f_txt, r_txt])
+                            item = [
+                                self.normpath_posix_keep_trailing(f_txt),
+                                self.normpath_posix_keep_trailing(r_txt),
+                            ]
+                            if item not in data:
+                                data.append(item)
 
         json_str = json.dumps(data)
         self.settings.setValue("path_replacements", json_str)
@@ -1780,13 +1826,15 @@ class ManageRigsDialog(QtWidgets.QDialog):
         for name, data in self.rig_data.items():
             path = data.get("path", "")
             if path:
-                item = ScannerItemWidget(path, "exists")
+                item = ScannerItemWidget(path, "exists", parent=self.sec_exists)
                 item.editRequested.connect(self._on_edit_request)
                 item.blacklistRequested.connect(self._on_blacklist_request)
                 self.sec_exists.addWidget(item)
                 self._widgets_map[path] = item
 
         for path in self.blacklist:
+            item = ScannerItemWidget(path, "blacklisted", parent=self.sec_black)
+            item.whitelistRequested.connect(self._on_whitelist_request)
             self.sec_black.addWidget(item)
             self._widgets_map[path] = item
 
@@ -1998,7 +2046,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         # if category == "new":
         #    self._status_lbl.setVisible(False)
 
-        item = ScannerItemWidget(path, category)
+        item = ScannerItemWidget(path, category, parent=self)
 
         # Disable edit if it's an alternative
         if category == "exists":
@@ -2135,7 +2183,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         layout.setSpacing(10)
 
         # Image
-        self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)")
+        self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)", self)
         self.image_lbl.setFixedSize(150, 150)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #555; border-radius: 5px;")
@@ -2159,7 +2207,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         form = QtWidgets.QFormLayout()
 
         # Name
-        self.name_input = QtWidgets.QLineEdit()
+        self.name_input = QtWidgets.QLineEdit(self)
         if self.mode == "edit":
             self.name_input.setText(self.rig_name)
         else:
@@ -2172,13 +2220,13 @@ class RigSetupDialog(QtWidgets.QDialog):
         # Ensure orig_tags is a list
         if not isinstance(orig_tags, list):
             orig_tags = [t.strip() for t in str(orig_tags).split(",") if t.strip()]
-            
-        self.tags_input = TagEditor(self.tags)
+
+        self.tags_input = TagEditor(self.tags, parent=self)
         self.tags_input.setTags(orig_tags)
         form.addRow("Tags:", self.tags_input)
 
         # Collection
-        self.coll_input = QtWidgets.QLineEdit()
+        self.coll_input = QtWidgets.QLineEdit(self)
         if self.collections:
             comp = QtWidgets.QCompleter(self.collections)
             comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
@@ -2188,7 +2236,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         form.addRow("Collection:", self.coll_input)
 
         # Author
-        self.auth_input = QtWidgets.QLineEdit()
+        self.auth_input = QtWidgets.QLineEdit(self)
         if self.authors:
             comp = QtWidgets.QCompleter(self.authors)
             comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
@@ -2198,7 +2246,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         form.addRow("Author:", self.auth_input)
 
         # Link
-        self.link_input = QtWidgets.QLineEdit()
+        self.link_input = QtWidgets.QLineEdit(self)
         link_val = self.rig_data.get("link") or ""
         self.link_input.setText("" if link_val == "Empty" else link_val)
         form.addRow("Link:", self.link_input)
@@ -2208,11 +2256,11 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         # Footer Buttons
         btns = QtWidgets.QHBoxLayout()
-        self.ok_btn = QtWidgets.QPushButton("Save" if self.mode == "edit" else "Add")
+        self.ok_btn = QtWidgets.QPushButton("Save" if self.mode == "edit" else "Add", self)
         self.ok_btn.clicked.connect(self.accept_data)
         btns.addWidget(self.ok_btn)
 
-        cancel = QtWidgets.QPushButton("Cancel")
+        cancel = QtWidgets.QPushButton("Cancel", self)
         cancel.clicked.connect(self.reject)
         btns.addWidget(cancel)
         layout.addLayout(btns)
