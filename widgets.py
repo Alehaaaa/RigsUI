@@ -1493,7 +1493,7 @@ class ReplacementListWidget(QtWidgets.QListWidget):
         self.setFocusPolicy(QtCore.Qt.NoFocus)
         self.setDefaultDropAction(QtCore.Qt.MoveAction)
         self.setContentsMargins(0, 0, 0, 0)
-        self.setSpacing(2)
+        self.setSpacing(0)
         self.setMouseTracking(True)
         # Verify drag is enabled
         self.setDragEnabled(True)
@@ -1734,7 +1734,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         # Handle
         handle_lbl = QtWidgets.QLabel("☰", row_widget)  # Unicode trigram for handle
-        handle_lbl.setStyleSheet("color: #7d7d7d; font-size: 15px; font-weight: bold;")
+        handle_lbl.setStyleSheet("QLabel { color: #868686; font-size: 15px; }")
         handle_lbl.setCursor(QtCore.Qt.OpenHandCursor)
         handle_lbl.setMouseTracking(True)
         handle_lbl.setFixedWidth(20)
@@ -1755,6 +1755,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
         del_btn = QtWidgets.QPushButton(row_widget)
         del_btn.setIcon(utils.get_icon("trash.svg"))
         del_btn.setFixedSize(20, 20)
+        del_btn.setFlat(True)
+        del_btn.setCursor(QtCore.Qt.PointingHandCursor)
         del_btn.setToolTip("Remove this replacement")
         del_btn.clicked.connect(lambda: self._remove_replacement_row(item))
 

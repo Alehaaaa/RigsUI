@@ -362,7 +362,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             )
         elif remote_ver:
             QtWidgets.QMessageBox.information(
-                self, "Up to Date", f"You are using the latest version (v{VERSION})."
+                self, "Up to Date", f"You are using the latest version v{VERSION}"
             )
         else:
             QtWidgets.QMessageBox.warning(
