@@ -39,13 +39,14 @@ from maya.OpenMayaUI import MQtUtil  # type: ignore
 
 
 # -------------------- Logging --------------------
-LOG = logging.getLogger("LibraryUI")
+LOG = logging.getLogger(TOOL_TITLE)
 if not LOG.handlers:
     h = logging.StreamHandler(stream=sys.stdout)
-    formatter = logging.Formatter("[LibraryUI] %(levelname)s: %(message)s")
+    formatter = logging.Formatter("[{}] %(levelname)s: %(message)s".format(TOOL_TITLE))
     h.setFormatter(formatter)
     LOG.addHandler(h)
 LOG.setLevel(logging.DEBUG)
+LOG.propagate = False
 LOG.disabled = True
 
 # -------------------- Constants --------------------
@@ -88,28 +89,22 @@ class SearchWorker(QtCore.QObject):
             raw_search = self.search_text.lower()
             search_tokens = raw_search.split()
 
-            # Parse query
-            field_filters = {}
+            # 1. Parse query and combine with dropdown filters
+            # Group prefixed search tokens by category
+            text_filters = {"tags": [], "author": [], "collection": [], "link": []}
             general_terms = []
 
             for token in search_tokens:
                 if ":" in token:
                     key, val = token.split(":", 1)
-                    # Normalize keys
                     if key in ["t", "tag", "tags"]:
-                        key = "tags"
+                        text_filters["tags"].append(val)
                     elif key in ["a", "auth", "author"]:
-                        key = "author"
+                        text_filters["author"].append(val)
                     elif key in ["c", "col", "collection"]:
-                        key = "collection"
+                        text_filters["collection"].append(val)
                     elif key in ["l", "link"]:
-                        key = "link"
-
-                    known_fields = ["tags", "author", "collection", "link"]
-                    if key in known_fields:
-                        if key not in field_filters:
-                            field_filters[key] = []
-                        field_filters[key].append(val)
+                        text_filters["link"].append(val)
                     else:
                         general_terms.append(token)
                 else:
@@ -119,38 +114,7 @@ class SearchWorker(QtCore.QObject):
                 if not self._is_running:
                     return
 
-                # Check Field Filters
-                match_fields = True
-                for key, vals in field_filters.items():
-                    data_val = data.get(key)
-
-                    if key == "tags":
-                        if not data_val:
-                            match_fields = False
-                            break
-                        data_tags_lower = [t.lower() for t in data_val]
-                        for v in vals:
-                            if v not in data_tags_lower:
-                                match_fields = False
-                                break
-
-                    else:
-                        if not data_val:
-                            match_fields = False
-                            break
-                        data_val_lower = data_val.lower()
-                        for v in vals:
-                            if v not in data_val_lower:
-                                match_fields = False
-                                break
-
-                    if not match_fields:
-                        break
-
-                if not match_fields:
-                    continue
-
-                # Check General Terms (Name search)
+                # Check General Context (AND search across terms) - found in NAME
                 match_general = True
                 if general_terms:
                     name_lower = name.lower()
@@ -158,53 +122,99 @@ class SearchWorker(QtCore.QObject):
                         if term not in name_lower:
                             match_general = False
                             break
-
                 if not match_general:
                     continue
 
-                # Check Dropdown Filters
-                match_dropdown = True
+                # Check Categories (Status, Collections, Tags, Author)
+                # Each category is an "AND" condition against the others.
+                # Within each category, dropdown selections + prefixed terms are "OR"ed.
                 sel = self.filters
 
-                # Status
+                # STATUS (Dropdown only)
                 if sel.get("Status"):
                     statuses = sel.get("Status")
                     if "Only Available" in statuses and not data.get("exists"):
-                        match_dropdown = False
-
-                    if match_dropdown and "Only Referenced" in statuses:
+                        continue
+                    if "Only Referenced" in statuses:
                         p = data.get("path")
                         norm = os.path.normpath(p).lower() if p else ""
                         if not norm or norm not in self.referenced_set:
-                            match_dropdown = False
+                            continue
 
-                # Collections
-                if match_dropdown and sel.get("Collections"):
+                # COLLECTIONS (Dropdown OR Prefix)
+                target_cols = sel.get("Collections", [])
+                prefix_cols = text_filters["collection"]
+                if target_cols or prefix_cols:
                     rig_coll = data.get("collection")
-                    # Match if in selection OR (is effectively empty AND "Empty" selected)
-                    is_match = (rig_coll and rig_coll in sel.get("Collections")) or (
-                        (not rig_coll or rig_coll == "Empty") and "Empty" in sel.get("Collections")
+                    # Match dropdown (exact)
+                    is_dropdown_match = (rig_coll and rig_coll in target_cols) or (
+                        (not rig_coll or rig_coll == "Empty") and "Empty" in target_cols
                     )
-                    if not is_match:
-                        match_dropdown = False
+                    # Match prefix (partial)
+                    is_prefix_match = False
+                    if rig_coll and rig_coll != "Empty":
+                        rig_coll_low = rig_coll.lower()
+                        for pc in prefix_cols:
+                            if pc in rig_coll_low:
+                                is_prefix_match = True
+                                break
 
-                # Tags
-                if match_dropdown and sel.get("Tags"):
-                    rig_tags = set(data.get("tags", []))
-                    if not rig_tags.intersection(sel.get("Tags")):
-                        match_dropdown = False
+                    if not (is_dropdown_match or is_prefix_match):
+                        continue
 
-                # Author
-                if match_dropdown and sel.get("Author"):
+                # TAGS (Dropdown OR Prefix)
+                target_tags = sel.get("Tags", [])
+                prefix_tags = text_filters["tags"]
+                if target_tags or prefix_tags:
+                    rig_tags = [t.lower() for t in data.get("tags", [])]
+                    # Match dropdown (exact)
+                    is_dropdown_match = bool(set(data.get("tags", [])).intersection(target_tags))
+                    # Match prefix (partial)
+                    is_prefix_match = False
+                    for pt in prefix_tags:
+                        if any(pt in rt for rt in rig_tags):
+                            is_prefix_match = True
+                            break
+
+                    if not (is_dropdown_match or is_prefix_match):
+                        continue
+
+                # AUTHOR (Dropdown OR Prefix)
+                target_auths = sel.get("Author", [])
+                prefix_auths = text_filters["author"]
+                if target_auths or prefix_auths:
                     rig_author = data.get("author")
-                    is_match = (rig_author and rig_author in sel.get("Author")) or (
-                        (not rig_author or rig_author == "Empty") and "Empty" in sel.get("Author")
+                    # Match dropdown (exact)
+                    is_dropdown_match = (rig_author and rig_author in target_auths) or (
+                        (not rig_author or rig_author == "Empty") and "Empty" in target_auths
                     )
-                    if not is_match:
-                        match_dropdown = False
+                    # Match prefix (partial)
+                    is_prefix_match = False
+                    if rig_author and rig_author != "Empty":
+                        rig_auth_low = rig_author.lower()
+                        for pa in prefix_auths:
+                            if pa in rig_auth_low:
+                                is_prefix_match = True
+                                break
 
-                if match_dropdown:
-                    visible_names.append(name)
+                    if not (is_dropdown_match or is_prefix_match):
+                        continue
+
+                # LINK (Prefix only)
+                if text_filters["link"]:
+                    rig_link = data.get("link")
+                    if not rig_link or rig_link == "Empty":
+                        continue
+                    rig_link_low = rig_link.lower()
+                    match_link = False
+                    for pl in text_filters["link"]:
+                        if pl in rig_link_low:
+                            match_link = True
+                            break
+                    if not match_link:
+                        continue
+
+                visible_names.append(name)
 
         except Exception as e:
             LOG.error("Search worker error: {}".format(e))
@@ -215,7 +225,13 @@ class SearchWorker(QtCore.QObject):
         self._is_running = False
 
 
-# -------------------- Main Window --------------------
+class RightClickMenuButton(QtWidgets.QPushButton):
+    """Button that shows its menu on both left and right click."""
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.RightButton:
+            self.showMenu()
+        super(RightClickMenuButton, self).mousePressEvent(event)
 
 
 class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
@@ -227,11 +243,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         parent = parent or _get_maya_main_window()
         super(LibraryUI, self).__init__(parent)
         self.setObjectName(self.TOOL_OBJECT_NAME)
-        self.settings = QtCore.QSettings(TOOL_TITLE, None)
+        self.settings = QtCore.QSettings(TOOL_TITLE, "RigManager")
 
         self.rig_data = {}  # Raw data from JSON (Persistent)
         self.display_data = {}  # Runtime data with path replacements applied
         self.blacklist = []
+
         self._widgets_map = {}  # Cache for widgets: {name: RigItemWidget}
 
         # Threading
@@ -267,7 +284,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         main_layout.addLayout(top_layout)
 
         # Add Button
-        self.add_btn = QtWidgets.QPushButton(self)
+        self.add_btn = RightClickMenuButton(self)
         self.add_btn.setIcon(utils.get_icon("add.svg"))
         self.add_btn.setFixedSize(25, 25)
         self.add_btn.setToolTip("Add new rig(s)")
@@ -287,6 +304,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # Search
         self.search_input = QtWidgets.QLineEdit(self)
         self.search_input.setFixedHeight(25)
+        self.search_input.setClearButtonEnabled(True)
         self.search_input.setPlaceholderText("Search name, tag:human, collection:M-Bundle...")
         self.search_input.textChanged.connect(self.trigger_search)
         top_layout.addWidget(self.search_input)
@@ -302,7 +320,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.sort_menu = SortMenu("Sort", parent=self)
         self.sort_menu.setFixedHeight(25)
         self.sort_menu.setToolTip("Sort rigs")
-        self.sort_menu.sortChanged.connect(lambda k, b: self._populate_grid())
+        self.sort_menu.sortChanged.connect(self._on_sort_changed)
         top_layout.addWidget(self.sort_menu)
 
         # Refresh
@@ -361,7 +379,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             QtWidgets.QMessageBox.information(
                 self,
                 "Update Available",
-                "A new version ({}) is available!\nYou are currently using v{}.\n\nPlease check the repository.".format(remote_ver, VERSION),
+                "A new version ({}) is available!\nYou are currently using v{}.\n\nPlease check the repository.".format(
+                    remote_ver, VERSION
+                ),
             )
         elif remote_ver:
             QtWidgets.QMessageBox.information(
@@ -486,13 +506,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     data["alternatives"] = new_alts
 
     def _get_replacements(self):
-        settings = QtCore.QSettings("LibraryUI", "RigManager")
-        raw_replacements = settings.value("path_replacements", "[]")
+        raw_replacements = self.settings.value("path_replacements") or "[]"
         try:
             return json.loads(raw_replacements)
         except Exception:
             return []
-
 
     def _load_blacklist(self):
         if os.path.exists(BLACKLIST_JSON):
@@ -619,7 +637,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             # For other modes, put Empty/None at the bottom
             if not val or val == "Empty":
                 # Use a high-value character to push Empty to the bottom in ascending sort
-                sort_val = u"\uffff"
+                sort_val = "\uffff"
             else:
                 sort_val = val.lower()
 
@@ -693,6 +711,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         search_text = self.search_input.text()
         filters = self.filter_menu.get_selected()
 
+        # Save UI state immediately
+        self.save_filters()
+
         # Get Referenced Sets to filter by usage
         referenced_set = set()
         try:
@@ -725,6 +746,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
             self._search_thread.start()
 
+    def _on_sort_changed(self, key, ascending):
+        self.settings.setValue("sort_key", key)
+        self.settings.setValue("sort_ascending", ascending)
+        self._populate_grid()
+
     def _on_search_finished(self, visible_names):
         """Apply search results to widget visibility."""
         visible_set = set(visible_names)
@@ -739,8 +765,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.container.update()
         if self.container.layout():
             self.container.layout().activate()
-
-        self.save_filters()
 
     def apply_single_filter(self, category, value):
         self.filter_menu.set_selected({category: [value]})
@@ -757,7 +781,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             if key == "path":
                 # Re-apply replacements for display
                 replacements = self._get_replacements()
-                new_path = self._apply_path_replacements(value, replacements)
+                new_path = utils.apply_path_replacements(value, replacements)
                 # Check existence
                 self.display_data[name]["path"] = new_path
                 self.display_data[name]["exists"] = bool(os.path.exists(new_path))
@@ -821,6 +845,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
                 self.rig_data[new_name] = new_data
                 self.save_data()
+
+                # Save UI state so load_data -> load_filters picks it up
+                self.save_filters()
                 self.load_data()
                 return True
         return False
@@ -873,6 +900,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         dlg.exec_()
         self.save_data()
+        self.save_filters()
         self.load_data()
 
     def _on_batch_rig_added(self, name, data):
@@ -908,6 +936,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         dlg.exec_()
         self.save_data()
+        self.save_filters()
         self.load_data()
 
     def edit_rig(self, rig_name):
@@ -947,7 +976,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             # Check if the workspace control is floating or docked
             floating = cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, q=True, floating=True)
             LOG.info("Workspace control is {}".format("floating" if floating else "docked"))
-            self.settings.setValue("floating", floating)
 
             if floating:
                 ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
@@ -960,17 +988,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
                 self.settings.setValue("position", position)
                 self.settings.setValue("size", size)
-                LOG.info("Saved floating position {} size {}".format(position, size))
+
+                self.settings.setValue("floating", True)
+                LOG.info("Saved floating = {} position {} size {}".format(True, position, size))
             else:
-                # Optionally save dock area for docked panels
-                try:
-                    dock_area = cmds.workspaceControl(
-                        self.WORKSPACE_CONTROL_NAME, q=True, dockArea=True
-                    )
-                    self.settings.setValue("dockArea", dock_area)
-                    LOG.info("Saved docked area: {}".format(dock_area))
-                except Exception:
-                    LOG.debug("Dock area not available to save.")
+                self.settings.setValue("floating", False)
+                LOG.info("Saved floating = {}".format(False))
 
             self.settings.sync()  # Force settings to write immediately
             LOG.info("Window position saved successfully.")
@@ -982,9 +1005,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         """
         Restores or initializes the dock/floating position of the workspace control.
         """
-        floating = self.settings.value("floating", False)
-        position = self.settings.value("position", None)
-        size = self.settings.value("size", None)
+        floating = utils.setting_bool(self.settings.value("floating") or False)
+
+        LOG.info("Restoring floating = {}".format(floating))
+        position = self.settings.value("position")
+        size = self.settings.value("size")
 
         kwargs = {
             "e": True,
@@ -996,11 +1021,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # If floating, restore previous floating geometry
         if floating:
             kwargs["floating"] = True
+
         else:
             # Try to dock next to a known panel
             dock_target = None
             for ctl in ("ChannelBoxLayerEditor", "AttributeEditor"):
-                if cmds.control(ctl, exists=True):
+                if cmds.workspaceControl(ctl, exists=True):
                     dock_target = ctl
                     break
 
@@ -1013,7 +1039,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         try:
             cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, **kwargs)
-            LOG.info("Workspace control positioned: floating={}".format(floating))
         except Exception as e:
             LOG.error("Error positioning workspace control: {}".format(e))
 
@@ -1032,7 +1057,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     def save_filters(self):
         try:
+            self.settings.setValue("search_text", self.search_input.text())
             self.settings.setValue("filters", self.filter_menu.get_selected())
+
             key, asc = self.sort_menu.get_current_sort()
             self.settings.setValue("sort_key", key)
             self.settings.setValue("sort_ascending", asc)
@@ -1041,14 +1068,17 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
     def load_filters(self):
         try:
-            filters = self.settings.value("filters", {})
+            filters = self.settings.value("filters") or {}
             if not filters:
                 filters = {}
             self.filter_menu.set_selected(filters)
 
-            key = self.settings.value("sort_key", "Name")
-            asc_val = self.settings.value("sort_ascending", True)
-            asc = (str(asc_val).lower() == "true") if isinstance(asc_val, str) else bool(asc_val)
+            search_text = self.settings.value("search_text") or ""
+            self.search_input.setText(search_text)
+
+            key = self.settings.value("sort_key") or "Name"
+            asc = utils.setting_bool(self.settings.value("sort_ascending") or True)
+
             self.sort_menu.set_sort(key, asc)
         except Exception as e:
             LOG.error("Error loading filters: {}".format(e))

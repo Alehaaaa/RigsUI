@@ -1,37 +1,36 @@
 {
     "Apollo": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Apollo\\Apollo.ma",
-        "image": "apollo.jpg",
-        "tags": [
-            "human",
-            "male"
-        ],
-        "collection": "Apollo&Artemis",
-        "author": "Ramon Arango",
-        "link": "https://ramonarango.gumroad.com/l/ApolloRig",
-        "exists": false,
         "alternatives": [
-            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/Memnon.ma",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/ApolloMod.ma",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/ApolloUndies.ma",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Outfits/ApolloTracksuit.ma"
+        ],
+        "author": "Ramon Arango",
+        "collection": "Apollo&Artemis",
+        "image": "",
+        "link": "https://ramonarango.gumroad.com/l/ArtemisApolloRig",
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/Apollo.ma",
+        "tags": [
+            "human",
+            "male",
+            "adult"
         ]
     },
     "Artemis": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Artemis\\Artemis.ma",
-        "image": "artemis.jpg",
-        "tags": [
-            "human",
-            "female"
-        ],
-        "collection": "Apollo&Artemis",
-        "author": "Ramon Arango",
-        "link": "https://ramonarango.gumroad.com/l/ArtemisRig",
-        "exists": false,
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Artemis/ArtemisMod.ma",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Artemis/ArtemisUndies.ma",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Outfits/ArtemisTracksuit.ma"
+        ],
+        "author": "Ramon Arango",
+        "collection": "Apollo&Artemis",
+        "image": "artemis.jpg",
+        "link": "https://ramonarango.gumroad.com/l/ArtemisRig",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Apollo&Artemis\\Artemis\\Artemis.ma",
+        "tags": [
+            "human",
+            "female",
+            "adult"
         ]
     },
     "Mars": {
@@ -82,9 +81,7 @@
         ],
         "collection": "M-Bundle",
         "author": "Ramon Arango",
-        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
-        "exists": false,
-        "alternatives": []
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle"
     },
     "Modjadji": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\modjadji_v01.3.mb",
@@ -128,16 +125,20 @@
         ]
     },
     "The Child": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Guide_v.1.00.mb",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_RigGroom_v.1.00.mb"
+        ],
+        "author": "Emilio Serrano",
+        "collection": "Star Wars",
+        "exists": false,
         "image": "the_child.jpg",
+        "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
         "tags": [
             "creature",
             "kid"
-        ],
-        "collection": "Star Wars",
-        "author": "Emilio Serrano",
-        "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
-        "exists": false
+        ]
     },
     "Stormtrooper": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Stormtrooper\\scenes\\Stormtrooper_Rig_v5.mb",
@@ -163,21 +164,6 @@
         "exists": false,
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/BD-1/scenes/BD-1_Rig_v1.0.mb"
-        ]
-    },
-    "AT_ST": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\AT_ST\\scenes\\AT_ST_Master.mb",
-        "image": "at_st.jpg",
-        "tags": [
-            "vehicle",
-            "robot"
-        ],
-        "collection": "Star Wars",
-        "author": "Emilio Serrano",
-        "link": "https://milio-serrano.gumroad.com/l/QhZQK",
-        "exists": false,
-        "alternatives": [
-            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/AT_ST/scenes/AT_ST_Walking_Animation.mb"
         ]
     },
     "Sheriff": {
@@ -213,10 +199,9 @@
             "human",
             "male"
         ],
-        "collection": "",
+        "collection": "Empty",
         "author": "Khaled Hussein",
-        "link": "https://khaledhussein.gumroad.com/l/cbmnp",
-        "exists": false
+        "link": "https://khaledhussein.gumroad.com/l/cbmnp"
     },
     "Miles": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Spider-verse\\MILES_V38\\Miles_Rig_V38.mb",
@@ -699,17 +684,16 @@
         "alternatives": []
     },
     "Cat": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_redshift.ma",
-        "image": null,
-        "tags": [
-            "animal"
-        ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_joint_based.ma"
+        ],
+        "author": "Empty",
+        "collection": "Empty",
+        "image": null,
+        "link": "Empty",
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_redshift.ma",
+        "tags": [
+            "animal"
         ]
     },
     "Elephant": {
@@ -910,22 +894,6 @@
         "exists": false,
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_opened_001.ma"
-        ]
-    },
-    "SpideySense": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Spiderman_SpideySense\\Spiderman_SpideySense.ma",
-        "image": null,
-        "tags": [
-            "human",
-            "male",
-            "superhero"
-        ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Spiderman_SpideySense\\Spiderman.ma"
         ]
     },
     "Wolf": {
@@ -1826,17 +1794,21 @@
         "alternatives": []
     },
     "Deadpool": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool.ma",
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool_GameReady.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool_Proxy.ma"
+        ],
+        "author": null,
+        "collection": null,
+        "exists": false,
         "image": "deadpool.jpg",
+        "link": null,
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Deadpool_Maya\\animRig_Deadpool.ma",
         "tags": [
             "human",
             "male",
             "superhero"
-        ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false
+        ]
     },
     "Eugene": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\eugene_v15\\eugene_rig_MASTER.ma",
@@ -1896,22 +1868,21 @@
         ]
     },
     "Samurai": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai.ma",
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Arnold.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_nCloth.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Collider-Proxy.ma"
+        ],
+        "author": null,
+        "collection": null,
+        "exists": false,
         "image": null,
+        "link": null,
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai.ma",
         "tags": [
             "fighter",
             "human",
             "male"
-        ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Arnold.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_nCloth.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Collider-Proxy.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Samurai_Rig\\Bloody_Young_Samurai_rig.ma"
         ]
     },
     "Cammy": {
@@ -1965,5 +1936,77 @@
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
         "exists": false
+    },
+    "Memnon": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Apollo&Artemis/Apollo/Memnon.ma",
+        "image": "memnon.jpg",
+        "tags": [
+            "human",
+            "male",
+            "adult"
+        ],
+        "collection": "Apollo&Artemis",
+        "author": "Ramon Arango",
+        "link": "https://ramonarango.gumroad.com/l/ApolloRig"
+    },
+    "SpideySense": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/01 ANIMALS-PROPS/Spiderman_SpideySense/Spiderman_SpideySense.ma",
+        "image": "",
+        "tags": [
+            "superhero",
+            "prop"
+        ],
+        "collection": "Spider-verse",
+        "author": "Empty",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Cyber Gun": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/parkour_attack/assets/CyberGun/CyberGun.ma",
+        "image": "",
+        "tags": [
+            "gun",
+            "prop"
+        ],
+        "collection": "Empty",
+        "author": "Empty",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Cyber Security": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/parkour_attack/assets/CyberSoldier/CyberSecurity.ma",
+        "image": "",
+        "tags": [
+            "gun",
+            "prop"
+        ],
+        "collection": "Empty",
+        "author": "Empty",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Cyber Rifle": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/parkour_attack/assets/CyberRifle/CyberRifle.ma",
+        "image": "",
+        "tags": [
+            "gun",
+            "prop"
+        ],
+        "collection": "Empty",
+        "author": "Empty",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "AT ST": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/AT_ST/scenes/AT_ST_Master.mb",
+        "image": "at_st.jpg",
+        "tags": [
+            "vehicle",
+            "robot"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com",
+        "alternatives": []
     }
 }

@@ -11,8 +11,10 @@ try:
 except ImportError:
     from PySide2 import QtGui
 
+from . import TOOL_TITLE
+
 # -------------------- Logging --------------------
-LOG = logging.getLogger("LibraryUI")
+LOG = logging.getLogger(TOOL_TITLE)
 
 
 # -------------------- Constants --------------------
@@ -27,6 +29,14 @@ def format_name(name):
     return name.lower().replace(" ", "_")
 
 
+def setting_bool(value):
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value.lower() == "true"
+    return bool(value)
+
+
 def apply_path_replacements(path, replacements):
     """
     Applies a list of (find, replace) tuples to a path.
@@ -37,18 +47,18 @@ def apply_path_replacements(path, replacements):
 
     # Normalize slashes for consistent replacement
     path = os.path.normpath(path).replace("\\", "/")
-    
+
     for find_str, rep_str in replacements:
         if not find_str:
             continue
-        
+
         # Normalize the find string as well to ensure it matches the path format
         f_norm = os.path.normpath(find_str).replace("\\", "/")
         r_norm = os.path.normpath(rep_str).replace("\\", "/")
-        
+
         if f_norm in path:
             path = path.replace(f_norm, r_norm)
-            
+
     return os.path.normpath(path)
 
 
@@ -224,7 +234,9 @@ Expected JSON Structure:
 
     paths_text = "\n".join(file_paths)
     prompt_text = (
-        "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(paths_text)
+        "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(
+            paths_text
+        )
     )
 
     payload = payload_fn(system_instruction, prompt_text, model)
@@ -243,14 +255,13 @@ Expected JSON Structure:
                     start = raw_text.find("{")
                     end = raw_text.rfind("}") + 1
                     if start != -1 and end != -1:
-                        return raw_text[start:end]
+                        return raw_text[start:end], None
             else:
                 LOG.error("AI API Error ({}): {}".format(endpoint, response.status))
-                return None
+                return None, "AI API Error ({}): {}".format(endpoint, response.status)
     except Exception as e:
         LOG.error("AI Request failed ({}): {}".format(endpoint or url, e))
-    return None
-
+        return None, "AI Request failed ({}): {}".format(endpoint or url, e)
 
 
 def get_ai_models(url, headers=None):
@@ -276,9 +287,8 @@ def get_ai_models(url, headers=None):
                 return sorted(list(set(models)))
     except Exception as e:
         LOG.error("Failed to fetch models from {}: {}".format(url, e))
-    
-    return []
 
+    return []
 
 
 def check_for_updates(current_version):

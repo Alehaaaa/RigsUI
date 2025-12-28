@@ -6,7 +6,7 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 
 - **Dockable Interface**: Seamlessly integrates into the Maya workspace.
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
-- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`).
+- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`). Search text persists across sessions and includes a native clear button.
 - **Sorting**: Sort library by Name, Collection, or Author.
 - **Context Actions**: Right-click to Edit Details, Open Rig Scene, Show in Folder, or Remove Rig.
 - **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
