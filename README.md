@@ -45,8 +45,8 @@ RigsUI.show()
 3. Review discovered rigs, categorize them, or add them instantly using the scanner UI.
 
 ### Managing Rigs
-1. **Info & Edit**: Click the (i) button to view rig details. 
-2. **Context Menu**: Right-click the (i) button to access advanced actions:
+1. **Info & Edit**: Click the ⓘ button to view rig details. 
+2. **Context Menu**: Right-click the ⓘ button to access advanced actions:
    - **Edit Details**: Modification of metadata.
    - **Open Rig Scene**: Opens the original file in a new Maya scene.
    - **Show in Folder**: Reveals the file in Explorer/Finder.
