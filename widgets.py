@@ -1919,7 +1919,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self.ai_btn.setText("Auto-Tag with AI")
         self.ai_btn.setVisible(False)
         self.ai_btn.setEnabled(False)
-        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them with metadata using AI.")
+        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them using AI.")
         self.ai_btn.clicked.connect(self._run_ai_auto_tag)
         self.sec_new.addFooterWidget(self.ai_btn)
         
@@ -2483,7 +2483,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self.sec_new.btn.setChecked(True)
 
         self.ai_btn.setEnabled(False)
-        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them with metadata using AI.")
+        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them using AI.")
         self._start_scan()
 
     def _trigger_add_manual(self):
@@ -2741,7 +2741,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self.sec_new.setEnabled(False)
         self.ai_btn.setEnabled(False)
-        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them with metadata using AI.")
+        self.ai_btn.setToolTip("Once new rigs are discovered, click to auto-tag them using AI.")
         self.ai_btn.setText("Processing with {}...".format(endpoint))
 
         self.ai_worker = AIWorker(endpoint, model, api_key, new_paths, custom_url, self)
