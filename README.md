@@ -34,13 +34,13 @@ RigsUI.show()
 ### Adding Rigs
 
 **Add One Rig**:
-1. Click the **+** (Plus) button and select **Add Manually**.
+1. Click the **+** (Add) button and select **Add Manually**.
 2. Select a Maya file (`.ma` or `.mb`).
 3. Fill in the details (Name, Collection, Author, Tags).
 4. The rig is added to the library.
 
 **Add Multiple Rigs**:
-1. Click the **+** (Plus) button and select **Scan Folder**.
+1. Click the **+** (Add) button and select **Scan Folder**.
 2. Select a directory to scan.
 3. Review discovered rigs, categorize them, or add them instantly using the scanner UI.
 
