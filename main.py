@@ -29,7 +29,10 @@ except ImportError:
     from PySide2.QtCore import Qt
     from shiboken2 import wrapInstance  # type: ignore
 
-from base64 import decodebytes
+try:
+    from base64 import decodebytes
+except ImportError:
+    from base64 import decodestring as decodebytes
 
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin  # type: ignore
 from maya.OpenMayaUI import MQtUtil  # type: ignore
@@ -270,8 +273,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.add_btn.setToolTip("Add new rig(s)")
 
         self.add_menu = OpenMenu(parent=self)
-        self.add_menu.addAction("Add Manually", self.add_new_rig)
-        self.add_menu.addAction("Scan Folder", self.batch_add_rigs)
+        self.add_menu.addAction(utils.get_icon("search.svg"), "Scan Folder", self.batch_add_rigs)
+        self.add_menu.addAction(utils.get_icon("add.svg"), "Add Manually", self.add_new_rig)
         self.add_btn.setMenu(self.add_menu)
         self.add_btn.setIconSize(QtCore.QSize(16, 16))
         self.add_btn.setStyleSheet(
@@ -358,11 +361,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             QtWidgets.QMessageBox.information(
                 self,
                 "Update Available",
-                f"A new version ({remote_ver}) is available!\nYou are currently using v{VERSION}.\n\nPlease check the repository.",
+                "A new version ({}) is available!\nYou are currently using v{}.\n\nPlease check the repository.".format(remote_ver, VERSION),
             )
         elif remote_ver:
             QtWidgets.QMessageBox.information(
-                self, "Up to Date", f"You are using the latest version v{VERSION}"
+                self, "Up to Date", "You are using the latest version v{}".format(VERSION)
             )
         else:
             QtWidgets.QMessageBox.warning(
@@ -474,12 +477,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         if replacements and self.display_data:
             for key, data in self.display_data.items():
                 if "path" in data and data["path"]:
-                    data["path"] = self._apply_path_replacements(data["path"], replacements)
+                    data["path"] = utils.apply_path_replacements(data["path"], replacements)
 
                 if "alternatives" in data:
                     new_alts = []
                     for alt in data["alternatives"]:
-                        new_alts.append(self._apply_path_replacements(alt, replacements))
+                        new_alts.append(utils.apply_path_replacements(alt, replacements))
                     data["alternatives"] = new_alts
 
     def _get_replacements(self):
@@ -490,15 +493,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         except Exception:
             return []
 
-    def _apply_path_replacements(self, path, replacements):
-        if not path:
-            return path
-        # Normalize first
-        path = os.path.normpath(path).replace("\\", "/")
-        for find_str, rep_str in replacements:
-            if find_str in path:
-                path = path.replace(find_str, rep_str)
-        return path
 
     def _load_blacklist(self):
         if os.path.exists(BLACKLIST_JSON):
@@ -618,14 +612,18 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             elif sort_mode == "Author":
                 val = data.get("author")
 
-            if not val or val == "Empty":
-                val = ""
-
             # Always return a tuple for consistent comparison
             if sort_mode == "Name":
                 return (name.lower(), "")
 
-            return (val.lower(), name.lower())
+            # For other modes, put Empty/None at the bottom
+            if not val or val == "Empty":
+                # Use a high-value character to push Empty to the bottom in ascending sort
+                sort_val = u"\uffff"
+            else:
+                sort_val = val.lower()
+
+            return (sort_val, name.lower())
 
         blacklist = set(self.blacklist)
         rig_items = []
@@ -836,11 +834,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         path = os.path.normpath(path)
 
-        # Check for duplicates
-        for name, data in self.rig_data.items():
+        # Check for duplicates using replaced paths
+        for name, data in self.display_data.items():
             if name.startswith("_"):
                 continue
-            # Check main path and alternatives
+            # Check main path and alternatives (already replaced in display_data)
             all_paths = [data.get("path", "")] + data.get("alternatives", [])
             norm_paths = [os.path.normpath(p) for p in all_paths if p]
 
@@ -939,54 +937,98 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
     # ---------- Persistence (Settings) ----------
 
     def save_windowPosition(self):
-        """Save docking state and geometry."""
+        """
+        Saves the current window state (floating or docked), position, and size.
+        """
         try:
             if not cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, exists=True):
-                return
+                return LOG.warning("No workspace control found to save position.")
 
+            # Check if the workspace control is floating or docked
             floating = cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, q=True, floating=True)
+            LOG.info("Workspace control is {}".format("floating" if floating else "docked"))
             self.settings.setValue("floating", floating)
 
             if floating:
                 ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
                 qt_control = wrapInstance(int(ptr), QtWidgets.QWidget)
                 geo = qt_control.geometry()
-                tl = qt_control.mapToGlobal(geo.topLeft())
-                self.settings.setValue("position", (tl.x(), tl.y()))
-                self.settings.setValue("size", (geo.width(), geo.height()))
-            self.settings.sync()
+                top_left_global = qt_control.mapToGlobal(geo.topLeft())
+
+                position = (top_left_global.x(), top_left_global.y())
+                size = (geo.width(), geo.height())
+
+                self.settings.setValue("position", position)
+                self.settings.setValue("size", size)
+                LOG.info("Saved floating position {} size {}".format(position, size))
+            else:
+                # Optionally save dock area for docked panels
+                try:
+                    dock_area = cmds.workspaceControl(
+                        self.WORKSPACE_CONTROL_NAME, q=True, dockArea=True
+                    )
+                    self.settings.setValue("dockArea", dock_area)
+                    LOG.info("Saved docked area: {}".format(dock_area))
+                except Exception:
+                    LOG.debug("Dock area not available to save.")
+
+            self.settings.sync()  # Force settings to write immediately
+            LOG.info("Window position saved successfully.")
+
         except Exception as e:
-            LOG.error("Error saving position: {}".format(e))
+            LOG.error("Error saving window position: {}".format(e))
 
     def set_windowPosition(self):
-        """Restore docking state and geometry."""
+        """
+        Restores or initializes the dock/floating position of the workspace control.
+        """
         floating = self.settings.value("floating", False)
-        pos = self.settings.value("position", None)
+        position = self.settings.value("position", None)
         size = self.settings.value("size", None)
 
-        kwargs = {"e": True, "label": self.WINDOW_TITLE, "minimumWidth": 370, "retain": False}
+        kwargs = {
+            "e": True,
+            "label": self.WINDOW_TITLE,
+            "minimumWidth": 370,
+            "retain": False,
+        }
 
+        # If floating, restore previous floating geometry
         if floating:
             kwargs["floating"] = True
         else:
-            # Attempt auto-dock
+            # Try to dock next to a known panel
             dock_target = None
             for ctl in ("ChannelBoxLayerEditor", "AttributeEditor"):
                 if cmds.control(ctl, exists=True):
                     dock_target = ctl
                     break
+
             if dock_target:
                 kwargs["tabToControl"] = [dock_target, -1]
+                LOG.info("Docking to: {}".format(dock_target))
             else:
+                LOG.info("No valid dock target found; defaulting to floating.")
                 kwargs["floating"] = True
+
         try:
             cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, **kwargs)
-            if floating and pos and size:
-                ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
-                win = wrapInstance(int(ptr), QtWidgets.QWidget).window()
-                win.setGeometry(QtCore.QRect(int(pos[0]), int(pos[1]), int(size[0]), int(size[1])))
+            LOG.info("Workspace control positioned: floating={}".format(floating))
         except Exception as e:
-            LOG.error("Error restoring position: {}".format(e))
+            LOG.error("Error positioning workspace control: {}".format(e))
+
+        try:
+            if floating and position and size:
+                ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
+                qt_control = wrapInstance(int(ptr), QtWidgets.QWidget).window()
+
+                LOG.info("Setting workspace control position: {}".format(position))
+                LOG.info("Setting workspace control size: {}".format(size))
+                qt_control.setGeometry(
+                    QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1]))
+                )
+        except Exception as e:
+            LOG.error("Error setting workspace control geometry: {}".format(e))
 
     def save_filters(self):
         try:
@@ -1011,12 +1053,10 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         except Exception as e:
             LOG.error("Error loading filters: {}".format(e))
 
-    def floatingChanged(self, floating):
-        self.settings.setValue("floating", floating)
-
     def dockCloseEventTriggered(self):
         self.save_windowPosition()
         self.save_filters()
+
         self._cleanup()
 
     def _cleanup(self):
@@ -1058,4 +1098,4 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 except Exception:
                     pass
 
-            QtCore.QTimer.singleShot(1000, restore)
+            QtCore.QTimer.singleShot(2000, restore)

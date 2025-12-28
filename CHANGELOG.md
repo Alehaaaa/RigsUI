@@ -2,10 +2,28 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] - 2025-12-28
+### 🚀 Added
+- **Scanning UX**:
+    - **Filter Menu**: Refactored the style of the filter menu to be scrollable.
+    - **Stop Scan**: Added a "Stop" button to folder searches to halt the process while keeping discovered results.
+    - **Live Elision**: Folder paths in the scanner header now elide dynamically on window resize, utilizing 100% of available width.
+    - **Animated Feedback**: "Scanning..." message with animated dots! Cool.
+- **AI Integration**:
+    - **Multiple Providers**: Added support for **Gemini**, **ChatGPT**, **Claude**, **Grok**, and **OpenRouter**.
+    - **Custom Endpoints**: Support for local or custom AI endpoints (Ollama, LM Studio).
+    - **Model Fetching**: Automatic retrieval of available models from the selected provider's API.
+
+### 📦 Changed
+- **Data Integrity**: Centralized logic to use "replaced paths" as the source of truth for duplicate checking and internal UI mapping.
+
+### 🐛 Fixed
+- **Highlight Precision**: Fixed a CSS bleed issue where highlighting a duplicate rig would accidentally color the background of its inner buttons and labels.
+
 ## [0.0.11] - 2025-12-27
 ### 📦 Changed
 - **Visual Polish**: 
-    - Updated `PillWidget` styling for better visibility and easier interaction.
+    - Updated `PillWidget` for tags to use a more compact and allow for easier interaction.
     - Standardized naming and title constants across the application.
 - **Code Cleanup**: Removed redundant debug prints and internal implementation comments.
 
@@ -56,7 +74,7 @@ All notable changes to this project will be documented in this file.
 - **Edit UI Refinement**: In the Rig Setup dialog, metadata fields containing "Empty" values now display as blank.
 
 ### 🤖 Testing
-- **Rig Scanner powered by AI**: Testing an integrated sed scanner temporarily using the **Gemini API** to automatically index rig folders, write metadata and more.
+- **Rig Scanner powered by AI**: Testing an integrated scanner temporarily using **AI APIs** to automatically index rig folders, write metadata and more.
 
 ## [0.0.6] - 2025-12-26
 ### 🚀 Added

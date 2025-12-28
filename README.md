@@ -12,7 +12,7 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 - **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
 - **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion.
 - **Path Replacements**: Define local path swaps (e.g., `D:/Rigs` -> `Z:/Server/Rigs`) to share databases across different machines/OS without breaking paths.
-- **AI Auto-Tagging**: Optional Google Gemini integration to automatically analyze file names and suggest metadata for batch imports.
+- **AI Auto-Tagging**: AI integration to automatically add metadata for new rigs. Supports **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or **Custom AI Endpoints** (e.g., LM Studio, Ollama).
 - **JSON Database**: Lightweight and portable data storage (`rigs_database.json` and `blacklist.json`).
 
 ## Installation
@@ -33,14 +33,14 @@ RigsUI.show()
 
 ### Adding Rigs
 
-**Singular Add**:
-1. Click the **+** (Plus) button and select **Add Single Rig...**.
+**Add One Rig**:
+1. Click the **+** (Plus) button and select **Add Manually**.
 2. Select a Maya file (`.ma` or `.mb`).
 3. Fill in the details (Name, Collection, Author, Tags).
 4. The rig is added to the library.
 
-**Batch Add**:
-1. Click the **+** (Plus) button and select **Batch Add Rigs from Folder...**.
+**Add Multiple Rigs**:
+1. Click the **+** (Plus) button and select **Scan Folder**.
 2. Select a directory to scan.
 3. Review discovered rigs, categorize them, or add them instantly using the scanner UI.
 
@@ -60,16 +60,7 @@ RigsUI.show()
 
 ## Changelog
 
-### v0.0.11
-- **Visual Polish & Stability**: Major fix for "popping" floating layouts and flicker during UI initialization.
-- **Tag Editor Fixes**: Robust tag removal and improved pill aesthetics.
-- **Improved UX**: Corrected menu parenting and standardized application titles.
-
-### v0.0.10
-- **Status Filters**: New "Only Available" and "Only Referenced" filters to quickly check file status.
-- **Tag Editor 2.0**: New visual tag editor with "pills", auto-complete, and improved interaction.
-- **Safe Path Replacements**: Non-destructive path swapping at runtime ensures your database remains portable.
-- **Manage Rigs UI**: Improved stretch behavior and resizing logic.
+Check it out on [CHANGELOG.md](CHANGELOG.md).
 
 ## Issues
 
@@ -82,7 +73,7 @@ Contributions are welcome! Please submit a pull request.
 ## Transparency
 
 The source code was written by me, **Alehaaaa**, with significant assistance from AI tools.
-Specifically, **Gemini** within **Antigravity** (an AI-powered IDE) and **ChatGPT**.
+Specifically, **AI Agents** (like Gemini within Antigravity or ChatGPT) and manual contributors.
 
 - Check out Antigravity here: [https://antigravity.google/](https://antigravity.google/)
 - And ChatGPT here: [https://chat.openai.com/](https://chat.openai.com/)
