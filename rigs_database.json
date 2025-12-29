@@ -125,19 +125,18 @@
         ]
     },
     "The Child": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
+        "image": "the_child.jpg",
+        "tags": [
+            "creature",
+            "baby"
+        ],
+        "collection": "Star Wars",
+        "author": "Emilio Serrano",
+        "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Guide_v.1.00.mb",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_RigGroom_v.1.00.mb"
-        ],
-        "author": "Emilio Serrano",
-        "collection": "Star Wars",
-        "exists": false,
-        "image": "the_child.jpg",
-        "link": "https://milio-serrano.gumroad.com/l/bhjsrm",
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\TheChild\\scenes\\TheChild_Rig_v.1.00.mb",
-        "tags": [
-            "creature",
-            "kid"
         ]
     },
     "Stormtrooper": {
@@ -320,7 +319,8 @@
         "image": "alpha.jpg",
         "tags": [
             "female",
-            "human"
+            "sci-fi",
+            "adult"
         ],
         "collection": "Agora",
         "author": "Agora.Community",
@@ -739,13 +739,11 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\MauriceRig_v01.mb",
         "image": "maurice_racoon.jpg",
         "tags": [
-            "creature",
             "animal"
         ],
         "collection": "Maurice Racoon",
         "author": "Raphael Cancellier",
         "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
         "alternatives": []
     },
     "Accordion": {
@@ -1439,7 +1437,7 @@
     },
     "Female Mannequin": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\Mannequins\\female_mannequin.mb",
-        "image": null,
+        "image": "female_mannequin.jpg",
         "tags": [
             "basic",
             "female",
@@ -1453,7 +1451,7 @@
     },
     "Male Mannequin": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\Mannequins\\male_mannequin.mb",
-        "image": null,
+        "image": "male_mannequin.jpg",
         "tags": [
             "basic",
             "male",
@@ -1714,13 +1712,11 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Adult_Elephant\\Adult_Elephant_v01.02_L.ma",
         "image": null,
         "tags": [
-            "animal",
-            "creature"
+            "animal"
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Baby Elephant": {
@@ -1728,13 +1724,11 @@
         "image": null,
         "tags": [
             "animal",
-            "baby",
-            "creature"
+            "baby"
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Gorilla": {
@@ -1742,13 +1736,11 @@
         "image": null,
         "tags": [
             "animal",
-            "ape",
-            "creature"
+            "ape"
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Monkey": {
@@ -1756,13 +1748,11 @@
         "image": null,
         "tags": [
             "animal",
-            "ape",
-            "creature"
+            "ape"
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Orangutan": {
@@ -1770,13 +1760,11 @@
         "image": null,
         "tags": [
             "animal",
-            "ape",
-            "creature"
+            "ape"
         ],
         "collection": "ProRigs Zoo",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Amanda": {
@@ -1912,14 +1900,13 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\jdJuicebox.ma",
         "image": "juicebox.jpg",
         "tags": [
-            "stylized",
             "prop",
             "cartoon"
         ],
-        "collection": null,
+        "collection": "Empty",
         "author": "Jonathan Cooper",
         "link": "https://joedanimation.gumroad.com/l/juiceboxrigmaya",
-        "exists": false
+        "alternatives": []
     },
     "JJ": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jj_rig.ma",
@@ -2056,33 +2043,37 @@
         "image": "beta.jpg",
         "tags": [
             "sci-fi",
-            "character"
+            "male",
+            "adult"
         ],
         "collection": "Agora",
-        "author": "Empty",
-        "link": "Empty"
+        "author": "Agora.Community",
+        "link": "Empty",
+        "alternatives": []
     },
     "Delta": {
         "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Delta/Delta_rig.ma",
         "image": "delta.jpg",
         "tags": [
             "sci-fi",
-            "character"
+            "female"
         ],
         "collection": "Agora",
-        "author": "Empty",
-        "link": "Empty"
+        "author": "Agora.Community",
+        "link": "Empty",
+        "alternatives": []
     },
     "Gamma": {
         "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Gamma/Gamma_Rig.ma",
         "image": "gamma.jpg",
         "tags": [
             "sci-fi",
-            "character"
+            "animal"
         ],
         "collection": "Agora",
-        "author": "Empty",
-        "link": "Empty"
+        "author": "Agora.Community",
+        "link": "Empty",
+        "alternatives": []
     },
     "Robot": {
         "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Robot/Agora_Robot.ma",
@@ -2092,15 +2083,17 @@
             "sci-fi"
         ],
         "collection": "Agora",
-        "author": "Empty",
-        "link": "Empty"
+        "author": "Agora.Community",
+        "link": "Empty",
+        "alternatives": []
     },
     "Robot Pistol": {
         "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Robot_Pistol/Agora_Robot_Pistol.ma",
         "image": "robot_pistol.jpg",
         "tags": [
             "gun",
-            "prop"
+            "prop",
+            "sci-fi"
         ],
         "collection": "Agora",
         "author": "Agora.Community",
