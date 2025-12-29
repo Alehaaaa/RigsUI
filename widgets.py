@@ -189,6 +189,7 @@ class ClickableLabel(QtWidgets.QLabel):
         self.setFixedSize(148, 148)
         self.setAlignment(QtCore.Qt.AlignCenter)
         self.setStyleSheet("border: 1px solid #444; background: #222; color: #888;")
+        self._default_cursor = self.cursor()
         self._clickable = False
 
     def updateImageDisplay(self, object):
@@ -206,6 +207,7 @@ class ClickableLabel(QtWidgets.QLabel):
                 )
             )
             self._clickable = False
+            self.setCursor(self._default_cursor)
         else:
             self.setPixmap(QtGui.QPixmap())
             self.setText("{}\n(Click to set)".format(object.name))
@@ -1291,7 +1293,6 @@ class TagEditorWidget(QtWidgets.QWidget):
         if text is None:
             text = self.input_line.text()
 
-
         w_text = self.get_width(text)
         w_place = self.get_width(self.input_line.placeholderText())
 
@@ -2027,15 +2028,15 @@ class ScannerWorker(QtCore.QThread):
                     break
 
                 root_name = os.path.basename(root)
-                
+
                 # Skip files inside blocked folders (unless it's the very first folder scanned)
                 if root != self.directory and self._is_blocked(root_name):
-                    dirs[:] = [] 
+                    dirs[:] = []
                     continue
 
                 # Prune subdirectories before they are visited
                 dirs[:] = [d for d in dirs if not self._is_blocked(d)]
-                dirs.sort() 
+                dirs.sort()
 
                 # Process files in current root
                 files.sort()
@@ -2253,7 +2254,7 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
             return
 
         metrics = QtGui.QFontMetrics(self.path_lbl.font())
-        
+
         # Calculate adjustment for bold filename if found
         calc_width = width
         if self._is_found:
@@ -2262,13 +2263,13 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
             bold_font = self.path_lbl.font()
             bold_font.setBold(True)
             bold_metrics = QtGui.QFontMetrics(bold_font)
-            
+
             # Use advanced metrics if available
             if hasattr(metrics, "horizontalAdvance"):
                 overhead = bold_metrics.horizontalAdvance(filename) - metrics.horizontalAdvance(filename)
             else:
                 overhead = bold_metrics.width(filename) - metrics.width(filename)
-                
+
             calc_width -= max(0, overhead)
 
         elided = metrics.elidedText(self.path, QtCore.Qt.ElideLeft, calc_width)
@@ -2537,7 +2538,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self.lbl_loading_dots = LoadingDotsWidget(self.tab_rigs)
         self.lbl_loading_dots.setFixedHeight(24)
-        self.lbl_loading_dots.setFixedWidth(25) # Fixed width for dot area
+        self.lbl_loading_dots.setFixedWidth(25)  # Fixed width for dot area
         self.lbl_loading_dots._timer.timeout.connect(self._update_discovery_section_dots)
 
         visible = bool(self.directory)
@@ -2818,7 +2819,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             data = json.loads(raw)
             # Migration check: if someone has the old "." or ".anim", convert them to glob style
             migrated = []
-            for t in (data if isinstance(data, list) else [".*", "*.anim"]):
+            for t in data if isinstance(data, list) else [".*", "*.anim"]:
                 clean = str(t).strip()
                 if clean == ".":
                     clean = ".*"
@@ -3113,13 +3114,15 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 run_p = utils.apply_path_replacements(main_p, replacements)
                 lookup_p = utils.normpath_posix_keep_trailing(run_p)
                 if (lookup_p if sys.platform != "win32" else lookup_p.lower()) not in norm_blacklist:
-                    group.append({
-                        "display": run_p,
-                        "original": main_p,
-                        "is_alt": False,
-                        "rig_name": name,
-                        "exists": os.path.exists(run_p),
-                    })
+                    group.append(
+                        {
+                            "display": run_p,
+                            "original": main_p,
+                            "is_alt": False,
+                            "rig_name": name,
+                            "exists": os.path.exists(run_p),
+                        }
+                    )
 
             # 2. Alternatives
             for alt in data.get("alternatives", []):
@@ -3128,22 +3131,26 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 run_p = utils.apply_path_replacements(alt, replacements)
                 lookup_p = utils.normpath_posix_keep_trailing(run_p)
                 if (lookup_p if sys.platform != "win32" else lookup_p.lower()) not in norm_blacklist:
-                    group.append({
-                        "display": run_p,
-                        "original": alt,
-                        "is_alt": True,
-                        "rig_name": name,
-                        "exists": os.path.exists(run_p),
-                    })
-            
+                    group.append(
+                        {
+                            "display": run_p,
+                            "original": alt,
+                            "is_alt": True,
+                            "rig_name": name,
+                            "exists": os.path.exists(run_p),
+                        }
+                    )
+
             if group:
                 # Sort individual group items (main first, then alts alpha)
                 group.sort(key=lambda x: (x["is_alt"], x["display"].lower()))
-                rig_groups.append({"name": name, "items": group, "any_exists": any(i["exists"] for i in group)})
+                rig_groups.append(
+                    {"name": name, "items": group, "any_exists": any(i["exists"] for i in group)}
+                )
 
         # Sort groups: Rig that have even 1 found version first, then alphabetical
         rig_groups.sort(key=lambda x: (not x["any_exists"], x["name"].lower()))
-        
+
         # Flatten into all_db_items
         for g in rig_groups:
             all_db_items.extend(g["items"])
@@ -3187,7 +3194,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 section.addWidget(sep)
                 separator_added = True
 
-            item = ManageRigsItemWidget(run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section)
+            item = ManageRigsItemWidget(
+                run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section
+            )
 
             # Connect all signals regardless of initial category to allow fluid UI state changes
             item.editRequested.connect(self._on_edit_request)
@@ -3201,7 +3210,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 )
 
             section.addWidget(item)
-            
+
             # Add little space after rig groups if requested
             if entry.get("is_last_in_group") and not auto_sort:
                 spacer = QtWidgets.QWidget()
@@ -3638,17 +3647,17 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self.lbl_scan_prefix.setText("Scanning:")
         self.lbl_scan_prefix.setVisible(True)
-        
+
         # Ensure layout has a chance to calculate before eliding
         self.lbl_scan_path.setVisible(True)
-        self.lbl_scan_path.setText("") # Clear first
+        self.lbl_scan_path.setText("")  # Clear first
         QtCore.QTimer.singleShot(0, self._refresh_scanning_path_display)
-        
+
         self.btn_stop_scan.setVisible(True)
 
         self.worker = ScannerWorker(
-        self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self
-    )
+            self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self
+        )
         self.worker.fileDiscovered.connect(self._on_file_discovered)
         self.worker.finished.connect(self._on_scan_finished)
         self.worker.start()

@@ -113,12 +113,12 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Mandalorian\\scenes\\Mandalorian_Rig_v.1.1.mb",
         "image": "mandalorian.jpg",
         "tags": [
-            "male"
+            "male",
+            "sci-fi"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/qvdmc",
-        "exists": false,
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/Mandalorian/scenes/Mandalorian_Rig_v.1.00.mb",
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/Mandalorian/scenes/Mandalorian_Guide_v.1.00.mb"
@@ -129,7 +129,8 @@
         "image": "the_child.jpg",
         "tags": [
             "creature",
-            "baby"
+            "baby",
+            "sci-fi"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
@@ -143,24 +144,24 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Stormtrooper\\scenes\\Stormtrooper_Rig_v5.mb",
         "image": "stormtrooper.jpg",
         "tags": [
-            "male"
+            "male",
+            "sci-fi"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/joFBP",
-        "exists": false,
         "alternatives": []
     },
     "BD-1": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\BD-1\\scenes\\BD-1_Rig_v1.1.mb",
         "image": "bd-1.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com/l/AaAwS",
-        "exists": false,
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Star Wars/BD-1/scenes/BD-1_Rig_v1.0.mb"
         ]
@@ -724,7 +725,7 @@
     },
     "Irex": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Irex_v5\\Irex_rig_blinn.ma",
-        "image": null,
+        "image": "irex.jpg",
         "tags": [
             "creature",
             "dinosaur"
@@ -911,213 +912,171 @@
     },
     "Advanced Ball": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Advanced Ball\\advanced_ball_shot_ready_anim.ma",
-        "image": null,
+        "image": "advanced_ball.jpg",
         "tags": [
-            "prop"
+            "prop",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Ballie": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Ballie\\ballie_shot_ready_anim.ma",
-        "image": null,
+        "image": "ballie.jpg",
         "tags": [
-            "prop"
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Beaver": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Beaver\\beaver_2015_shot_ready_anim.ma",
-        "image": null,
+        "image": "beaver.jpg",
         "tags": [
-            "animal"
+            "animal",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Bird Ball": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Bird Ball\\bird_ball_shot_ready_anim.ma",
-        "image": null,
+        "image": "bird_ball.jpg",
         "tags": [
             "animal",
-            "prop"
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Monster Ball": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Monster Ball\\monster_ball_shot_ready_anim.ma",
-        "image": null,
+        "image": "monster_ball.jpg",
         "tags": [
-            "prop"
+            "creature",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Pendulum": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Pendulum\\pendulum_shot_ready_anim.ma",
-        "image": null,
+        "image": "pendulum.jpg",
         "tags": [
-            "prop"
+            "prop",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/ProRigs/ProRigs_Basics/ProRigs_Pendulum/Pendulum_v01.02_L.ma"
         ]
     },
     "Tailor": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Tailor\\tailor_shot_ready_anim.ma",
-        "image": null,
+        "image": "tailor.jpg",
         "tags": [
-            "prop"
+            "basic",
+            "animal"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Sloan": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Sloan\\sloan_shot_ready_anim.ma",
-        "image": null,
+        "image": "sloan.jpg",
         "tags": [
-            "female",
-            "human"
+            "creature",
+            "animal",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Stan": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stan\\stan_shot_ready_anim.ma",
-        "image": null,
+        "image": "stan.jpg",
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Stella": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stella\\stella_shot_ready_anim.ma",
-        "image": null,
+        "image": "stella.jpg",
         "tags": [
             "female",
-            "human"
+            "human",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Body Mechanics Rigs/stella_rig.ma"
         ]
     },
     "Stewie": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stewie\\stewie_shot_ready_anim.ma",
-        "image": null,
+        "image": "stewie.jpg",
         "tags": [
             "human",
+            "basic",
             "male"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Fuzzbot": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Fuzzbot\\fuzzbot_shot_ready_anim.ma",
-        "image": null,
+        "image": "fuzzbot.jpg",
         "tags": [
-            "male",
-            "robot"
+            "robot",
+            "sci-fi",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "Imp Pinky": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Pinky\\imp_pinky_shot_ready_anim.ma",
-        "image": null,
-        "tags": [
-            "creature",
-            "monster"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "Imp Rock": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Rock\\imp_rock_shot_ready_anim.ma",
-        "image": null,
-        "tags": [
-            "creature",
-            "monster"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "Imp Twig": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Twig\\imp_twig_shot_ready_anim.ma",
-        "image": null,
-        "tags": [
-            "creature",
-            "monster"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Sarge": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Sarge\\sarge_shot_ready_anim.ma",
-        "image": null,
+        "image": "sarge.jpg",
         "tags": [
-            "human",
-            "male"
+            "robot",
+            "sci-fi"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Aia": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Aia\\aia_shot_ready_anim.ma",
-        "image": null,
+        "image": "aia.jpg",
         "tags": [
             "female",
             "human"
@@ -1132,48 +1091,48 @@
     },
     "Bishop": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Bishop\\bishop_shot_ready_anim.ma",
-        "image": null,
+        "image": "bishop.jpg",
         "tags": [
             "human",
-            "male"
+            "male",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Bishop/extras/bishop_extras.mb"
         ]
     },
     "Blip": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Blip\\blip_anim_shot_ready.ma",
-        "image": null,
+        "image": "blip.jpg",
         "tags": [
-            "male",
-            "robot"
+            "robot",
+            "sci-fi",
+            "basic"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Enforcer": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Enforcer Moya\\enforcer_shot_ready_anim.ma",
-        "image": null,
+        "image": "enforcer.jpg",
         "tags": [
-            "male",
-            "robot"
+            "female",
+            "human",
+            "young"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Franklin": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Franklin\\franklin_shot_ready_anim.ma",
-        "image": null,
+        "image": "franklin.jpg",
         "tags": [
             "human",
             "male"
@@ -1186,112 +1145,111 @@
     },
     "Jules": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Jules\\jules_shot_ready_anim.ma",
-        "image": null,
+        "image": "jules.jpg",
         "tags": [
             "female",
-            "human"
+            "human",
+            "young"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Jules/extras/jules_extras.ma"
         ]
     },
     "Kayla": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Kayla\\kayla_2014_shot_ready_anim.ma",
-        "image": null,
+        "image": "kayla.jpg",
         "tags": [
             "female",
-            "human"
+            "human",
+            "kid"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kayla/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
     },
     "Koala Bob": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Koala Bob\\koala_bob_maya_2015.ma",
-        "image": null,
+        "image": "koala_bob.jpg",
         "tags": [
-            "animal"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "Kyle": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Kyle\\kyle_2014_shot_ready_anim.ma",
-        "image": null,
-        "tags": [
-            "human",
+            "animal",
             "male"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Kyle": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Kyle\\kyle_2014_shot_ready_anim.ma",
+        "image": "kyle.jpg",
+        "tags": [
+            "human",
+            "male",
+            "kid"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kyle/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
     },
     "Overlord": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Overlord Viktor\\overlord_shot_ready_anim.ma",
-        "image": null,
+        "image": "overlord.jpg",
         "tags": [
             "male",
-            "robot"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "Quinn": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Quinn\\quinn_shot_ready_anim.ma",
-        "image": null,
-        "tags": [
-            "female",
+            "old",
             "human"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Quinn": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Quinn\\quinn_shot_ready_anim.ma",
+        "image": "quinn.jpg",
+        "tags": [
+            "female",
+            "human",
+            "kid"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
         "alternatives": []
     },
     "Ronan": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Ronan\\ronan_v1.1.ma",
-        "image": null,
+        "image": "ronan.jpg",
         "tags": [
             "human",
-            "male"
+            "male",
+            "kid"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Shaman": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Shaman Aristotle\\shaman_shot_ready_anim.ma",
-        "image": null,
+        "image": "shaman.jpg",
         "tags": [
             "human",
             "male",
-            "prop"
+            "old"
         ],
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Shaman Aristotle/extras/shaman_staff_rig.ma"
         ]
@@ -1987,7 +1945,8 @@
         "image": "at_st.jpg",
         "tags": [
             "vehicle",
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "Star Wars",
         "author": "Emilio Serrano",
@@ -2031,7 +1990,8 @@
         "tags": [
             "male",
             "superhero",
-            "animal"
+            "animal",
+            "fighter"
         ],
         "collection": "Teenage Mutant Ninja Turtles",
         "author": "Artem Dubyna",
@@ -2097,6 +2057,42 @@
         ],
         "collection": "Agora",
         "author": "Agora.Community",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Pinky": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Pinky\\imp_pinky_shot_ready_anim.ma",
+        "image": "imp_pinky.jpg",
+        "tags": [
+            "creature",
+            "basic"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Rock": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Rock\\imp_rock_shot_ready_anim.ma",
+        "image": "imp_rock.jpg",
+        "tags": [
+            "creature",
+            "basic"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Twig": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Twig\\imp_twig_shot_ready_anim.ma",
+        "image": "imp_twig.jpg",
+        "tags": [
+            "creature",
+            "basic"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
         "link": "Empty",
         "alternatives": []
     }
