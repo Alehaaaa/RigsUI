@@ -2,6 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2025-12-29
+### 🚀 Added
+- **Scanner Customization**:
+    - **Blocked Paths**: Added a "Scanning Settings" section to the Settings tab to manage blocked folder patterns.
+    - **Glob Support**: Use patterns like `.*` (prefix) or `*.anim` (suffix) to skip specific folders during scans. Exact matches are also supported.
+- **Image Polish**:
+
+### 📦 Changed
+- **UX Improvements**:
+    - **Scanning Status**: Re-aligned the status layout to place the animated loading dots directly next to the scanning path.
+
+### 🐛 Fixed
+- **Resource Management**: Background scanner workers are now reliably stopped when closing the "Manage Rigs" dialog.
+- **Auto-Cropping**: Images are now automatically center-cropped to a square ratio when saved or updated.
+
+
 ## [0.1.2] - 2025-12-28
 ### 🚀 Added
 - **UI Interaction**:

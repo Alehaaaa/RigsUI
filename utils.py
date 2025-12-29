@@ -5,6 +5,7 @@ import logging
 import urllib.request
 import urllib.error
 import ssl
+import sys
 
 try:
     from PySide6 import QtGui
@@ -13,9 +14,17 @@ except ImportError:
 
 from . import TOOL_TITLE
 
+
 # -------------------- Logging --------------------
 LOG = logging.getLogger(TOOL_TITLE)
-
+if not LOG.handlers:
+    h = logging.StreamHandler(stream=sys.stdout)
+    formatter = logging.Formatter("[{}] %(levelname)s: %(message)s".format(TOOL_TITLE))
+    h.setFormatter(formatter)
+    LOG.addHandler(h)
+LOG.setLevel(logging.DEBUG)
+LOG.propagate = False
+LOG.disabled = True
 
 # -------------------- Constants --------------------
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -28,6 +37,13 @@ ICONS_DIR = os.path.join(MODULE_DIR, "_icons")
 def format_name(name):
     return name.lower().replace(" ", "_")
 
+def normpath_posix_keep_trailing(path):
+    if path:
+        has_trailing = path.endswith(("/", "\\"))
+        path = os.path.normpath(path).replace("\\", "/")
+        if has_trailing and not path.endswith("/"):
+            path += "/"
+    return path
 
 def setting_bool(value):
     if value is None:
@@ -62,9 +78,27 @@ def apply_path_replacements(path, replacements):
     return os.path.normpath(path)
 
 
+def crop_image_to_square(img):
+    """
+    Crops a QImage to a square by taking the center portion.
+    """
+    if not img or img.isNull():
+        return img
+        
+    w = img.width()
+    h = img.height()
+    size = min(w, h)
+    
+    x = (w - size) // 2
+    y = (h - size) // 2
+    
+    return img.copy(x, y, size, size)
+
+
 def save_image_local(source_path, base_name):
     """
     Saves and converts an image to JPG in the local images directory.
+    Crops the image to a square (center crop) before saving.
     Returns the new filename.
     """
     if not source_path or not os.path.exists(source_path):
@@ -78,6 +112,8 @@ def save_image_local(source_path, base_name):
 
         img = QtGui.QImage(source_path)
         if not img.isNull():
+            img = crop_image_to_square(img)
+
             if not os.path.exists(IMAGES_DIR):
                 os.makedirs(IMAGES_DIR)
             img.save(dest_path, "JPG")

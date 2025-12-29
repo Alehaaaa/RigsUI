@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import io
-import sys
 import json
-import logging
 from .widgets import (
     ManageRigsDialog,
     FilterMenu,
@@ -37,17 +35,6 @@ except ImportError:
 from maya.app.general.mayaMixin import MayaQWidgetDockableMixin  # type: ignore
 from maya.OpenMayaUI import MQtUtil  # type: ignore
 
-
-# -------------------- Logging --------------------
-LOG = logging.getLogger(TOOL_TITLE)
-if not LOG.handlers:
-    h = logging.StreamHandler(stream=sys.stdout)
-    formatter = logging.Formatter("[{}] %(levelname)s: %(message)s".format(TOOL_TITLE))
-    h.setFormatter(formatter)
-    LOG.addHandler(h)
-LOG.setLevel(logging.DEBUG)
-LOG.propagate = False
-LOG.disabled = True
 
 # -------------------- Constants --------------------
 RIGS_JSON = os.path.join(utils.MODULE_DIR, "rigs_database.json")
@@ -217,7 +204,7 @@ class SearchWorker(QtCore.QObject):
                 visible_names.append(name)
 
         except Exception as e:
-            LOG.error("Search worker error: {}".format(e))
+            utils.LOG.error("Search worker error: {}".format(e))
 
         self.finished.emit(visible_names)
 
@@ -483,7 +470,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 with io.open(RIGS_JSON, "r", encoding="utf-8") as f:
                     self.rig_data = json.load(f)
             except Exception as e:
-                LOG.error("Failed to load JSON: {}".format(e))
+                utils.LOG.error("Failed to load JSON: {}".format(e))
                 self.rig_data = {}
         else:
             self.rig_data = {}
@@ -518,7 +505,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 with io.open(BLACKLIST_JSON, "r", encoding="utf-8") as f:
                     self.blacklist = json.load(f)
             except Exception as e:
-                LOG.error("Failed to load blacklist: {}".format(e))
+                utils.LOG.error("Failed to load blacklist: {}".format(e))
                 self.blacklist = []
         else:
             self.blacklist = []
@@ -584,7 +571,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             with io.open(BLACKLIST_JSON, "w", encoding="utf-8") as f:
                 json.dump(self.blacklist, f, indent=4, ensure_ascii=False)
         except Exception as e:
-            LOG.error("Failed to save blacklist: {}".format(e))
+            utils.LOG.error("Failed to save blacklist: {}".format(e))
 
     def save_data(self):
         """Saves current rig_data to JSON."""
@@ -592,7 +579,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             with io.open(RIGS_JSON, "w", encoding="utf-8") as f:
                 json.dump(self.rig_data, f, indent=4)
         except Exception as e:
-            LOG.error("Failed to save JSON: {}".format(e))
+            utils.LOG.error("Failed to save JSON: {}".format(e))
 
     def _populate_grid(self, trigger_search=True):
         """
@@ -680,7 +667,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     wid.set_exists(data["exists"])
                     self._widgets_map[name] = wid
                 except Exception as e:
-                    LOG.error("Failed to create widget '{}': {}".format(name, e))
+                    utils.LOG.error("Failed to create widget '{}': {}".format(name, e))
                     continue
 
             self.flow_layout.addWidget(wid)
@@ -961,7 +948,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             del self.rig_data[rig_name]
             self.save_data()
             self.load_data()  # Reload to refresh UI
-            LOG.info("Removed rig: {}".format(rig_name))
+            utils.LOG.info("Removed rig: {}".format(rig_name))
 
     # ---------- Persistence (Settings) ----------
 
@@ -971,11 +958,11 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         """
         try:
             if not cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, exists=True):
-                return LOG.warning("No workspace control found to save position.")
+                return utils.LOG.warning("No workspace control found to save position.")
 
             # Check if the workspace control is floating or docked
             floating = cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, q=True, floating=True)
-            LOG.info("Workspace control is {}".format("floating" if floating else "docked"))
+            utils.LOG.info("Workspace control is {}".format("floating" if floating else "docked"))
 
             if floating:
                 ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
@@ -990,16 +977,16 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                 self.settings.setValue("size", size)
 
                 self.settings.setValue("floating", True)
-                LOG.info("Saved floating = {} position {} size {}".format(True, position, size))
+                utils.LOG.info("Saved floating = {} position {} size {}".format(True, position, size))
             else:
                 self.settings.setValue("floating", False)
-                LOG.info("Saved floating = {}".format(False))
+                utils.LOG.info("Saved floating = {}".format(False))
 
             self.settings.sync()  # Force settings to write immediately
-            LOG.info("Window position saved successfully.")
+            utils.LOG.info("Window position saved successfully.")
 
         except Exception as e:
-            LOG.error("Error saving window position: {}".format(e))
+            utils.LOG.error("Error saving window position: {}".format(e))
 
     def set_windowPosition(self):
         """
@@ -1007,7 +994,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         """
         floating = utils.setting_bool(self.settings.value("floating") or False)
 
-        LOG.info("Restoring floating = {}".format(floating))
+        utils.LOG.info("Restoring floating = {}".format(floating))
         position = self.settings.value("position")
         size = self.settings.value("size")
 
@@ -1032,28 +1019,28 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
             if dock_target:
                 kwargs["tabToControl"] = [dock_target, -1]
-                LOG.info("Docking to: {}".format(dock_target))
+                utils.LOG.info("Docking to: {}".format(dock_target))
             else:
-                LOG.info("No valid dock target found; defaulting to floating.")
+                utils.LOG.info("No valid dock target found; defaulting to floating.")
                 kwargs["floating"] = True
 
         try:
             cmds.workspaceControl(self.WORKSPACE_CONTROL_NAME, **kwargs)
         except Exception as e:
-            LOG.error("Error positioning workspace control: {}".format(e))
+            utils.LOG.error("Error positioning workspace control: {}".format(e))
 
         try:
             if floating and position and size:
                 ptr = MQtUtil.findControl(self.WORKSPACE_CONTROL_NAME)
                 qt_control = wrapInstance(int(ptr), QtWidgets.QWidget).window()
 
-                LOG.info("Setting workspace control position: {}".format(position))
-                LOG.info("Setting workspace control size: {}".format(size))
+                utils.LOG.info("Setting workspace control position: {}".format(position))
+                utils.LOG.info("Setting workspace control size: {}".format(size))
                 qt_control.setGeometry(
                     QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1]))
                 )
         except Exception as e:
-            LOG.error("Error setting workspace control geometry: {}".format(e))
+            utils.LOG.error("Error setting workspace control geometry: {}".format(e))
 
     def save_filters(self):
         try:
@@ -1064,7 +1051,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self.settings.setValue("sort_key", key)
             self.settings.setValue("sort_ascending", asc)
         except Exception as e:
-            LOG.error("Error saving filters: {}".format(e))
+            utils.LOG.error("Error saving filters: {}".format(e))
 
     def load_filters(self):
         try:
@@ -1081,7 +1068,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
             self.sort_menu.set_sort(key, asc)
         except Exception as e:
-            LOG.error("Error loading filters: {}".format(e))
+            utils.LOG.error("Error loading filters: {}".format(e))
 
     def dockCloseEventTriggered(self):
         self.save_windowPosition()

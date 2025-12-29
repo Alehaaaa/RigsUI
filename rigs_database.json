@@ -1782,15 +1782,14 @@
     },
     "Amanda": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Amanda_RIG\\Amanda_v_3.ma",
-        "image": null,
+        "image": "amanda.jpg",
         "tags": [
             "female",
             "human"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Artem Dubyna",
+        "link": "https://temaroots.gumroad.com/l/Amanda",
         "alternatives": []
     },
     "Deadpool": {
@@ -2007,6 +2006,50 @@
         "collection": "Star Wars",
         "author": "Emilio Serrano",
         "link": "https://milio-serrano.gumroad.com",
+        "alternatives": []
+    },
+    "Jerry": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Jerry/jerry.ma",
+        "image": "jerry.jpg",
+        "tags": [
+            "male",
+            "animal",
+            "cartoon"
+        ],
+        "collection": "Tom&Jerry",
+        "author": "Artem Dubyna",
+        "link": "https://temaroots.gumroad.com/l/jerry",
+        "alternatives": [
+            "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Jerry/jerry_pose/jerry_face_pose.ma",
+            "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Jerry/jerry_pose/jerry_pose.ma"
+        ]
+    },
+    "Tom": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Tom/Tom.ma",
+        "image": "tom.jpg",
+        "tags": [
+            "male",
+            "animal",
+            "cartoon"
+        ],
+        "collection": "Tom&Jerry",
+        "author": "Artem Dubyna",
+        "link": "https://temaroots.gumroad.com/l/Tom",
+        "alternatives": [
+            "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Tom/pose.ma"
+        ]
+    },
+    "Mikey Turtle": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/Mikey/mikey_rig_v_6.ma",
+        "image": "mikey_turtle.jpg",
+        "tags": [
+            "male",
+            "superhero",
+            "animal"
+        ],
+        "collection": "Teenage Mutant Ninja Turtles",
+        "author": "Artem Dubyna",
+        "link": "https://temaroots.gumroad.com/l/tmnt",
         "alternatives": []
     }
 }

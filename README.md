@@ -10,7 +10,7 @@ A professional Maya tool for organizing and managing 3D rig assets. The **Rigs L
 - **Sorting**: Sort library by Name, Collection, or Author.
 - **Context Actions**: Right-click to Edit Details, Open Rig Scene, Show in Folder, or Remove Rig.
 - **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
-- **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion.
+- **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion. Features customizable **Blocked Patterns** (e.g. `.*`, `*.anim`) to skip unneeded directories.
 - **Path Replacements**: Define local path swaps (e.g., `D:/Rigs` -> `Z:/Server/Rigs`) to share databases across different machines/OS without breaking paths.
 - **AI Auto-Tagging**: AI integration to automatically add metadata for new rigs. Supports **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or **Custom AI Endpoints** (e.g., LM Studio, Ollama).
 - **JSON Database**: Lightweight and portable data storage (`rigs_database.json` and `blacklist.json`).

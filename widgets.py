@@ -3,6 +3,7 @@ import subprocess
 import logging
 import sys
 import json
+import fnmatch
 from maya import cmds
 
 try:
@@ -217,19 +218,16 @@ class ClickableLabel(QtWidgets.QLabel):
         super(ClickableLabel, self).mousePressEvent(event)
 
 
-class ElidedClickableLabel(QtWidgets.QLabel):
-    """A label that elides text from the left and responds to click events."""
+class ContextLabel(QtWidgets.QLabel):
+    """A QLabel that provides a context menu to copy its text or tooltip."""
 
-    clicked = QtCore.Signal()
-
-    def __init__(self, text, is_path=False, is_link=False, parent=None):
-        super(ElidedClickableLabel, self).__init__(text, parent)
-        self._full_text = text
+    def __init__(self, text="", is_path=False, is_link=False, parent=None):
+        super(ContextLabel, self).__init__(text, parent)
         self._is_path = is_path
         self._is_link = is_link
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        self.setCursor(QtCore.Qt.PointingHandCursor)
-        self.setToolTip(text)
+        self.setCursor(CONTEXTUAL_CURSOR)
+        if text:
+            self.setToolTip(text)
 
     def contextMenuEvent(self, event):
         menu = QtWidgets.QMenu(self)
@@ -238,7 +236,57 @@ class ElidedClickableLabel(QtWidgets.QLabel):
 
         action = menu.exec_(self.mapToGlobal(event.pos()))
         if action == copy_act:
-            QtWidgets.QApplication.clipboard().setText(self._full_text)
+            # Prefer tooltip as it usually holds the full un-elided text
+            text_to_copy = self.toolTip() or self.text()
+            QtWidgets.QApplication.clipboard().setText(text_to_copy)
+
+
+class LoadingDotsWidget(QtWidgets.QLabel):
+    """A standalone widget that cycles through dots (. .. ...) for loading states."""
+
+    clicked = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super(LoadingDotsWidget, self).__init__(parent)
+        self._dots_count = 0
+        self._timer = QtCore.QTimer(self)
+        self._timer.timeout.connect(self._update_dots)
+        self.setFixedWidth(20)  # Fixed width for 3 dots to avoid jitter
+        self.setAlignment(QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter)
+        self.setStyleSheet("color: #888; margin: 0; padding: 0;")  # Explicitly remove margins/padding
+        self.hide()
+
+    def start(self):
+        self._dots_count = 0
+        self._update_dots()
+        self._timer.start(500)
+        self.show()
+
+    def stop(self):
+        self._timer.stop()
+        self.hide()
+
+    def get_dots_text(self):
+        """Returns the current dots combined with transparent spacers for layout consistency."""
+        dots = "." * self._dots_count
+        hidden = "." * (3 - self._dots_count)
+        return "{}<span style='color:transparent;'>{}</span>".format(dots, hidden)
+
+    def _update_dots(self):
+        self.setText(self.get_dots_text())
+        self._dots_count = (self._dots_count + 1) % 4
+
+
+class ElidedClickableLabel(ContextLabel):
+    """A label that elides text from the left and responds to click events."""
+
+    clicked = QtCore.Signal()
+
+    def __init__(self, text, is_path=False, is_link=False, parent=None):
+        super(ElidedClickableLabel, self).__init__(text, is_path=is_path, is_link=is_link, parent=parent)
+        self._full_text = text
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def setText(self, text):
         self._full_text = text
@@ -1065,9 +1113,9 @@ class RigItemWidget(QtWidgets.QFrame):
             try:
                 self.action_btn.setEnabled(False)
                 cmds.file(path, reference=True, namespace=self.name.replace(" ", "_"))
-                LOG.info("Referenced rig: {}".format(self.name))
+                utils.LOG.info("Referenced rig: {}".format(self.name))
             except Exception as e:
-                LOG.error("Error referencing: {}".format(e))
+                utils.LOG.error("Error referencing: {}".format(e))
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
             finally:
                 self.action_btn.setEnabled(True)
@@ -1084,9 +1132,9 @@ class RigItemWidget(QtWidgets.QFrame):
         if resp == "Remove":
             try:
                 cmds.file(self.data.get("path"), removeReference=True)
-                LOG.info("Removed reference: {}".format(self.name))
+                utils.LOG.info("Removed reference: {}".format(self.name))
             except Exception as e:
-                LOG.error("Remove failed: {}".format(e))
+                utils.LOG.error("Remove failed: {}".format(e))
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
             finally:
                 self.update_state()
@@ -1206,6 +1254,8 @@ class TagFlowWidget(QtWidgets.QWidget):
 class TagEditorWidget(QtWidgets.QWidget):
     """Widget for editing tags with visual pills."""
 
+    tagsChanged = QtCore.Signal(list)
+
     def __init__(self, tags=None, parent=None):
         super(TagEditorWidget, self).__init__(parent)
 
@@ -1286,6 +1336,7 @@ class TagEditorWidget(QtWidgets.QWidget):
 
         self.current_tags.append(text)
         self._refresh_ui()
+        self.tagsChanged.emit(list(self.current_tags))
 
         # Defer clearing to handle QCompleter's default behavior which might restore text
         QtCore.QTimer.singleShot(0, self._post_add_cleanup)
@@ -1298,6 +1349,7 @@ class TagEditorWidget(QtWidgets.QWidget):
         if text in self.current_tags:
             self.current_tags.remove(text)
             self._refresh_ui()
+            self.tagsChanged.emit(list(self.current_tags))
 
     def _create_pill_widget(self, text):
         pill = PillWidget(text, close_btn=True, parent=self)
@@ -1566,8 +1618,11 @@ class RigSetupDialog(QtWidgets.QDialog):
             p = os.path.join(utils.IMAGES_DIR, cur_img)
             if os.path.exists(p):
                 self.image_lbl.setText("")
-                pix = QtGui.QPixmap(p).scaled(
-                    150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                # Load and crop
+                img = QtGui.QImage(p)
+                img = utils.crop_image_to_square(img)
+                pix = QtGui.QPixmap.fromImage(img).scaled(
+                    150, 150, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation
                 )
                 self.image_lbl.setPixmap(pix)
 
@@ -1754,8 +1809,10 @@ class RigSetupDialog(QtWidgets.QDialog):
             )
             if path:
                 self.image_path = path
-                pix = QtGui.QPixmap(path).scaled(
-                    150, 150, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                img = QtGui.QImage(path)
+                img = utils.crop_image_to_square(img)
+                pix = QtGui.QPixmap.fromImage(img).scaled(
+                    150, 150, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation
                 )
                 self.image_lbl.setPixmap(pix)
                 self.image_lbl.setText("")
@@ -1947,44 +2004,59 @@ class ScannerWorker(QtCore.QThread):
     fileDiscovered = QtCore.Signal(str, str)  # path, category: 'new', 'exists', 'blacklisted'
     finished = QtCore.Signal(bool)
 
-    def __init__(self, directory, existing_paths, blacklist, parent=None):
+    def __init__(self, directory, existing_paths, blacklist, blocked_dirs=None, parent=None):
         super(ScannerWorker, self).__init__(parent)
         self.directory = directory
         self.existing_paths = existing_paths  # Set of normalized paths
         self.blacklist = blacklist  # Set/List of normalized paths
+        self.blocked_dirs = blocked_dirs or [".", ".anim"]
         self._is_running = True
+
+    def _is_blocked(self, name):
+        """Helper to check if a directory name matches any blocked patterns."""
+        if not name or name == "__pycache__":
+            return True
+        return any(b and fnmatch.fnmatch(name, b) for b in self.blocked_dirs)
 
     def run(self):
         any_new = False
-        for root, dirs, files in os.walk(self.directory):
-            # Sort for predictable UI order
-            dirs.sort()
-            files.sort()
-
-            if not self._is_running:
-                break
-
-            # Skip common hidden/system/cache folders
-            dirs[:] = [
-                d for d in dirs if not (d.startswith(".") or d.endswith(".anim") or d == "__pycache__")
-            ]
-
-            for f in files:
+        try:
+            for root, dirs, files in os.walk(self.directory):
                 if not self._is_running:
                     break
-                if f.lower().endswith((".ma", ".mb")):
-                    raw_path = os.path.join(root, f)
-                    path = ManageRigsDialog.normpath_posix_keep_trailing(raw_path)
-                    # Check against sets using normalized path
-                    lookup_path = path if sys.platform != "win32" else path.lower()
-                    if lookup_path in self.blacklist:
-                        self.fileDiscovered.emit(path, "blacklisted")
-                    elif lookup_path in self.existing_paths:
-                        self.fileDiscovered.emit(path, "exists")
-                    else:
-                        self.fileDiscovered.emit(path, "new")
-                        any_new = True
-        self.finished.emit(any_new)
+
+                root_name = os.path.basename(root)
+                
+                # Skip files inside blocked folders (unless it's the very first folder scanned)
+                if root != self.directory and self._is_blocked(root_name):
+                    dirs[:] = [] 
+                    continue
+
+                # Prune subdirectories before they are visited
+                dirs[:] = [d for d in dirs if not self._is_blocked(d)]
+                dirs.sort() 
+
+                # Process files in current root
+                files.sort()
+                for f in files:
+                    if not self._is_running:
+                        break
+                    if f.lower().endswith((".ma", ".mb")):
+                        raw_path = os.path.join(root, f)
+                        path = utils.normpath_posix_keep_trailing(raw_path)
+                        # Check against sets using normalized path
+                        lookup_path = path if sys.platform != "win32" else path.lower()
+                        if lookup_path in self.blacklist:
+                            self.fileDiscovered.emit(path, "blacklisted")
+                        elif lookup_path in self.existing_paths:
+                            self.fileDiscovered.emit(path, "exists")
+                        else:
+                            self.fileDiscovered.emit(path, "new")
+                            any_new = True
+        except Exception as e:
+            utils.LOG.error("Scanner Worker Error: {}".format(e))
+        finally:
+            self.finished.emit(any_new)
 
     def stop(self):
         self._is_running = False
@@ -2157,6 +2229,14 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
     def resizeEvent(self, event):
         super(ManageRigsItemWidget, self).resizeEvent(event)
         self._update_path_display()
+
+    def contextMenuEvent(self, event):
+        menu = QtWidgets.QMenu(self)
+        copy_act = menu.addAction("Copy path")
+
+        action = menu.exec_(self.mapToGlobal(event.pos()))
+        if action == copy_act:
+            QtWidgets.QApplication.clipboard().setText(self.path)
 
     def _update_path_display(self):
         """Update elided text on the path label with two-tone colors if needed."""
@@ -2362,12 +2442,13 @@ class ManageRigsDialog(QtWidgets.QDialog):
     ):
         super(ManageRigsDialog, self).__init__(parent)
         self.setWindowTitle("Manage Rigs")
+        self.setMouseTracking(True)
         self.resize(800, 600)
 
         self.initial_tab = initial_tab
         self.directory = directory
         self.rig_data = rig_data or {}
-        self.blacklist = [self.normpath_posix_keep_trailing(p) for p in blacklist] if blacklist else []
+        self.blacklist = [utils.normpath_posix_keep_trailing(p) for p in blacklist] if blacklist else []
         self.collections = collections or []
         self.authors = authors or []
         self.tags = tags or []
@@ -2384,10 +2465,6 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self._widgets_map = {}  # original path -- widget
 
-        self._searching_dots = 0
-        self._dots_timer = QtCore.QTimer(self)
-        self._dots_timer.timeout.connect(self._update_searching_dots)
-
         self._build_ui()
         self._populate_existing()
         if self.directory:
@@ -2400,6 +2477,11 @@ class ManageRigsDialog(QtWidgets.QDialog):
             path = self._get_status_path()
             self.lbl_scan_path.setText("<i>{}</i>".format(path))
             self.lbl_scan_path.setToolTip(self.directory)
+
+    def closeEvent(self, event):
+        """Ensure the background worker is stopped when closing."""
+        self._stop_scan()
+        super(ManageRigsDialog, self).closeEvent(event)
 
     def eventFilter(self, obj, event):
         if obj is getattr(self, "api_key_input", None) and event.type() == QtCore.QEvent.FocusOut:
@@ -2421,13 +2503,21 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self.lbl_scan_prefix = QtWidgets.QLabel("", self.tab_rigs)
         self.lbl_scan_prefix.setFixedWidth(60)
         self.lbl_scan_prefix.setFixedHeight(24)
-        self.lbl_scan_path = QtWidgets.QLabel("", self.tab_rigs)
+
+        self.lbl_scan_path = ContextLabel("", is_path=True, parent=self.tab_rigs)
         self.lbl_scan_path.setFixedHeight(24)
-        self.lbl_scan_path.setSizePolicy(QtWidgets.QSizePolicy.Ignored, QtWidgets.QSizePolicy.Fixed)
+        # Use Minimum so it takes its size hint but can shrink for elision
+        self.lbl_scan_path.setSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+
+        self.lbl_loading_dots = LoadingDotsWidget(self.tab_rigs)
+        self.lbl_loading_dots.setFixedHeight(24)
+        self.lbl_loading_dots.setFixedWidth(25) # Fixed width for dot area
+        self.lbl_loading_dots._timer.timeout.connect(self._update_discovery_section_dots)
 
         visible = bool(self.directory)
         self.lbl_scan_prefix.setVisible(visible)
         self.lbl_scan_path.setVisible(visible)
+        self.lbl_loading_dots.setVisible(visible)
         if visible:
             self.lbl_scan_prefix.setText("Scanning:")
             # Use a conservative initial width or it will be elided to nothing before first show
@@ -2439,8 +2529,13 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self.btn_stop_scan.setVisible(visible)
         self.btn_stop_scan.clicked.connect(self._stop_scan)
 
+        self.scan_info_layout.setSpacing(0)
         self.scan_info_layout.addWidget(self.lbl_scan_prefix)
-        self.scan_info_layout.addWidget(self.lbl_scan_path, 1)  # Give stretch factor 1
+        self.scan_info_layout.addSpacing(6)  # Space after prefix
+        self.scan_info_layout.addWidget(self.lbl_scan_path)
+        self.scan_info_layout.addWidget(self.lbl_loading_dots)
+        self.scan_info_layout.addStretch(1)  # Stretch factor after the dots
+        self.scan_info_layout.addSpacing(6)  # Space before stop button
         self.scan_info_layout.addWidget(self.btn_stop_scan)
 
         rigs_layout.addLayout(self.scan_info_layout)
@@ -2516,6 +2611,30 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
     def _build_settings_tab(self):
         layout = QtWidgets.QVBoxLayout(self.tab_settings)
+
+        # 0. Blocked Paths
+        grp_blocked = QtWidgets.QGroupBox("Scanning Settings")
+        lay_blocked = QtWidgets.QVBoxLayout(grp_blocked)
+
+        lbl_blocked = QtWidgets.QLabel("Blocked Folder Patterns:")
+        lbl_blocked.setStyleSheet("color: #aaa; margin-bottom: 2px;")
+        lay_blocked.addWidget(lbl_blocked)
+
+        self.blocked_paths_editor = TagEditorWidget(parent=self)
+        self.blocked_paths_editor.setPlaceholderText("Add pattern (e.g. .git, temp)...")
+        # Connect to save on change
+        self.blocked_paths_editor.tagsChanged.connect(self._save_blocked_paths_from_ui)
+        lay_blocked.addWidget(self.blocked_paths_editor)
+
+        blocked_desc = QtWidgets.QLabel(
+            "Exclude directories during scans using glob patterns. Use '.*' for prefixes, "
+            "'*.anim' for suffixes, or exact directory names to block them entirely."
+        )
+        blocked_desc.setWordWrap(True)
+        blocked_desc.setStyleSheet("color: #969696; margin-bottom: 5px;")
+        lay_blocked.addWidget(blocked_desc)
+
+        layout.addWidget(grp_blocked, 0)
 
         # 1. Path Replacements
         grp_paths = QtWidgets.QGroupBox("Path Replacements (Local)")
@@ -2661,9 +2780,28 @@ class ManageRigsDialog(QtWidgets.QDialog):
         layout.addStretch(1)
 
         # Load and populate initial states
+        self._load_blocked_paths_ui()
         self._load_replacements_ui()
         # Ensure ai_btn reflects initial state
         QtCore.QTimer.singleShot(0, lambda: self._on_ai_toggled(self.grp_ai.isChecked()))
+
+    def _get_blocked_paths(self):
+        """Helper to get current blocked paths from settings."""
+        raw = self.settings.value("blocked_paths", '[".*", "*.anim"]')
+        try:
+            data = json.loads(raw)
+            # Migration check: if someone has the old "." or ".anim", convert them to glob style
+            migrated = []
+            for t in (data if isinstance(data, list) else [".*", "*.anim"]):
+                clean = str(t).strip()
+                if clean == ".":
+                    clean = ".*"
+                elif clean == ".anim":
+                    clean = "*.anim"
+                migrated.append(clean)
+            return migrated
+        except Exception:
+            return [".*", "*.anim"]
 
     def _get_replacements(self):
         """Helper to get current replacements from settings."""
@@ -2673,6 +2811,14 @@ class ManageRigsDialog(QtWidgets.QDialog):
             return data if isinstance(data, list) else []
         except Exception:
             return []
+
+    def _load_blocked_paths_ui(self):
+        paths = self._get_blocked_paths()
+        self.blocked_paths_editor.setTags(paths)
+
+    def _save_blocked_paths_from_ui(self):
+        tags = self.blocked_paths_editor.getTags()
+        self.settings.setValue("blocked_paths", json.dumps(tags))
 
     def _rebuild_existing_paths(self):
         """Rebuilds the existing_paths lookup, applying current path replacements."""
@@ -2689,7 +2835,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             if main_p:
                 # Apply replacements before normalization/lookup
                 run_p = utils.apply_path_replacements(main_p, replacements)
-                norm_p = self.normpath_posix_keep_trailing(run_p)
+                norm_p = utils.normpath_posix_keep_trailing(run_p)
                 lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
                 self.existing_paths[lookup_p] = name
 
@@ -2698,7 +2844,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 if not alt:
                     continue
                 run_p = utils.apply_path_replacements(alt, replacements)
-                norm_p = self.normpath_posix_keep_trailing(run_p)
+                norm_p = utils.normpath_posix_keep_trailing(run_p)
                 lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
                 self.existing_paths[lookup_p] = name
                 self.alternative_paths.add(lookup_p)
@@ -2825,13 +2971,13 @@ class ManageRigsDialog(QtWidgets.QDialog):
         lookup_blacklist = set()
         for p in self.blacklist:
             run_p = utils.apply_path_replacements(p, replacements)
-            norm_p = self.normpath_posix_keep_trailing(run_p)
+            norm_p = utils.normpath_posix_keep_trailing(run_p)
             lookup_blacklist.add(norm_p if sys.platform != "win32" else norm_p.lower())
 
         stale_widgets = []
         for widget in self.sec_new._items:
             path = widget.path  # This is the disk path found by scanner
-            norm_p = self.normpath_posix_keep_trailing(path)
+            norm_p = utils.normpath_posix_keep_trailing(path)
             lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
 
             # Check if it should move
@@ -2854,7 +3000,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         current_new_paths = [w.path for w in self.sec_new._items]
         for path in self.session_discovered_paths:
             # We must normalize the disk path using the same logic as the scanner/refresh
-            norm_p = self.normpath_posix_keep_trailing(path)
+            norm_p = utils.normpath_posix_keep_trailing(path)
             lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
 
             if lookup_p not in lookup_blacklist and lookup_p not in lookup_existing:
@@ -2892,8 +3038,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
                         # Only save if at least find_txt has something
                         if f_txt or r_txt:
                             item = [
-                                self.normpath_posix_keep_trailing(f_txt),
-                                self.normpath_posix_keep_trailing(r_txt),
+                                utils.normpath_posix_keep_trailing(f_txt),
+                                utils.normpath_posix_keep_trailing(r_txt),
                             ]
                             if item not in data:
                                 data.append(item)
@@ -2901,14 +3047,6 @@ class ManageRigsDialog(QtWidgets.QDialog):
         json_str = json.dumps(data)
         self.settings.setValue("path_replacements", json_str)
         self._replacements_dirty = True
-
-    @staticmethod
-    def normpath_posix_keep_trailing(path):
-        has_trailing = path.endswith(("/", "\\"))
-        norm = os.path.normpath(path).replace("\\", "/")
-        if has_trailing and not norm.endswith("/"):
-            norm += "/"
-        return norm
 
     @staticmethod
     def get_unique_name(name, existing_list):
@@ -2931,7 +3069,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         norm_blacklist = set()
         for p in self.blacklist:
             run_p = utils.apply_path_replacements(p, replacements)
-            norm_p = self.normpath_posix_keep_trailing(run_p)
+            norm_p = utils.normpath_posix_keep_trailing(run_p)
             norm_blacklist.add(norm_p if sys.platform != "win32" else norm_p.lower())
 
         all_db_items = []
@@ -2945,7 +3083,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             if main_p:
                 run_p = utils.apply_path_replacements(main_p, replacements)
                 # Skip if blacklisted
-                lookup_p = self.normpath_posix_keep_trailing(run_p)
+                lookup_p = utils.normpath_posix_keep_trailing(run_p)
                 if (lookup_p if sys.platform != "win32" else lookup_p.lower()) in norm_blacklist:
                     continue
 
@@ -2965,7 +3103,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     continue
                 run_p = utils.apply_path_replacements(alt, replacements)
                 # Skip if blacklisted
-                lookup_p = self.normpath_posix_keep_trailing(run_p)
+                lookup_p = utils.normpath_posix_keep_trailing(run_p)
                 if (lookup_p if sys.platform != "win32" else lookup_p.lower()) in norm_blacklist:
                     continue
 
@@ -3395,10 +3533,10 @@ class ManageRigsDialog(QtWidgets.QDialog):
             if not path:
                 continue
 
-            norm_p = self.normpath_posix_keep_trailing(path)
+            norm_p = utils.normpath_posix_keep_trailing(path)
             matching_widget = None
             for p, wid in self._widgets_map.items():
-                if self.normpath_posix_keep_trailing(p) == norm_p:
+                if utils.normpath_posix_keep_trailing(p) == norm_p:
                     matching_widget = wid
                     break
 
@@ -3450,52 +3588,60 @@ class ManageRigsDialog(QtWidgets.QDialog):
         for p in self.blacklist:
             # Apply replacements to blacklist paths so scanner can match against local files
             run_p = utils.apply_path_replacements(p, replacements)
-            norm_p = self.normpath_posix_keep_trailing(run_p)
+            norm_p = utils.normpath_posix_keep_trailing(run_p)
             lookup_blacklist.add(norm_p if sys.platform != "win32" else norm_p.lower())
 
         self.lbl_scan_prefix.setText("Scanning:")
         self.lbl_scan_prefix.setVisible(True)
-        self.lbl_scan_path.setText("<i>{}</i>".format(self._get_status_path()))
+        
+        # Ensure layout has a chance to calculate before eliding
         self.lbl_scan_path.setVisible(True)
+        self.lbl_scan_path.setText("") # Clear first
+        QtCore.QTimer.singleShot(0, self._refresh_scanning_path_display)
+        
         self.btn_stop_scan.setVisible(True)
 
-        self.worker = ScannerWorker(self.directory, lookup_existing, lookup_blacklist, self)
+        self.worker = ScannerWorker(
+        self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self
+    )
         self.worker.fileDiscovered.connect(self._on_file_discovered)
         self.worker.finished.connect(self._on_scan_finished)
         self.worker.start()
 
         # Start searching animation
-        self._searching_dots = 0
-        self._update_searching_dots()
-        self._dots_timer.start(500)
+        self.lbl_loading_dots.start()
+
+    def _refresh_scanning_path_display(self):
+        """Helper to force a text update with current elision."""
+        if hasattr(self, "lbl_scan_path") and self.lbl_scan_path.isVisible():
+            path = self._get_status_path()
+            self.lbl_scan_path.setText("<i>{}</i>".format(path))
+            self.lbl_scan_path.setToolTip(self.directory)
 
     def _get_status_path(self):
         """Helper to get elided path for status labels."""
         path = self.directory or ""
+        if not path:
+            return ""
 
         # Use QFontMetrics for pixel-perfect elision based on current label width
         metrics = QtGui.QFontMetrics(self.lbl_scan_path.font())
         width = self.lbl_scan_path.width()
 
-        # If not yet polished/shown, use a conservative estimate
+        # If width is unknown or too small, estimate from parent dialog width
         if width <= 1:
-            width = self.width() - 150
+            # Conservative estimate: Dialog width minus prefix, dots, and stop button
+            width = max(50, self.width() - 175)
 
         return metrics.elidedText(path, QtCore.Qt.ElideLeft, width)
 
-    def _update_searching_dots(self):
-        """Cycles the dots in 'Searching...' text."""
-        dots = "." * self._searching_dots
-        hidden = "." * (3 - self._searching_dots)
-
-        # Center-aligned jitter-free: use transparent dots to maintain constant width
-        anim_text = "Scanning{}<span style='color:transparent;'>{}</span>".format(dots, hidden)
+    def _update_discovery_section_dots(self):
+        """Reuse the LoadingDotsWidget text in 'Searching...' section text."""
+        anim_text = "Scanning{}".format(self.lbl_loading_dots.get_dots_text())
         self.sec_new.set_empty_text(anim_text)
 
         # Update path label prefix (ensure it's Scanning during the process)
         self.lbl_scan_prefix.setText("Scanning:")
-
-        self._searching_dots = (self._searching_dots + 1) % 4
 
     def _stop_scan(self):
         """Stops the current scan worker."""
@@ -3505,12 +3651,12 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self.lbl_scan_prefix.setText("Scanned:")
             self.lbl_scan_path.setText("<i>{}</i>".format(path))
             self.btn_stop_scan.setVisible(False)
-            self._dots_timer.stop()
+            self.lbl_loading_dots.stop()
 
     def _on_scan_finished(self, any_new):
         """Update status label if nothing was found."""
         self.btn_stop_scan.setVisible(False)
-        self._dots_timer.stop()
+        self.lbl_loading_dots.stop()
 
         path = self._get_status_path()
         self.lbl_scan_prefix.setText("Scanned:")
@@ -3542,7 +3688,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
     def _on_edit_request(self, path):
         # Normalize for database lookup
-        norm_p = self.normpath_posix_keep_trailing(path)
+        norm_p = utils.normpath_posix_keep_trailing(path)
         lookup_p = norm_p if sys.platform != "win32" else norm_p.lower()
 
         rig_name = self.existing_paths.get(lookup_p)
@@ -3555,7 +3701,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             main_p = rig_data.get("path", "")
             replacements = self._get_replacements()
             run_p = utils.apply_path_replacements(main_p, replacements)
-            norm_main = self.normpath_posix_keep_trailing(run_p)
+            norm_main = utils.normpath_posix_keep_trailing(run_p)
             lookup_main = norm_main if sys.platform != "win32" else norm_main.lower()
             if lookup_p != lookup_main:
                 is_alt = True
@@ -3594,8 +3740,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     if old_name and old_name in self.rig_data and old_name != target_name:
                         old_data = self.rig_data[old_name]
                         # Normalize for safe comparison
-                        old_main_p = self.normpath_posix_keep_trailing(old_data.get("path", ""))
-                        current_p = self.normpath_posix_keep_trailing(path)
+                        old_main_p = utils.normpath_posix_keep_trailing(old_data.get("path", ""))
+                        current_p = utils.normpath_posix_keep_trailing(path)
 
                         if old_main_p == current_p:
                             del self.rig_data[old_name]
@@ -3604,7 +3750,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
                             # It was an alternative, remove from old owner list
                             alts = old_data.get("alternatives", [])
                             # Normalize the alternatives list for lookup
-                            norm_alts = [self.normpath_posix_keep_trailing(a) for a in alts]
+                            norm_alts = [utils.normpath_posix_keep_trailing(a) for a in alts]
                             if current_p in norm_alts:
                                 idx = norm_alts.index(current_p)
                                 alts.pop(idx)
@@ -3658,7 +3804,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
     def _on_remove_request(self, path):
         # Normalize for database lookup
-        curr_p = self.normpath_posix_keep_trailing(path)
+        curr_p = utils.normpath_posix_keep_trailing(path)
         lookup_p = curr_p if sys.platform != "win32" else curr_p.lower()
 
         rig_name = self.existing_paths.get(lookup_p)
@@ -3678,7 +3824,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         rig_data = self.rig_data.get(rig_name)
         if rig_data:
-            main_p = self.normpath_posix_keep_trailing(rig_data.get("path", ""))
+            main_p = utils.normpath_posix_keep_trailing(rig_data.get("path", ""))
             # Use original system logic for cross-platform matching
             match_p = main_p if sys.platform != "win32" else main_p.lower()
 
@@ -3689,7 +3835,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             else:
                 # Removing an ALTERNATIVE from its owner
                 alts = rig_data.get("alternatives", [])
-                norm_alts = [self.normpath_posix_keep_trailing(a) for a in alts]
+                norm_alts = [utils.normpath_posix_keep_trailing(a) for a in alts]
                 if curr_p in norm_alts:
                     idx = norm_alts.index(curr_p)
                     alts.pop(idx)
@@ -3700,7 +3846,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self._refresh_rigs_tab()
 
     def _on_blacklist_request(self, path):
-        norm_path = self.normpath_posix_keep_trailing(path)
+        norm_path = utils.normpath_posix_keep_trailing(path)
         if norm_path not in self.blacklist:
             self.blacklist.append(norm_path)
             self.blacklistChanged.emit(self.blacklist)
@@ -3712,7 +3858,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self._refresh_rigs_tab()
 
     def _on_whitelist_request(self, path):
-        norm_path = self.normpath_posix_keep_trailing(path)
+        norm_path = utils.normpath_posix_keep_trailing(path)
         if norm_path in self.blacklist:
             self.blacklist.remove(norm_path)
             self.blacklistChanged.emit(self.blacklist)
