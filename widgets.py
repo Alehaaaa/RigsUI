@@ -1220,7 +1220,7 @@ class TagFlowWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(TagFlowWidget, self).__init__(parent)
         self.setLayout(FlowLayout(margin=0, hSpacing=4, vSpacing=4))
-        # Expansion policy matches TagEditorWidget to ensure it fills available width
+        # Expansion policy matches TagEditor Widget to ensure it fills available width
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
 
     def add_tag(self, text, callback):
@@ -1291,19 +1291,19 @@ class TagEditorWidget(QtWidgets.QWidget):
         if text is None:
             text = self.input_line.text()
 
-        fm = self.input_line.fontMetrics()
 
-        def get_width(t):
-            if hasattr(fm, "horizontalAdvance"):
-                return fm.horizontalAdvance(t)
-            return fm.width(t)
-
-        w_text = get_width(text)
-        w_place = get_width(self.input_line.placeholderText())
+        w_text = self.get_width(text)
+        w_place = self.get_width(self.input_line.placeholderText())
 
         # Ensure it fits "Add tag..." or current text, plus padding
         width = max(w_text, w_place) + 20
         self.input_line.setFixedWidth(width)
+
+    def get_width(self, t):
+        fm = self.input_line.fontMetrics()
+        if hasattr(fm, "horizontalAdvance"):
+            return fm.horizontalAdvance(t)
+        return fm.width(t)
 
     def eventFilter(self, source, event):
         if source == self.input_line and event.type() == QtCore.QEvent.KeyPress:
@@ -1386,6 +1386,7 @@ class TagEditorWidget(QtWidgets.QWidget):
 
     def setPlaceholderText(self, text):
         self.input_line.setPlaceholderText(text)
+        self._update_input_width()
 
 
 class InfoDialog(QtWidgets.QDialog):
@@ -1497,7 +1498,7 @@ class InfoDialog(QtWidgets.QDialog):
             self.form_layout.addRow(label + ":", container)
             return
 
-        # 2. Path or Link -> ElidedClickableLabel
+        # 2. Path or Link -> Elided Clickable Label
         if (is_link or is_path) and value != "Empty":
             elided_lbl = ElidedClickableLabel(value, is_path=is_path, is_link=is_link)
             heading_lbl = QtWidgets.QLabel(label + ":")
@@ -2169,15 +2170,22 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
     whitelistRequested = QtCore.Signal(str)
     removeRequested = QtCore.Signal(str)
 
-    def __init__(self, path, category, is_found=True, parent=None):
+    def __init__(self, path, category, is_found=True, is_alt=False, parent=None):
         super(ManageRigsItemWidget, self).__init__(parent)
         self.setObjectName("ManageRigsItemWidget")
         self.path = path  # Display path (replaced)
         self.category = category  # 'new', 'exists', 'blacklisted'
+        self.is_alt = is_alt
 
         layout = QtWidgets.QHBoxLayout(self)
         layout.setContentsMargins(5, 2, 5, 2)
         layout.setSpacing(5)
+
+        if is_alt:
+            layout.setContentsMargins(15, 2, 5, 2)
+            self.arrow_lbl = QtWidgets.QLabel("↳", self)
+            self.arrow_lbl.setStyleSheet("color: #666; font-weight: bold;")
+            layout.addWidget(self.arrow_lbl)
 
         # Path Label (Elided)
         self.path_lbl = QtWidgets.QLabel(path, self)
@@ -2201,7 +2209,7 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
 
         # 2. Blacklist Button
         self.blacklist_btn = QtWidgets.QPushButton()
-        self.blacklist_btn.setIcon(utils.get_icon("remove.svg"))
+        self.blacklist_btn.setIcon(utils.get_icon("blacklist.svg"))
         self.blacklist_btn.setToolTip("Don't show this file again")
         self.blacklist_btn.setFixedSize(22, 22)
         self.blacklist_btn.clicked.connect(lambda: self.blacklistRequested.emit(self.path))
@@ -2245,7 +2253,25 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
             return
 
         metrics = QtGui.QFontMetrics(self.path_lbl.font())
-        elided = metrics.elidedText(self.path, QtCore.Qt.ElideLeft, width)
+        
+        # Calculate adjustment for bold filename if found
+        calc_width = width
+        if self._is_found:
+            # Get the bold overhead for the filename part
+            filename = self.path.split("/")[-1].split("\\")[-1]
+            bold_font = self.path_lbl.font()
+            bold_font.setBold(True)
+            bold_metrics = QtGui.QFontMetrics(bold_font)
+            
+            # Use advanced metrics if available
+            if hasattr(metrics, "horizontalAdvance"):
+                overhead = bold_metrics.horizontalAdvance(filename) - metrics.horizontalAdvance(filename)
+            else:
+                overhead = bold_metrics.width(filename) - metrics.width(filename)
+                
+            calc_width -= max(0, overhead)
+
+        elided = metrics.elidedText(self.path, QtCore.Qt.ElideLeft, calc_width)
 
         # Base colors
         dir_color = "gray"
@@ -2613,15 +2639,15 @@ class ManageRigsDialog(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout(self.tab_settings)
 
         # 0. Blocked Paths
-        grp_blocked = QtWidgets.QGroupBox("Scanning Settings")
-        lay_blocked = QtWidgets.QVBoxLayout(grp_blocked)
+        self.grp_blocked = QtWidgets.QGroupBox("Scanning Settings")
+        lay_blocked = QtWidgets.QVBoxLayout(self.grp_blocked)
 
         lbl_blocked = QtWidgets.QLabel("Blocked Folder Patterns:")
         lbl_blocked.setStyleSheet("color: #aaa; margin-bottom: 2px;")
         lay_blocked.addWidget(lbl_blocked)
 
         self.blocked_paths_editor = TagEditorWidget(parent=self)
-        self.blocked_paths_editor.setPlaceholderText("Add pattern (e.g. .git, temp)...")
+        self.blocked_paths_editor.setPlaceholderText("Add pattern...")
         # Connect to save on change
         self.blocked_paths_editor.tagsChanged.connect(self._save_blocked_paths_from_ui)
         lay_blocked.addWidget(self.blocked_paths_editor)
@@ -2634,7 +2660,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         blocked_desc.setStyleSheet("color: #969696; margin-bottom: 5px;")
         lay_blocked.addWidget(blocked_desc)
 
-        layout.addWidget(grp_blocked, 0)
+        layout.addWidget(self.grp_blocked, 0)
 
         # 1. Path Replacements
         grp_paths = QtWidgets.QGroupBox("Path Replacements (Local)")
@@ -3073,52 +3099,60 @@ class ManageRigsDialog(QtWidgets.QDialog):
             norm_blacklist.add(norm_p if sys.platform != "win32" else norm_p.lower())
 
         all_db_items = []
-        # Gather and verify existence for sorting
+        # Group items by rig to keep main and alternatives together
+        rig_groups = []
+
         for name, data in self.rig_data.items():
             if name.startswith("_"):
                 continue
 
-            # Main Path
+            group = []
+            # 1. Main Path
             main_p = data.get("path", "")
             if main_p:
                 run_p = utils.apply_path_replacements(main_p, replacements)
-                # Skip if blacklisted
                 lookup_p = utils.normpath_posix_keep_trailing(run_p)
-                if (lookup_p if sys.platform != "win32" else lookup_p.lower()) in norm_blacklist:
-                    continue
-
-                all_db_items.append(
-                    {
+                if (lookup_p if sys.platform != "win32" else lookup_p.lower()) not in norm_blacklist:
+                    group.append({
                         "display": run_p,
                         "original": main_p,
                         "is_alt": False,
                         "rig_name": name,
                         "exists": os.path.exists(run_p),
-                    }
-                )
+                    })
 
-            # Alternatives
+            # 2. Alternatives
             for alt in data.get("alternatives", []):
                 if not alt:
                     continue
                 run_p = utils.apply_path_replacements(alt, replacements)
-                # Skip if blacklisted
                 lookup_p = utils.normpath_posix_keep_trailing(run_p)
-                if (lookup_p if sys.platform != "win32" else lookup_p.lower()) in norm_blacklist:
-                    continue
-
-                all_db_items.append(
-                    {
+                if (lookup_p if sys.platform != "win32" else lookup_p.lower()) not in norm_blacklist:
+                    group.append({
                         "display": run_p,
                         "original": alt,
                         "is_alt": True,
                         "rig_name": name,
                         "exists": os.path.exists(run_p),
-                    }
-                )
+                    })
+            
+            if group:
+                # Sort individual group items (main first, then alts alpha)
+                group.sort(key=lambda x: (x["is_alt"], x["display"].lower()))
+                rig_groups.append({"name": name, "items": group, "any_exists": any(i["exists"] for i in group)})
+
+        # Sort groups: Rig that have even 1 found version first, then alphabetical
+        rig_groups.sort(key=lambda x: (not x["any_exists"], x["name"].lower()))
+        
+        # Flatten into all_db_items
+        for g in rig_groups:
+            all_db_items.extend(g["items"])
+            if len(g["items"]) > 1:
+                # Mark last item for spacing only if there are alts
+                g["items"][-1]["is_last_in_group"] = True
 
         # 1. Populate In Database
-        self._populate_section_view(self.sec_exists, all_db_items)
+        self._populate_section_view(self.sec_exists, all_db_items, auto_sort=False)
 
         # 2. Populate Blacklist
         blacklist_items = []
@@ -3130,26 +3164,30 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self._populate_section_view(self.sec_black, blacklist_items)
 
-    def _populate_section_view(self, section, items):
+    def _populate_section_view(self, section, items, auto_sort=True):
         """Helper to fill a CollapsibleSection with availability-sorted items."""
-        # Sort: Found first, then alpha display name
-        items.sort(key=lambda x: (not x["exists"], x["display"].lower()))
+        if auto_sort:
+            # Sort: Found first, then alpha display name
+            items.sort(key=lambda x: (not x.get("exists", True), x["display"].lower()))
 
-        has_found = any(e["exists"] for e in items)
+        has_found = any(e.get("exists", True) for e in items)
         separator_added = False
 
         for entry in items:
             run_p = entry["display"]
-            exists_on_disk = entry["exists"]
+            exists_on_disk = entry.get("exists", True)
             category = entry.get("category", "exists")
+            is_alt = entry.get("is_alt", False)
 
             # Insert separator if mixed status
             if not exists_on_disk and has_found and not separator_added:
+                # If we are in grouped mode, only add separator between rigs if both groups ARE fully separated
+                # But typically we still want a clear "Missing" section.
                 sep = ManageRigsSeparatorWidget("NOT FOUND")
                 section.addWidget(sep)
                 separator_added = True
 
-            item = ManageRigsItemWidget(run_p, category, is_found=exists_on_disk, parent=section)
+            item = ManageRigsItemWidget(run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section)
 
             # Connect all signals regardless of initial category to allow fluid UI state changes
             item.editRequested.connect(self._on_edit_request)
@@ -3163,6 +3201,13 @@ class ManageRigsDialog(QtWidgets.QDialog):
                 )
 
             section.addWidget(item)
+            
+            # Add little space after rig groups if requested
+            if entry.get("is_last_in_group") and not auto_sort:
+                spacer = QtWidgets.QWidget()
+                spacer.setFixedHeight(4)
+                section.addWidget(spacer)
+
             # Link by display path for runtime interaction
             self._widgets_map[run_p] = item
 
@@ -3611,6 +3656,10 @@ class ManageRigsDialog(QtWidgets.QDialog):
         # Start searching animation
         self.lbl_loading_dots.start()
 
+        # Disable settings that shouldn't change during scan
+        self.grp_blocked.setEnabled(False)
+        self.grp_blocked.setToolTip("Stop scan to change scanning settings")
+
     def _refresh_scanning_path_display(self):
         """Helper to force a text update with current elision."""
         if hasattr(self, "lbl_scan_path") and self.lbl_scan_path.isVisible():
@@ -3653,10 +3702,15 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self.btn_stop_scan.setVisible(False)
             self.lbl_loading_dots.stop()
 
+        self.grp_blocked.setEnabled(True)
+        self.grp_blocked.setToolTip("")
+
     def _on_scan_finished(self, any_new):
         """Update status label if nothing was found."""
         self.btn_stop_scan.setVisible(False)
         self.lbl_loading_dots.stop()
+        self.grp_blocked.setEnabled(True)
+        self.grp_blocked.setToolTip("")
 
         path = self._get_status_path()
         self.lbl_scan_prefix.setText("Scanned:")

@@ -316,7 +316,7 @@
         "alternatives": []
     },
     "Alpha": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Alpha_Agora\\Alpha_Rig.ma",
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Alpha/Alpha_Rig.ma",
         "image": "alpha.jpg",
         "tags": [
             "female",
@@ -325,7 +325,6 @@
         "collection": "Agora",
         "author": "Agora.Community",
         "link": "https://agora.community/content/alpha-maya",
-        "exists": false,
         "alternatives": []
     },
     "Leo": {
@@ -2050,6 +2049,62 @@
         "collection": "Teenage Mutant Ninja Turtles",
         "author": "Artem Dubyna",
         "link": "https://temaroots.gumroad.com/l/tmnt",
+        "alternatives": []
+    },
+    "Beta": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Beta/Beta_Rig.ma",
+        "image": "beta.jpg",
+        "tags": [
+            "sci-fi",
+            "character"
+        ],
+        "collection": "Agora",
+        "author": "Empty",
+        "link": "Empty"
+    },
+    "Delta": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Delta/Delta_rig.ma",
+        "image": "delta.jpg",
+        "tags": [
+            "sci-fi",
+            "character"
+        ],
+        "collection": "Agora",
+        "author": "Empty",
+        "link": "Empty"
+    },
+    "Gamma": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Gamma/Gamma_Rig.ma",
+        "image": "gamma.jpg",
+        "tags": [
+            "sci-fi",
+            "character"
+        ],
+        "collection": "Agora",
+        "author": "Empty",
+        "link": "Empty"
+    },
+    "Robot": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Robot/Agora_Robot.ma",
+        "image": "robot.jpg",
+        "tags": [
+            "robot",
+            "sci-fi"
+        ],
+        "collection": "Agora",
+        "author": "Empty",
+        "link": "Empty"
+    },
+    "Robot Pistol": {
+        "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Robot_Pistol/Agora_Robot_Pistol.ma",
+        "image": "robot_pistol.jpg",
+        "tags": [
+            "gun",
+            "prop"
+        ],
+        "collection": "Agora",
+        "author": "Agora.Community",
+        "link": "Empty",
         "alternatives": []
     }
 }

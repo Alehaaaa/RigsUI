@@ -8,9 +8,9 @@ import ssl
 import sys
 
 try:
-    from PySide6 import QtGui
+    from PySide6 import QtGui, QtCore
 except ImportError:
-    from PySide2 import QtGui
+    from PySide2 import QtGui, QtCore
 
 from . import TOOL_TITLE
 
@@ -113,6 +113,16 @@ def save_image_local(source_path, base_name):
         img = QtGui.QImage(source_path)
         if not img.isNull():
             img = crop_image_to_square(img)
+
+            # Resize if larger than 360x360
+            MAX_SIZE = 360
+            if img.width() > MAX_SIZE:
+                img = img.scaled(
+                    MAX_SIZE, 
+                    MAX_SIZE, 
+                    QtCore.Qt.KeepAspectRatio, 
+                    QtCore.Qt.SmoothTransformation
+                )
 
             if not os.path.exists(IMAGES_DIR):
                 os.makedirs(IMAGES_DIR)
