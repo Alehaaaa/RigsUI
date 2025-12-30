@@ -19,7 +19,7 @@ View and modify rig metadata including name, collection, author, tags, and thumb
 
 ![Edit Rig Dialog](_public/edit_rig_dialog_showcase.png)
 
-<blockquote>Featuring the rig [Golem Critter](https://tristenanimates.gumroad.com/l/nywts) by Tristen</blockquote>
+> Featuring the rig [Golem Critter](https://tristenanimates.gumroad.com/l/nywts) by Tristen
 
 ### Smart Filtering
 
@@ -27,7 +27,7 @@ Quickly find rigs using filters for collection, tags, author, or status.
 
 ![Filters](_public/filters_showcase.png)
 
-<blockquote>Featuring the [Body Mechanics Rigs](https://joedanimation.gumroad.com/l/xhRK) by Joe Daniels</blockquote>
+> Featuring the [Body Mechanics Rigs](https://joedanimation.gumroad.com/l/xhRK) by Joe Daniels
 
 ## Installation
 
