@@ -857,6 +857,7 @@ class RigItemWidget(QtWidgets.QFrame):
     filterRequested = QtCore.Signal(str, str)
     editRequested = QtCore.Signal(str)
     removeRequested = QtCore.Signal(str)
+    blacklistRequested = QtCore.Signal(str)
     refreshRequested = QtCore.Signal()
 
     def __init__(self, name, data, parent=None):
@@ -937,6 +938,10 @@ class RigItemWidget(QtWidgets.QFrame):
         menu.addSeparator()
 
         # Destructive
+        blacklist_action = menu.addAction("Blacklist Rig")
+        blacklist_action.setIcon(utils.get_icon("blacklist.svg"))
+        blacklist_action.triggered.connect(self._on_blacklist_request)
+
         remove_action = menu.addAction("Remove Rig")
         remove_action.setIcon(utils.get_icon("trash.svg"))
         remove_action.triggered.connect(self._on_remove_request)
@@ -994,6 +999,18 @@ class RigItemWidget(QtWidgets.QFrame):
         )
         if resp == QtWidgets.QMessageBox.Yes:
             self.removeRequested.emit(self.name)
+
+    def _on_blacklist_request(self):
+        resp = QtWidgets.QMessageBox.question(
+            self,
+            "Blacklist Rig",
+            "Are you sure you want to blacklist '{}'?\n\n"
+            "The data will not be lost, the rig will only be hidden from the library.".format(self.name),
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No,
+        )
+        if resp == QtWidgets.QMessageBox.Yes:
+            self.blacklistRequested.emit(self.name)
 
     def _formatTooltip(self):
         tip = "Name: {}\n".format(self.name)

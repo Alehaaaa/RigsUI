@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2025-12-30
+### 🚀 Added
+- **Blacklist Feature**:
+    - Added "Blacklist Rig" option to the rig card context menu.
+    - Blacklisting a rig hides it from the library without deleting its metadata or files.
+    - Added a confirmation dialog before blacklisting with a clear explanation of its effect.
+
 ## [0.1.3] - 2025-12-29
 ### 🚀 Added
 - **Scanner Customization**:

@@ -1631,15 +1631,13 @@
     },
     "Cammy": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\05 UTILITY\\Cammy_V2.mb",
-        "image": null,
+        "image": "cammy.jpg",
         "tags": [
-            "human",
-            "female"
+            "utility"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Rcronin",
+        "link": "https://www.highend3d.com/maya/downloads/character-rigs/c/cammy-v2-for-maya-68529",
         "alternatives": []
     },
     "Juicebox": {
@@ -1682,14 +1680,14 @@
     },
     "SpideySense": {
         "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/01 ANIMALS-PROPS/Spiderman_SpideySense/Spiderman_SpideySense.ma",
-        "image": "",
+        "image": "spideysense.jpg",
         "tags": [
             "superhero",
             "prop"
         ],
         "collection": "Spider-verse",
-        "author": "Empty",
-        "link": "Empty",
+        "author": "Agora.Community",
+        "link": "https://agora.community/content/spidey-sense-maya",
         "alternatives": []
     },
     "Cyber Gun": {

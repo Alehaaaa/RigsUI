@@ -62,12 +62,13 @@ class SearchWorker(QtCore.QObject):
 
     finished = QtCore.Signal(list)
 
-    def __init__(self, rig_data, search_text, filters, referenced_set=None):
+    def __init__(self, rig_data, search_text, filters, referenced_set=None, blacklist=None):
         super(SearchWorker, self).__init__()
         self.rig_data = rig_data
         self.search_text = search_text
         self.filters = filters
         self.referenced_set = referenced_set or set()
+        self.blacklist = set(os.path.normpath(p) for p in (blacklist or []) if p)
         self._is_running = True
 
     def run(self):
@@ -100,6 +101,11 @@ class SearchWorker(QtCore.QObject):
             for name, data in self.rig_data.items():
                 if not self._is_running:
                     return
+
+                # Skip Blacklisted
+                path = data.get("path")
+                if path and os.path.normpath(path) in self.blacklist:
+                    continue
 
                 # Check General Context (AND search across terms) - found in NAME
                 match_general = True
@@ -589,10 +595,19 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         if not hasattr(self, "_widgets_map"):
             self._widgets_map = {}
 
-        # 1. Remove stale widgets
-        current_names = set(self.display_data.keys())
+        # 1. Identify which widgets should exist (exclude metadata and blacklisted)
+        blacklist = set(os.path.normpath(p) for p in self.blacklist if p)
+        valid_names = set()
+        for name, data in self.display_data.items():
+            if name.startswith("_"):
+                continue
+            path = data.get("path")
+            if path and os.path.normpath(path) in blacklist:
+                continue
+            valid_names.add(name)
+
         cached_names = set(self._widgets_map.keys())
-        to_remove = cached_names - current_names
+        to_remove = cached_names - valid_names
 
         for name in to_remove:
             wid = self._widgets_map.pop(name)
@@ -630,18 +645,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
             return (sort_val, name.lower())
 
-        blacklist = set(self.blacklist)
         rig_items = []
-        for n, d in self.display_data.items():
-            if n.startswith("_"):
-                continue
-
-            # Skip if the main path is blacklisted
-            path = d.get("path")
-            if path and os.path.normpath(path) in blacklist:
-                continue
-
-            rig_items.append((n, d))
+        for n in valid_names:
+            rig_items.append((n, self.display_data[n]))
 
         sorted_items = sorted(rig_items, key=sort_key_func, reverse=not ascending)
 
@@ -663,6 +669,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     wid.filterRequested.connect(self.apply_single_filter)
                     wid.editRequested.connect(self.edit_rig)
                     wid.removeRequested.connect(self.remove_rig)
+                    wid.blacklistRequested.connect(self.blacklist_rig)
                     wid.refreshRequested.connect(self.load_data)
                     wid.set_exists(data["exists"])
                     self._widgets_map[name] = wid
@@ -712,7 +719,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             pass
 
         # Create worker
-        worker = SearchWorker(self.display_data, search_text, filters, referenced_set)
+        worker = SearchWorker(self.display_data, search_text, filters, referenced_set, self.blacklist)
 
         if sync:
             # Synchronous Execution
@@ -949,6 +956,18 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self.save_data()
             self.load_data()  # Reload to refresh UI
             utils.LOG.info("Removed rig: {}".format(rig_name))
+
+    def blacklist_rig(self, rig_name):
+        """Adds a rig's path to the blacklist."""
+        if rig_name in self.rig_data:
+            path = self.rig_data[rig_name].get("path")
+            if path:
+                path = os.path.normpath(path)
+                if path not in self.blacklist:
+                    self.blacklist.append(path)
+                    self.save_blacklist()
+                    self.load_data()
+                    utils.LOG.info("Blacklisted rig: {}".format(rig_name))
 
     # ---------- Persistence (Settings) ----------
 
