@@ -288,8 +288,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         self.add_btn.setMenu(self.add_menu)
         self.add_btn.setIconSize(QtCore.QSize(16, 16))
         self.add_btn.setStyleSheet(
-            "QPushButton { padding: 0px; margin: 0px; }"
-            "QPushButton::menu-indicator { image: none; width: 0px; }"
+            "QPushButton { padding: 0px; margin: 0px; }QPushButton::menu-indicator { image: none; width: 0px; }"
         )
 
         top_layout.addWidget(self.add_btn)
@@ -596,7 +595,14 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             self._widgets_map = {}
 
         # 1. Identify which widgets should exist (exclude metadata and blacklisted)
-        blacklist = set(os.path.normpath(p) for p in self.blacklist if p)
+        replacements = self._get_replacements()
+        blacklist = set()
+        for p in self.blacklist:
+            if not p:
+                continue
+            replaced_p = utils.apply_path_replacements(p, replacements)
+            blacklist.add(os.path.normpath(replaced_p))
+
         valid_names = set()
         for name, data in self.display_data.items():
             if name.startswith("_"):
@@ -719,7 +725,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             pass
 
         # Create worker
-        worker = SearchWorker(self.display_data, search_text, filters, referenced_set, self.blacklist)
+        replacements = self._get_replacements()
+        processed_blacklist = [utils.apply_path_replacements(p, replacements) for p in self.blacklist if p]
+        worker = SearchWorker(self.display_data, search_text, filters, referenced_set, processed_blacklist)
 
         if sync:
             # Synchronous Execution
@@ -1055,9 +1063,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
                 utils.LOG.info("Setting workspace control position: {}".format(position))
                 utils.LOG.info("Setting workspace control size: {}".format(size))
-                qt_control.setGeometry(
-                    QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1]))
-                )
+                qt_control.setGeometry(QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1])))
         except Exception as e:
             utils.LOG.error("Error setting workspace control geometry: {}".format(e))
 

@@ -1,19 +1,15 @@
 # Rigs Library (RigsUI)
 
-A professional Maya tool for organizing and managing 3D rig assets. The **Rigs Library** provides a dockable interface to easily browse, filter, and load rigs into your Maya scene.
+A professional Maya tool for organizing and managing 3D rig assets. Provides a dockable interface to easily browse, filter, and load rigs into your Maya scene.
 
 ## Features
 
-- **Dockable Interface**: Seamlessly integrates into the Maya workspace.
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
-- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`). Search text persists across sessions and includes a native clear button.
+- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`).
 - **Sorting**: Sort library by Name, Collection, or Author.
-- **Context Actions**: Right-click to Edit Details, Open Rig Scene, Show in Folder, or Remove Rig.
-- **Thumbnail Support**: Visual browsing with thumbnails (supports .jpg, .png, .webp).
-- **Batch Import**: Scan entire folders and categorize rigs for rapid library expansion. Features customizable **Blocked Patterns** (e.g. `.*`, `*.anim`) to skip unneeded directories.
-- **Path Replacements**: Define local path swaps (e.g., `D:/Rigs` -> `Z:/Server/Rigs`) to share databases across different machines/OS without breaking paths.
-- **AI Auto-Tagging**: AI integration to automatically add metadata for new rigs. Supports **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or **Custom AI Endpoints** (e.g., LM Studio, Ollama).
-- **JSON Database**: Lightweight and portable data storage (`rigs_database.json` and `blacklist.json`).
+- **Batch Import**: Scan entire folders for rapid library expansion. Customize **Blocked Patterns** to skip unneeded directories.
+- **Path Replacements**: Define local path swaps to share databases across different machines without breaking paths.
+- **AI Auto-Tagging**: Automatically add metadata using **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or custom endpoints.
 
 ## Installation
 

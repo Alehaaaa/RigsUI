@@ -194,7 +194,7 @@ class ClickableLabel(QtWidgets.QLabel):
 
     def updateImageDisplay(self, object):
         """Standardizes image loading logic."""
-        img_name = object.data.get("image") or utils.format_name(object.name) + ".jpg"
+        img_name = object.data.get("image") or utils.get_image_filename(object.name)
         img_path = os.path.join(utils.IMAGES_DIR, img_name)
 
         if img_name and os.path.exists(img_path):
@@ -301,11 +301,7 @@ class ElidedLabel(ContextLabel):
 
     def sizeHint(self):
         fm = self.fontMetrics()
-        w = (
-            fm.horizontalAdvance(self._full_text)
-            if hasattr(fm, "horizontalAdvance")
-            else fm.width(self._full_text)
-        )
+        w = fm.horizontalAdvance(self._full_text) if hasattr(fm, "horizontalAdvance") else fm.width(self._full_text)
         return QtCore.QSize(w, super(ElidedLabel, self).sizeHint().height())
 
     def paintEvent(self, event):
@@ -329,9 +325,7 @@ class ElidedClickableLabel(ElidedLabel):
     clicked = QtCore.Signal()
 
     def __init__(self, text, is_path=False, is_link=False, color=None, parent=None):
-        super(ElidedClickableLabel, self).__init__(
-            text, is_path=is_path, is_link=is_link, color=color, parent=parent
-        )
+        super(ElidedClickableLabel, self).__init__(text, is_path=is_path, is_link=is_link, color=color, parent=parent)
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def mousePressEvent(self, event):
@@ -1009,9 +1003,7 @@ class RigItemWidget(QtWidgets.QFrame):
         resp = QtWidgets.QMessageBox.question(
             self,
             "Remove Rig",
-            "Are you sure you want to remove '{}' from the library?\n\nThis will NOT delete files.".format(
-                self.name
-            ),
+            "Are you sure you want to remove '{}' from the library?\n\nThis will NOT delete files.".format(self.name),
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             QtWidgets.QMessageBox.No,
         )
@@ -1048,9 +1040,7 @@ class RigItemWidget(QtWidgets.QFrame):
         self.image_lbl.updateImageDisplay(self)
 
     def change_image(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(
-            self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)"
-        )
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)")
         if path:
             new_name = utils.save_image_local(path, self.name)
             if new_name:
@@ -1275,11 +1265,7 @@ class TagFlowWidget(QtWidgets.QWidget):
         # Return a sensible default width; height is determined by heightForWidth
         w = self.width()
         if w <= 0:
-            return (
-                self.layout().totalSizeHint()
-                if hasattr(self.layout(), "totalSizeHint")
-                else QtCore.QSize(100, 24)
-            )
+            return self.layout().totalSizeHint() if hasattr(self.layout(), "totalSizeHint") else QtCore.QSize(100, 24)
         return QtCore.QSize(w, self.heightForWidth(w))
 
     def resizeEvent(self, event):
@@ -1452,10 +1438,10 @@ class InfoDialog(QtWidgets.QDialog):
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setStyleSheet("background-color: #222; border: 1px solid #444;")
 
-        name = self.data.get("image") or utils.format_name(self.name) + ".jpg"
-        path = os.path.join(utils.IMAGES_DIR, name)
+        img_name = self.data.get("image") or utils.get_image_filename(self.name)
+        path = os.path.join(utils.IMAGES_DIR, img_name)
 
-        if name and os.path.exists(path):
+        if img_name and os.path.exists(path):
             pix = QtGui.QPixmap(path)
             self.image_lbl.setPixmap(
                 pix.scaled(self.image_lbl.size(), QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
@@ -1635,9 +1621,7 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         # Image
         self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)", self)
-        self.image_lbl.setStyleSheet(
-            "QLabel {background-color: #222; border: 1px solid #555; border-radius: 5px;}"
-        )
+        self.image_lbl.setStyleSheet("QLabel {background-color: #222; border: 1px solid #555; border-radius: 5px;}")
         self.image_lbl.setCursor(QtCore.Qt.PointingHandCursor)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setFixedSize(150, 150)
@@ -2005,6 +1989,21 @@ class RigSetupDialog(QtWidgets.QDialog):
             res = utils.save_image_local(self.image_path, final_name)
             if res:
                 img_name = res
+        elif is_rename and img_name:
+            # If renamed and no NEW image selected, rename existing image file
+            old_img_path = os.path.join(utils.IMAGES_DIR, img_name)
+            if os.path.exists(old_img_path):
+                new_img_name = utils.get_image_filename(final_name)
+                new_img_path = os.path.join(utils.IMAGES_DIR, new_img_name)
+
+                if old_img_path != new_img_path:
+                    try:
+                        if os.path.exists(new_img_path):
+                            os.remove(new_img_path)
+                        os.rename(old_img_path, new_img_path)
+                        img_name = new_img_name
+                    except Exception as e:
+                        utils.LOG.error("Failed to rename image: {}".format(e))
 
         path = self.path_input.text().strip()
         self.result_data = {
@@ -2042,9 +2041,7 @@ class AIWorker(QtCore.QThread):
 
     def run(self):
         try:
-            json_str, error = utils.query_ai(
-                self.endpoint, self.model, self.api_key, self.file_paths, self.custom_url
-            )
+            json_str, error = utils.query_ai(self.endpoint, self.model, self.api_key, self.file_paths, self.custom_url)
             if json_str:
                 data = json.loads(json_str)
                 self.finished.emit(data)
@@ -2527,7 +2524,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         super(ManageRigsDialog, self).__init__(parent)
         self.setWindowTitle("Manage Rigs")
         self.setMouseTracking(True)
-        self.resize(800, 600)
+        self.resize(800, 700)
 
         self.initial_tab = initial_tab
         self.directory = directory
@@ -2697,12 +2694,8 @@ class ManageRigsDialog(QtWidgets.QDialog):
         layout = QtWidgets.QVBoxLayout(self.tab_settings)
 
         # 0. Blocked Paths
-        self.grp_blocked = QtWidgets.QGroupBox("Scanning Settings")
+        self.grp_blocked = QtWidgets.QGroupBox("Blocked Folder Patterns (local)")
         lay_blocked = QtWidgets.QVBoxLayout(self.grp_blocked)
-
-        lbl_blocked = QtWidgets.QLabel("Blocked Folder Patterns:")
-        lbl_blocked.setStyleSheet("color: #aaa; margin-bottom: 2px;")
-        lay_blocked.addWidget(lbl_blocked)
 
         self.blocked_paths_editor = TagEditorWidget(parent=self)
         self.blocked_paths_editor.setPlaceholderText("Add pattern...")
@@ -2817,9 +2810,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self.model_combo.addItem(saved_model)
 
         self.model_combo.currentTextChanged.connect(
-            lambda txt: self.settings.setValue(
-                "ai_model_{}".format(self.ai_endpoint_combo.currentText()), txt
-            )
+            lambda txt: self.settings.setValue("ai_model_{}".format(self.ai_endpoint_combo.currentText()), txt)
         )
         lay_model.addWidget(self.model_combo, 1)
 
@@ -3114,9 +3105,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     find_edit = layout.itemAt(1).widget()
                     rep_edit = layout.itemAt(3).widget()
 
-                    if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
-                        rep_edit, QtWidgets.QLineEdit
-                    ):
+                    if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(rep_edit, QtWidgets.QLineEdit):
                         f_txt = find_edit.text()
                         r_txt = rep_edit.text()
                         # Only save if at least find_txt has something
@@ -3199,17 +3188,21 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     )
 
             if group:
-                # Sort individual group items (main first, then alts alpha)
-                group.sort(key=lambda x: (x["is_alt"], x["display"].lower()))
-                rig_groups.append(
-                    {"name": name, "items": group, "any_exists": any(i["exists"] for i in group)}
-                )
+                # Sort individual group items (main first, then alts alpha by filename)
+                group.sort(key=lambda x: (x["is_alt"], os.path.basename(x["display"]).lower()))
+                rig_groups.append({"name": name, "items": group, "any_exists": any(i["exists"] for i in group)})
 
-        # Sort groups: Rig that have even 1 found version first, then alphabetical
-        rig_groups.sort(key=lambda x: (not x["any_exists"], x["name"].lower()))
+        # Sort groups: Rig that have even 1 found version first, then alphabetical by path
+        rig_groups.sort(key=lambda x: (not x["any_exists"], x["items"][0]["display"].lower()))
 
         # Flatten into all_db_items
+        sep_needed = False
         for g in rig_groups:
+            if not g["any_exists"] and not sep_needed:
+                if all_db_items:
+                    g["items"][0]["force_separator"] = True
+                sep_needed = True
+
             all_db_items.extend(g["items"])
             if len(g["items"]) > 1:
                 # Mark last item for spacing only if there are alts
@@ -3244,16 +3237,14 @@ class ManageRigsDialog(QtWidgets.QDialog):
             is_alt = entry.get("is_alt", False)
 
             # Insert separator if mixed status
-            if not exists_on_disk and has_found and not separator_added:
+            if (auto_sort or entry.get("force_separator")) and not exists_on_disk and has_found and not separator_added:
                 # If we are in grouped mode, only add separator between rigs if both groups ARE fully separated
                 # But typically we still want a clear "Missing" section.
                 sep = ManageRigsSeparatorWidget("NOT FOUND")
                 section.addWidget(sep)
                 separator_added = True
 
-            item = ManageRigsItemWidget(
-                run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section
-            )
+            item = ManageRigsItemWidget(run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section)
 
             # Connect all signals regardless of initial category to allow fluid UI state changes
             item.editRequested.connect(self._on_edit_request)
@@ -3262,9 +3253,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             item.removeRequested.connect(self._on_remove_request)
 
             if category == "exists" and entry.get("is_alt"):
-                item.edit_btn.setToolTip(
-                    "This path is an alternative for rig: '{}'".format(entry.get("rig_name"))
-                )
+                item.edit_btn.setToolTip("This path is an alternative for rig: '{}'".format(entry.get("rig_name")))
 
             section.addWidget(item)
 
@@ -3585,9 +3574,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         custom_url = self.settings.value("ai_custom_url", "")
 
         if not api_key:
-            QtWidgets.QMessageBox.warning(
-                self, "No API Key", "Please set {} API Key in Settings tab.".format(endpoint)
-            )
+            QtWidgets.QMessageBox.warning(self, "No API Key", "Please set {} API Key in Settings tab.".format(endpoint))
             return
 
         # Gather new paths
@@ -3680,9 +3667,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self._refresh_rigs_tab()
 
         if count > 0:
-            QtWidgets.QMessageBox.information(
-                self, "AI Batch", "Successfully auto-added {} rigs.".format(count)
-            )
+            QtWidgets.QMessageBox.information(self, "AI Batch", "Successfully auto-added {} rigs.".format(count))
         else:
             QtWidgets.QMessageBox.warning(
                 self, "AI Batch", "No rigs were added. Check if they were already in the database."
@@ -3712,9 +3697,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self.btn_stop_scan.setVisible(True)
 
-        self.worker = ScannerWorker(
-            self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self
-        )
+        self.worker = ScannerWorker(self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self)
         self.worker.fileDiscovered.connect(self._on_file_discovered)
         self.worker.finished.connect(self._on_scan_finished)
         self.worker.start()

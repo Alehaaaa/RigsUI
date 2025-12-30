@@ -35,8 +35,6 @@ ICONS_DIR = os.path.join(MODULE_DIR, "_icons")
 
 
 # -------------------- Utils --------------------
-def format_name(name):
-    return name.lower().replace(" ", "_")
 
 
 def normpath_posix_keep_trailing(path):
@@ -98,6 +96,13 @@ def crop_image_to_square(img):
     return img.copy(x, y, size, size)
 
 
+def get_image_filename(base_name):
+    """Returns the sanitized image filename for a given rig name."""
+    fmt_name = base_name.lower().replace(" ", "_")
+    clean_name = re.sub(r"[^a-z0-9_]", "", fmt_name)
+    return "{}.jpg".format(clean_name)
+
+
 def save_image_local(source_path, base_name):
     """
     Saves and converts an image to JPG in the local images directory.
@@ -108,9 +113,7 @@ def save_image_local(source_path, base_name):
         return None
 
     try:
-        # Sanitize name
-        clean_name = re.sub(r"[^a-z0-9_]", "", format_name(base_name))
-        image_filename = "{}.jpg".format(clean_name)
+        image_filename = get_image_filename(base_name)
         dest_path = os.path.join(IMAGES_DIR, image_filename)
 
         img = QtGui.QImage(source_path)
@@ -120,9 +123,7 @@ def save_image_local(source_path, base_name):
             # Resize if larger than 360x360
             MAX_SIZE = 360
             if img.width() > MAX_SIZE:
-                img = img.scaled(
-                    MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
-                )
+                img = img.scaled(MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
 
             if not os.path.exists(IMAGES_DIR):
                 os.makedirs(IMAGES_DIR)
@@ -279,18 +280,14 @@ Expected JSON Structure:
 """
 
     paths_text = "\n".join(file_paths)
-    prompt_text = (
-        "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(
-            paths_text
-        )
+    prompt_text = "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(
+        paths_text
     )
 
     payload = payload_fn(system_instruction, prompt_text, model)
 
     try:
-        req = urllib.request.Request(
-            url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST"
-        )
+        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
         context = ssl._create_unverified_context()
         with urllib.request.urlopen(req, context=context) as response:
             if response.status == 200:

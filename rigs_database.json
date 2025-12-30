@@ -670,19 +670,6 @@
         "exists": false,
         "alternatives": []
     },
-    "Cat": {
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_joint_based.ma"
-        ],
-        "author": "Empty",
-        "collection": "Empty",
-        "image": null,
-        "link": "Empty",
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_redshift.ma",
-        "tags": [
-            "animal"
-        ]
-    },
     "Elephant": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\elephant\\elephant_rig.ma",
         "image": "elephant.jpg",
@@ -1978,5 +1965,18 @@
         "author": "Josh Janousky",
         "link": "https://justjoshinmagic.gumroad.com/l/JoshCam",
         "alternatives": []
+    },
+    "Sphynx Cat": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_redshift.ma",
+        "image": "sphynx_cat.jpg",
+        "tags": [
+            "animal"
+        ],
+        "collection": "Empty",
+        "author": "Truong CG Artist",
+        "link": "https://truongcgartist.gumroad.com/l/catrig",
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\cat\\cat_rig_joint_based.ma"
+        ]
     }
 }

@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2025-12-30
+### 🚀 Added
+- **Image Renaming**: When a rig is renamed, its associated image file is now automatically renamed to match.
+
+### 📦 Changed
+- **Manage Rigs Sorting**: Rig entries in the "In Database" tab are now sorted alphabetically by their **path** (after replacements) instead of by the saved rig name. Alternatives within each rig group are sorted by filename.
+- **UI Cleanup**: Simplified Scanning Settings UI.
+
+### 🐛 Fixed
+- **Blacklist with Replacements**: Blacklisted paths now respect path replacement rules, ensuring items stay hidden across machines with different path configurations.
+
 ## [0.1.4] - 2025-12-30
 ### 🚀 Added
 - **Blacklist Feature**:
