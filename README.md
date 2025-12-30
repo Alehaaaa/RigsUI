@@ -2,6 +2,8 @@
 
 A professional Maya tool for organizing and managing 3D rig assets. Provides a dockable interface to easily browse, filter, and load rigs into your Maya scene.
 
+![Main UI](_public/main_ui_showcase.png)
+
 ## Features
 
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
@@ -10,6 +12,22 @@ A professional Maya tool for organizing and managing 3D rig assets. Provides a d
 - **Batch Import**: Scan entire folders for rapid library expansion. Customize **Blocked Patterns** to skip unneeded directories.
 - **Path Replacements**: Define local path swaps to share databases across different machines without breaking paths.
 - **AI Auto-Tagging**: Automatically add metadata using **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or custom endpoints.
+
+### Edit Rig Details
+
+View and modify rig metadata including name, collection, author, tags, and thumbnail.
+
+![Edit Rig Dialog](_public/edit_rig_dialog_showcase.png)
+
+<sub>Featuring the rig Golem Critter by [Tristen](https://tristenanimates.gumroad.com/l/nywts)</sub>
+
+### Smart Filtering
+
+Quickly find rigs using filters for collection, tags, author, or status.
+
+![Filters](_public/filters_showcase.png)
+
+<sub>Featuring the Body Mechanics Rigs by [Joe Daniels](https://joedanimation.gumroad.com/l/xhRK)</sub>
 
 ## Installation
 
