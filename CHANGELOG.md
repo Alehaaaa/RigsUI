@@ -9,6 +9,13 @@ All notable changes to this project will be documented in this file.
     - Blacklisting a rig hides it from the library without deleting its metadata or files.
     - Added a confirmation dialog before blacklisting with a clear explanation of its effect.
 
+### 📦 Changed
+- **UX & UI Refinement**:
+    - **Interaction Design**: Refactored elided labels to differentiate between clickable (hand cursor) and informative-only (context menu cursor) items.
+    - **Path Elision**: Long paths now elide correctly from the left in all metadata views.
+- **Codebase Management**:
+    - Improved UI stability by refactoring dynamic label lookups.
+
 ## [0.1.3] - 2025-12-29
 ### 🚀 Added
 - **Scanner Customization**:

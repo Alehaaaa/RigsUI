@@ -6,6 +6,7 @@ import urllib.request
 import urllib.error
 import ssl
 import sys
+import subprocess
 
 try:
     from PySide6 import QtGui, QtCore
@@ -37,6 +38,7 @@ ICONS_DIR = os.path.join(MODULE_DIR, "_icons")
 def format_name(name):
     return name.lower().replace(" ", "_")
 
+
 def normpath_posix_keep_trailing(path):
     if path:
         has_trailing = path.endswith(("/", "\\"))
@@ -44,6 +46,7 @@ def normpath_posix_keep_trailing(path):
         if has_trailing and not path.endswith("/"):
             path += "/"
     return path
+
 
 def setting_bool(value):
     if value is None:
@@ -84,14 +87,14 @@ def crop_image_to_square(img):
     """
     if not img or img.isNull():
         return img
-        
+
     w = img.width()
     h = img.height()
     size = min(w, h)
-    
+
     x = (w - size) // 2
     y = (h - size) // 2
-    
+
     return img.copy(x, y, size, size)
 
 
@@ -118,10 +121,7 @@ def save_image_local(source_path, base_name):
             MAX_SIZE = 360
             if img.width() > MAX_SIZE:
                 img = img.scaled(
-                    MAX_SIZE, 
-                    MAX_SIZE, 
-                    QtCore.Qt.KeepAspectRatio, 
-                    QtCore.Qt.SmoothTransformation
+                    MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
                 )
 
             if not os.path.exists(IMAGES_DIR):
@@ -364,3 +364,21 @@ def check_for_updates(current_version):
         LOG.warning("Failed to check for updates: {}".format(e))
 
     return False, None
+
+
+def open_folder(path):
+    """
+    Opens the file explorer and selects the file, or opens the directory.
+    """
+    path = os.path.normpath(path)
+    if not os.path.exists(path):
+        return
+
+    if sys.platform == "win32":
+        subprocess.Popen(r'explorer /select,"{}"'.format(path))
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", "-R", path])
+    else:
+        # Fallback for linux or generic dir opening
+        target = os.path.dirname(path) if os.path.isfile(path) else path
+        subprocess.Popen(["xdg-open", target])

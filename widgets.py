@@ -279,16 +279,16 @@ class LoadingDotsWidget(QtWidgets.QLabel):
         self._dots_count = (self._dots_count + 1) % 4
 
 
-class ElidedClickableLabel(ContextLabel):
-    """A label that elides text from the left and responds to click events."""
+class ElidedLabel(ContextLabel):
+    """A label that elides text from the left and provides a context menu."""
 
-    clicked = QtCore.Signal()
-
-    def __init__(self, text, is_path=False, is_link=False, parent=None):
-        super(ElidedClickableLabel, self).__init__(text, is_path=is_path, is_link=is_link, parent=parent)
+    def __init__(self, text, is_path=False, is_link=False, color=None, parent=None):
+        super(ElidedLabel, self).__init__(text, is_path=is_path, is_link=is_link, parent=parent)
         self._full_text = text
+        self._color = color
         self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
-        self.setCursor(QtCore.Qt.PointingHandCursor)
+        # Use contextual cursor to indicate right-click availability
+        self.setCursor(CONTEXTUAL_CURSOR)
 
     def setText(self, text):
         self._full_text = text
@@ -297,7 +297,7 @@ class ElidedClickableLabel(ContextLabel):
         self.update()
 
     def minimumSizeHint(self):
-        return QtCore.QSize(10, super(ElidedClickableLabel, self).minimumSizeHint().height())
+        return QtCore.QSize(10, super(ElidedLabel, self).minimumSizeHint().height())
 
     def sizeHint(self):
         fm = self.fontMetrics()
@@ -306,15 +306,33 @@ class ElidedClickableLabel(ContextLabel):
             if hasattr(fm, "horizontalAdvance")
             else fm.width(self._full_text)
         )
-        return QtCore.QSize(w, super(ElidedClickableLabel, self).sizeHint().height())
+        return QtCore.QSize(w, super(ElidedLabel, self).sizeHint().height())
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         metrics = painter.fontMetrics()
         elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideLeft, self.width())
 
-        painter.setPen(QtGui.QColor("#74accc"))
+        if self._color:
+            painter.setPen(QtGui.QColor(self._color))
+        elif self._is_path or self._is_link:
+            painter.setPen(QtGui.QColor("#74accc"))
+        else:
+            painter.setPen(self.palette().color(QtGui.QPalette.WindowText))
+
         painter.drawText(self.rect(), self.alignment() | QtCore.Qt.AlignVCenter, elided)
+
+
+class ElidedClickableLabel(ElidedLabel):
+    """A version of ElidedLabel that adds a click signal and hand cursor."""
+
+    clicked = QtCore.Signal()
+
+    def __init__(self, text, is_path=False, is_link=False, color=None, parent=None):
+        super(ElidedClickableLabel, self).__init__(
+            text, is_path=is_path, is_link=is_link, color=color, parent=parent
+        )
+        self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -1463,20 +1481,26 @@ class InfoDialog(QtWidgets.QDialog):
 
         alts = self.data.get("alternatives", [])
         if alts:
-            alt_names = [os.path.basename(p) for p in alts if p]
-            if alt_names:
-                alt_txt = "\n".join(alt_names)
-                alt_lbl = QtWidgets.QLabel(alt_txt)
-                alt_lbl.setStyleSheet("color: #777;")
-                alt_lbl.setTextInteractionFlags(QtCore.Qt.TextSelectableByMouse)
-                alt_lbl.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
-                self.form_layout.addRow("Alternatives:", alt_lbl)
+            alt_container = QtWidgets.QWidget()
+            alt_vbox = QtWidgets.QVBoxLayout(alt_container)
+            alt_vbox.setContentsMargins(0, 0, 0, 0)
+            alt_vbox.setSpacing(2)
 
-                # Align title label to top
-                title_lbl = self.form_layout.labelForField(alt_lbl)
-                if title_lbl:
-                    title_lbl.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignRight)
-                    title_lbl.setContentsMargins(0, 1, 0, 0)
+            for p in alts:
+                if not p:
+                    continue
+                display_name = os.path.basename(p)
+                al_lbl = ElidedLabel(display_name, is_path=True, color="#aaa")
+                al_lbl.setToolTip(p)
+                alt_vbox.addWidget(al_lbl)
+
+            self.form_layout.addRow("Alternatives:", alt_container)
+
+            # Align title label to top
+            lbl = self.form_layout.labelForField(alt_container)
+            if lbl:
+                lbl.setAlignment(QtCore.Qt.AlignTop | QtCore.Qt.AlignRight)
+                lbl.setContentsMargins(0, 1, 0, 0)
 
         layout.addLayout(self.form_layout)
         layout.addStretch()
@@ -1525,7 +1549,7 @@ class InfoDialog(QtWidgets.QDialog):
                 href = value if value.startswith("http") else "http://" + value
                 elided_lbl.clicked.connect(lambda: QtGui.QDesktopServices.openUrl(QtCore.QUrl(href)))
             elif is_path:
-                elided_lbl.clicked.connect(lambda: self._open_folder(value))
+                elided_lbl.clicked.connect(lambda: utils.open_folder(value))
 
             self.form_layout.addRow(heading_lbl, elided_lbl)
             return
@@ -1562,18 +1586,7 @@ class InfoDialog(QtWidgets.QDialog):
         self.editRequested.emit()
 
     def _open_folder(self, path):
-        path = os.path.normpath(path)
-        if not os.path.exists(path):
-            return
-
-        if sys.platform == "win32":
-            subprocess.Popen(r'explorer /select,"{}"'.format(path))
-        elif sys.platform == "darwin":
-            subprocess.Popen(["open", "-R", path])
-        else:
-            # Fallback for linux or generic dir opening
-            target = os.path.dirname(path) if os.path.isfile(path) else path
-            subprocess.Popen(["xdg-open", target])
+        utils.open_folder(path)
 
 
 class RigSetupDialog(QtWidgets.QDialog):
@@ -1649,6 +1662,7 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         # Form
         self.form_layout = QtWidgets.QFormLayout()
+        self.form_layout.setSpacing(8)
 
         # Name
         self.name_input = QtWidgets.QLineEdit(self)
@@ -1657,7 +1671,12 @@ class RigSetupDialog(QtWidgets.QDialog):
         else:
             self.name_input.setText(os.path.splitext(os.path.basename(self.file_path))[0])
         self.name_input.textChanged.connect(self.validate_name)
-        self.form_layout.addRow("Name:", self.name_input)
+
+        lay_name = QtWidgets.QHBoxLayout()
+        lay_name.setContentsMargins(0, 0, 0, 0)
+        lay_name.addWidget(self.name_input)
+        lay_name.addSpacing(32)  # Match lock button width + spacing
+        self.form_layout.addRow("Name:", lay_name)
 
         # Tags
         orig_tags = self.rig_data.get("tags", [])
@@ -1667,7 +1686,12 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         self.tags_input = TagEditorWidget(self.tags, parent=self)
         self.tags_input.setTags(orig_tags)
-        self.form_layout.addRow("Tags:", self.tags_input)
+
+        lay_tags = QtWidgets.QHBoxLayout()
+        lay_tags.setContentsMargins(0, 0, 0, 0)
+        lay_tags.addWidget(self.tags_input)
+        lay_tags.addSpacing(32)
+        self.form_layout.addRow("Tags:", lay_tags)
 
         # Collection
         self.coll_input = QtWidgets.QLineEdit(self)
@@ -1677,7 +1701,12 @@ class RigSetupDialog(QtWidgets.QDialog):
             self.coll_input.setCompleter(comp)
         coll_val = self.rig_data.get("collection") or ""
         self.coll_input.setText("" if coll_val == "Empty" else coll_val)
-        self.form_layout.addRow("Collection:", self.coll_input)
+
+        lay_coll = QtWidgets.QHBoxLayout()
+        lay_coll.setContentsMargins(0, 0, 0, 0)
+        lay_coll.addWidget(self.coll_input)
+        lay_coll.addSpacing(32)
+        self.form_layout.addRow("Collection:", lay_coll)
 
         # Author
         self.auth_input = QtWidgets.QLineEdit(self)
@@ -1687,13 +1716,23 @@ class RigSetupDialog(QtWidgets.QDialog):
             self.auth_input.setCompleter(comp)
         auth_val = self.rig_data.get("author") or ""
         self.auth_input.setText("" if auth_val == "Empty" else auth_val)
-        self.form_layout.addRow("Author:", self.auth_input)
+
+        lay_auth = QtWidgets.QHBoxLayout()
+        lay_auth.setContentsMargins(0, 0, 0, 0)
+        lay_auth.addWidget(self.auth_input)
+        lay_auth.addSpacing(32)
+        self.form_layout.addRow("Author:", lay_auth)
 
         # Link
         self.link_input = QtWidgets.QLineEdit(self)
         link_val = self.rig_data.get("link") or ""
         self.link_input.setText("" if link_val == "Empty" else link_val)
-        self.form_layout.addRow("Link:", self.link_input)
+
+        lay_link = QtWidgets.QHBoxLayout()
+        lay_link.setContentsMargins(0, 0, 0, 0)
+        lay_link.addWidget(self.link_input)
+        lay_link.addSpacing(32)
+        self.form_layout.addRow("Link:", lay_link)
 
         # Path
         lay_path = QtWidgets.QHBoxLayout()
@@ -1871,10 +1910,11 @@ class RigSetupDialog(QtWidgets.QDialog):
             lay.setContentsMargins(0, 0, 0, 0)
             lay.setSpacing(4)
 
-            name = os.path.basename(alt_p)
-            lbl = QtWidgets.QLabel(name)
+            display_name = os.path.basename(alt_p)
+            lbl = ElidedLabel(display_name, is_path=True, color="#aaa")
             lbl.setToolTip(alt_p)
-            lbl.setStyleSheet("color: #777; font-size: 9pt;")
+            # Specify font size via stylesheet but avoid general 'color' to prevent tooltip inheritance issues
+            lbl.setStyleSheet("font-size: 9pt;")
             lay.addWidget(lbl, 1)
 
             btn = QtWidgets.QPushButton("×")

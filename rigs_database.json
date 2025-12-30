@@ -722,7 +722,28 @@
         "alternatives": []
     },
     "Maurice Racoon": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Wok_rig_01.ma"
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\MauriceRig_v01.mb",
+        "image": "maurice_racoon.jpg",
+        "tags": [
+            "animal",
+            "cartoon"
+        ],
+        "collection": null,
+        "author": "RaphaelCanRigs",
+        "link": "https://raphaelcan.gumroad.com/l/abtew",
+        "exists": false,
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Accordion_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Apron_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Chefhat_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Hat_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Leek_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Teddybear_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Trashbin_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Violin_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Washboard_rig_01.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Wok_rig_01.ma"
+        ]
     },
     "Backpack": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_closed_001.ma",
@@ -731,7 +752,7 @@
             "prop",
             "clothing"
         ],
-        "collection": "Empty",
+        "collection": null,
         "author": "Candy Rigs",
         "link": "https://candy-rigs.gumroad.com/",
         "alternatives": [
