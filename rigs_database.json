@@ -355,7 +355,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Charlie": {
@@ -369,7 +368,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Lucas": {
@@ -383,7 +381,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Maria": {
@@ -397,7 +394,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Mikey": {
@@ -411,7 +407,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Will": {
@@ -425,7 +420,6 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "exists": false,
         "alternatives": []
     },
     "Jinx": {
@@ -586,7 +580,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Carl": {
@@ -600,7 +593,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Chris": {
@@ -614,7 +606,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Izzy": {
@@ -628,7 +619,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Sam": {
@@ -642,7 +632,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Megan": {
@@ -655,7 +644,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Daniel": {
@@ -668,7 +656,6 @@
         "collection": "ProRigs Family",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-family/",
-        "exists": false,
         "alternatives": []
     },
     "Chair": {
@@ -698,29 +685,27 @@
     },
     "Elephant": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\elephant\\elephant_rig.ma",
-        "image": null,
+        "image": "elephant.jpg",
         "tags": [
             "animal"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Truong CG Artist",
+        "link": "https://truongcgartist.gumroad.com/l/elephantrig",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\elephant\\elephant_redshift_render.ma"
         ]
     },
     "Honda CX650": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\HondaCX650\\Honda_CX650_RIG.ma",
-        "image": null,
+        "image": "honda_cx650.jpg",
         "tags": [
             "prop",
             "vehicle"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Perry Leijten",
+        "link": "https://peerke.gumroad.com/l/sEPLs",
         "alternatives": []
     },
     "Irex": {
@@ -737,174 +722,32 @@
         "alternatives": []
     },
     "Maurice Racoon": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\MauriceRig_v01.mb",
-        "image": "maurice_racoon.jpg",
-        "tags": [
-            "animal"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "alternatives": []
-    },
-    "Accordion": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Accordion_rig_01.ma",
-        "image": null,
-        "tags": [
-            "musical instrument",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Apron": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Apron_rig_01.ma",
-        "image": null,
-        "tags": [
-            "clothing",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Chef Hat": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Chefhat_01.ma",
-        "image": null,
-        "tags": [
-            "clothing",
-            "headwear",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Hat": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Hat_rig_01.ma",
-        "image": null,
-        "tags": [
-            "clothing",
-            "headwear",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Leek": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Leek_rig_01.ma",
-        "image": null,
-        "tags": [
-            "kitchen",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Teddy Bear": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Teddybear_rig_01.ma",
-        "image": null,
-        "tags": [
-            "animal",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Trash Bin": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Trashbin_rig_01.ma",
-        "image": null,
-        "tags": [
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Violin": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Violin_rig_01.ma",
-        "image": null,
-        "tags": [
-            "musical instrument",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Washboard": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Washboard_rig_01.ma",
-        "image": null,
-        "tags": [
-            "prop",
-            "kitchen",
-            "clothing"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
-    },
-    "Wok": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Wok_rig_01.ma",
-        "image": null,
-        "tags": [
-            "kitchen",
-            "prop"
-        ],
-        "collection": "Maurice Racoon",
-        "author": "Raphael Cancellier",
-        "link": "https://raphaelcan.gumroad.com/l/abtew",
-        "exists": false,
-        "alternatives": []
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Wok_rig_01.ma"
     },
     "Backpack": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_closed_001.ma",
-        "image": null,
+        "image": "backpack.jpg",
         "tags": [
             "prop",
             "clothing"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Candy Rigs",
+        "link": "https://candy-rigs.gumroad.com/",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_opened_001.ma"
         ]
     },
     "Wolf": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Wolf\\wolf_rig.ma",
-        "image": null,
+        "image": "wolf.jpg",
         "tags": [
             "animal",
             "creature"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Truong CG Artist",
+        "link": "https://truongcgartist.gumroad.com/l/wolfrig",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Wolf\\wolf_rig_render_setup_arnold_maya2018.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Wolf\\wolf_rig_render_setup_redshift3d_maya2018.ma"
@@ -969,20 +812,6 @@
         "link": "Empty",
         "alternatives": []
     },
-    "Pendulum": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Pendulum\\pendulum_shot_ready_anim.ma",
-        "image": "pendulum.jpg",
-        "tags": [
-            "prop",
-            "basic"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
-        "alternatives": [
-            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/ProRigs/ProRigs_Basics/ProRigs_Pendulum/Pendulum_v01.02_L.ma"
-        ]
-    },
     "Tailor": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Tailor\\tailor_shot_ready_anim.ma",
         "image": "tailor.jpg",
@@ -1020,21 +849,6 @@
         "author": "Animation Mentor",
         "link": "Empty",
         "alternatives": []
-    },
-    "Stella": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stella\\stella_shot_ready_anim.ma",
-        "image": "stella.jpg",
-        "tags": [
-            "female",
-            "human",
-            "basic"
-        ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
-        "alternatives": [
-            "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Body Mechanics Rigs/stella_rig.ma"
-        ]
     },
     "Stewie": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stewie\\stewie_shot_ready_anim.ma",
@@ -1166,9 +980,9 @@
             "human",
             "kid"
         ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
+        "collection": "Empty",
+        "author": "fRigging Awesome",
+        "link": "https://friggingawesome.gumroad.com/l/kayla-rig?layout=profile",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kayla/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
@@ -1180,9 +994,9 @@
             "animal",
             "male"
         ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
+        "collection": "Empty",
+        "author": "fRigging Awesome",
+        "link": "https://friggingawesome.gumroad.com/l/koala-bob-rig?layout=profile",
         "alternatives": []
     },
     "Kyle": {
@@ -1193,9 +1007,9 @@
             "male",
             "kid"
         ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
+        "collection": "Empty",
+        "author": "fRigging Awesome",
+        "link": "https://friggingawesome.gumroad.com/l/kayla-rig?layout=profile",
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Kyle/shelf_library/poseLibrary_2014/poseLibrary2014.ma"
         ]
@@ -1234,9 +1048,9 @@
             "male",
             "kid"
         ],
-        "collection": "Animation Mentor Rigs",
-        "author": "Animation Mentor",
-        "link": "Empty",
+        "collection": "Empty",
+        "author": "fRigging Awesome",
+        "link": "https://friggingawesome.gumroad.com/l/ronan-rig?layout=profile",
         "alternatives": []
     },
     "Shaman": {
@@ -1256,7 +1070,7 @@
     },
     "Casey": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\casey_rig.ma",
-        "image": null,
+        "image": "casey.jpg",
         "tags": [
             "human",
             "baby",
@@ -1269,21 +1083,21 @@
     },
     "Dex": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\dex_rig.ma",
-        "image": null,
+        "image": "dex.jpg",
         "tags": [
             "human",
             "male",
-            "basic"
+            "basic",
+            "young"
         ],
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false,
         "alternatives": []
     },
     "Ellie": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\ellie_rig.ma",
-        "image": null,
+        "image": "ellie.jpg",
         "tags": [
             "kid",
             "human",
@@ -1293,11 +1107,11 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false
+        "alternatives": []
     },
     "Fred": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\fred_rig.ma",
-        "image": null,
+        "image": "fred.jpg",
         "tags": [
             "male",
             "human",
@@ -1307,11 +1121,11 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false
+        "alternatives": []
     },
     "Herc": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\herc_rig.ma",
-        "image": null,
+        "image": "herc.jpg",
         "tags": [
             "human",
             "male",
@@ -1325,7 +1139,7 @@
     },
     "Jack": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jack_rig.ma",
-        "image": null,
+        "image": "jack.jpg",
         "tags": [
             "human",
             "male",
@@ -1334,12 +1148,11 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false,
         "alternatives": []
     },
     "Jill": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jill_rig.ma",
-        "image": null,
+        "image": "jill.jpg",
         "tags": [
             "female",
             "human",
@@ -1348,12 +1161,11 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false,
         "alternatives": []
     },
     "Marv": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\marv_rig.ma",
-        "image": null,
+        "image": "marv.jpg",
         "tags": [
             "human",
             "male",
@@ -1367,7 +1179,7 @@
     },
     "Tina": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\tina_rig.ma",
-        "image": null,
+        "image": "tina.jpg",
         "tags": [
             "female",
             "human",
@@ -1376,12 +1188,11 @@
         "collection": "Body Mechanics Rigs",
         "author": "Joe Daniels",
         "link": "https://joedanimation.gumroad.com/l/xhRK",
-        "exists": false,
         "alternatives": []
     },
     "Ugg": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\ugg_rig.ma",
-        "image": null,
+        "image": "ugg.jpg",
         "tags": [
             "human",
             "male",
@@ -1423,7 +1234,7 @@
     },
     "Adult Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Adult_Man\\Adult_Man_v01.02_L.ma",
-        "image": null,
+        "image": "adult_man.jpg",
         "tags": [
             "human",
             "male",
@@ -1431,13 +1242,13 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Adult Woman": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Adult_Woman\\Adult_Woman_v01.02_L.ma",
-        "image": null,
+        "image": "adult_woman.jpg",
         "tags": [
             "female",
             "human",
@@ -1445,13 +1256,12 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-basics/",
         "alternatives": []
     },
     "Athletic Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Athletic_Man\\Athletic_Man_v01.02_L.ma",
-        "image": null,
+        "image": "athletic_man.jpg",
         "tags": [
             "basic",
             "male",
@@ -1459,13 +1269,13 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Athletic Woman": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Athletic_Woman\\Athletic_Woman_v01.01_L.ma",
-        "image": null,
+        "image": "athletic_woman.jpg",
         "tags": [
             "basic",
             "female",
@@ -1473,39 +1283,38 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-basics/",
         "alternatives": []
     },
     "Ball Legs": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Ball_Legs\\Ball_Legs_v01.02_L.ma",
-        "image": null,
+        "image": "ball_legs.jpg",
         "tags": [
             "creature",
             "basic"
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Ball Tail": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Ball_Tail\\Ball_Tail_v01.02_L.ma",
-        "image": null,
+        "image": "ball_tail.jpg",
         "tags": [
             "prop",
             "basic"
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Giant Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Giant_Man\\Giant_Man_v01.02_L.ma",
-        "image": null,
+        "image": "giant_man.jpg",
         "tags": [
             "male",
             "basic",
@@ -1514,13 +1323,13 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Heavy Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Heavy_Man\\Heavy_Man_v01.01_L.ma",
-        "image": null,
+        "image": "heavy_man.jpg",
         "tags": [
             "male",
             "basic",
@@ -1529,13 +1338,13 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
+        "link": "https://prorigs.com/characters/the-basics/",
         "exists": false,
         "alternatives": []
     },
     "Heavy Woman": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Heavy_Woman\\Heavy_Woman_v01.01_L.ma",
-        "image": null,
+        "image": "heavy_woman.jpg",
         "tags": [
             "basic",
             "female",
@@ -1544,13 +1353,12 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-basics/",
         "alternatives": []
     },
     "Young Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Young_Man\\Young_Man_v01.02_L.ma",
-        "image": null,
+        "image": "young_man.jpg",
         "tags": [
             "basic",
             "human",
@@ -1559,13 +1367,12 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-basics/",
         "alternatives": []
     },
     "Young Woman": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Young_Woman\\Young_Woman_v01.01_L.ma",
-        "image": null,
+        "image": "young_woman.jpg",
         "tags": [
             "basic",
             "female",
@@ -1574,13 +1381,12 @@
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-basics/",
         "alternatives": []
     },
     "Frank": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Couples\\ProRigs_Frank\\Frank_v01.02_L.ma",
-        "image": null,
+        "image": "frank.jpg",
         "tags": [
             "adult",
             "human",
@@ -1588,13 +1394,12 @@
         ],
         "collection": "ProRigs Couples",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-couples/",
         "alternatives": []
     },
     "Mae": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Couples\\ProRigs_Mae\\Mae_v01.06_L.ma",
-        "image": null,
+        "image": "mae.jpg",
         "tags": [
             "adult",
             "female",
@@ -1602,73 +1407,72 @@
         ],
         "collection": "ProRigs Couples",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-couples/",
         "alternatives": []
     },
     "Big Rig": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Robots\\ProRigs_BigRig\\BigRig_v01.01_L.ma",
-        "image": null,
+        "image": "big_rig.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-robots/",
         "alternatives": []
     },
     "Clunky": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Robots\\ProRigs_Clunky\\Clunky_v01.02_L.ma",
-        "image": null,
+        "image": "clunky.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-robots/",
         "alternatives": []
     },
     "Droid 27": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Robots\\ProRigs_Droid27\\Droid27_v01.01_L.ma",
-        "image": null,
+        "image": "droid_27.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-robots/",
         "alternatives": []
     },
     "Piston": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Robots\\ProRigs_Piston\\Piston_v01.01_L.ma",
-        "image": null,
+        "image": "piston.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-robots/",
         "alternatives": []
     },
     "Retro": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Robots\\ProRigs_Retro\\Retro_v01.01_L.ma",
-        "image": null,
+        "image": "retro.jpg",
         "tags": [
-            "robot"
+            "robot",
+            "sci-fi"
         ],
         "collection": "ProRigs Robots",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "https://prorigs.com/characters/the-robots/",
         "alternatives": []
     },
     "Adult Elephant": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Adult_Elephant\\Adult_Elephant_v01.02_L.ma",
-        "image": null,
+        "image": "adult_elephant.jpg",
         "tags": [
             "animal"
         ],
@@ -1679,7 +1483,7 @@
     },
     "Baby Elephant": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Baby_Elephant\\Baby_Elephant_v01.03_L.ma",
-        "image": null,
+        "image": "baby_elephant.jpg",
         "tags": [
             "animal",
             "baby"
@@ -1691,7 +1495,7 @@
     },
     "Gorilla": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Gorilla\\Gorilla_v01.03_L.ma",
-        "image": null,
+        "image": "gorilla.jpg",
         "tags": [
             "animal",
             "ape"
@@ -1703,7 +1507,7 @@
     },
     "Monkey": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Monkey\\Monkey_v01.01_L.ma",
-        "image": null,
+        "image": "monkey.jpg",
         "tags": [
             "animal",
             "ape"
@@ -1715,7 +1519,7 @@
     },
     "Orangutan": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Zoo\\ProRigs_Orangutan\\Orangutan_v01.02_L.ma",
-        "image": null,
+        "image": "orangutan.jpg",
         "tags": [
             "animal",
             "ape"
@@ -1756,77 +1560,73 @@
     },
     "Eugene": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\eugene_v15\\eugene_rig_MASTER.ma",
-        "image": null,
+        "image": "eugene.jpg",
         "tags": [
             "human",
             "male"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Mansur Rig",
+        "link": "https://animprops.com/product/eugene/",
         "alternatives": []
     },
     "Hybrid 02": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Hybrid 02\\Rig.ma",
-        "image": null,
+        "image": "hybrid_02.jpg",
         "tags": [
             "human",
-            "male"
+            "male",
+            "sci-fi"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Onination Squad",
+        "link": "https://oninationsquad.gumroad.com/l/hybrid02",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\04 FREE\\Hybrid 02\\Rig.mb"
         ]
     },
     "Lighting Stage": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Lighting_Stage\\ProRigs_Lighting_Stage.ma",
-        "image": null,
+        "image": "lighting_stage.jpg",
         "tags": [
             "prop",
             "environment",
             "utility"
         ],
-        "collection": null,
+        "collection": "ProRigs Basics",
         "author": "ProRigs",
-        "link": null,
-        "exists": false,
+        "link": "Empty",
         "alternatives": []
     },
     "Miosha": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\MioshaRig_v1.12\\MioshaRig.ma",
-        "image": null,
+        "image": "miosha.jpg",
         "tags": [
             "female",
             "human"
         ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
+        "collection": "Empty",
+        "author": "Dmitrii Kolpakov",
+        "link": "https://dkolpakov.gumroad.com/l/MioshaRig",
         "alternatives": [
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\MioshaRig_v1.12\\MioshaRig_Arnold.ma"
         ]
     },
     "Samurai": {
-        "alternatives": [
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Arnold.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_nCloth.ma",
-            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Collider-Proxy.ma"
-        ],
-        "author": null,
-        "collection": null,
-        "exists": false,
-        "image": null,
-        "link": null,
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai.ma",
+        "image": "samurai.jpg",
         "tags": [
             "fighter",
             "human",
             "male"
+        ],
+        "collection": "Empty",
+        "author": "Kiel Figgins",
+        "link": "https://www.turbosquid.com/3d-models/3d-model-rig-2014-animation-1230267",
+        "alternatives": [
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Arnold.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_nCloth.ma",
+            "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Samurai\\animRig_Samurai_Collider-Proxy.ma"
         ]
     },
     "Cammy": {
@@ -1835,18 +1635,6 @@
         "tags": [
             "human",
             "female"
-        ],
-        "collection": null,
-        "author": null,
-        "link": null,
-        "exists": false,
-        "alternatives": []
-    },
-    "JoshCam": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\05 UTILITY\\JoshCam_v8_BETA.ma",
-        "image": null,
-        "tags": [
-            "utility"
         ],
         "collection": null,
         "author": null,
@@ -1868,7 +1656,7 @@
     },
     "JJ": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Body Mechanics Rigs\\jj_rig.ma",
-        "image": null,
+        "image": "jj.jpg",
         "tags": [
             "male",
             "human",
@@ -2094,6 +1882,82 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": "Empty",
+        "alternatives": []
+    },
+    "Kayla Bot": {
+        "path": "P:/00 PERSONAL/Rigs/Kayla Bot/kaylaBot_v1.02.mb",
+        "image": "kayla_bot.jpg",
+        "tags": [
+            "kid",
+            "robot",
+            "human",
+            "female",
+            "male"
+        ],
+        "collection": "Empty",
+        "author": "fRigging Awesome",
+        "link": "https://friggingawesome.gumroad.com/l/kayla-bot",
+        "alternatives": []
+    },
+    "Stella AM": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stella\\stella_shot_ready_anim.ma",
+        "image": "stella.jpg",
+        "tags": [
+            "female",
+            "human",
+            "basic"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Stella": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Body Mechanics Rigs/stella_rig.ma",
+        "image": "stella_2.jpg",
+        "tags": [
+            "human",
+            "female",
+            "basic"
+        ],
+        "collection": "Body Mechanics Rigs",
+        "author": "Joe Daniels",
+        "link": "https://joedanimation.gumroad.com/l/xhRK",
+        "alternatives": []
+    },
+    "Pendulum AM": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Pendulum\\pendulum_shot_ready_anim.ma",
+        "image": "pendulum_am.jpg",
+        "tags": [
+            "prop",
+            "basic"
+        ],
+        "collection": "Animation Mentor Rigs",
+        "author": "Animation Mentor",
+        "link": "Empty",
+        "alternatives": []
+    },
+    "Pendulum": {
+        "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/ProRigs/ProRigs_Basics/ProRigs_Pendulum/Pendulum_v01.02_L.ma",
+        "image": "pendulum.jpg",
+        "tags": [
+            "prop",
+            "basic"
+        ],
+        "collection": "ProRigs Basics",
+        "author": "ProRigs",
+        "link": "https://prorigs.com/characters/the-basics/",
+        "alternatives": []
+    },
+    "JoshCam": {
+        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\05 UTILITY\\JoshCam_v8_BETA.ma",
+        "image": "joshcam.jpg",
+        "tags": [
+            "utility"
+        ],
+        "collection": "Empty",
+        "author": "Josh Janousky",
+        "link": "https://justjoshinmagic.gumroad.com/l/JoshCam",
         "alternatives": []
     }
 }
