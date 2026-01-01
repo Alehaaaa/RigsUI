@@ -25,7 +25,7 @@ if not LOG.handlers:
     LOG.addHandler(h)
 LOG.setLevel(logging.DEBUG)
 LOG.propagate = False
-LOG.disabled = True
+LOG.disabled = False
 
 # -------------------- Constants --------------------
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -123,7 +123,9 @@ def save_image_local(source_path, base_name):
             # Resize if larger than 360x360
             MAX_SIZE = 360
             if img.width() > MAX_SIZE:
-                img = img.scaled(MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation)
+                img = img.scaled(
+                    MAX_SIZE, MAX_SIZE, QtCore.Qt.KeepAspectRatio, QtCore.Qt.SmoothTransformation
+                )
 
             if not os.path.exists(IMAGES_DIR):
                 os.makedirs(IMAGES_DIR)
@@ -280,14 +282,18 @@ Expected JSON Structure:
 """
 
     paths_text = "\n".join(file_paths)
-    prompt_text = "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(
-        paths_text
+    prompt_text = (
+        "Here is the list of NEW file paths to categorize (Limit 50):\n\n{}\n\nGenerate JSON.".format(
+            paths_text
+        )
     )
 
     payload = payload_fn(system_instruction, prompt_text, model)
 
     try:
-        req = urllib.request.Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST")
+        req = urllib.request.Request(
+            url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST"
+        )
         context = ssl._create_unverified_context()
         with urllib.request.urlopen(req, context=context) as response:
             if response.status == 200:

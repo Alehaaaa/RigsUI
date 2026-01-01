@@ -4,6 +4,7 @@ import logging
 import sys
 import json
 import fnmatch
+import re
 from maya import cmds
 
 try:
@@ -301,7 +302,11 @@ class ElidedLabel(ContextLabel):
 
     def sizeHint(self):
         fm = self.fontMetrics()
-        w = fm.horizontalAdvance(self._full_text) if hasattr(fm, "horizontalAdvance") else fm.width(self._full_text)
+        w = (
+            fm.horizontalAdvance(self._full_text)
+            if hasattr(fm, "horizontalAdvance")
+            else fm.width(self._full_text)
+        )
         return QtCore.QSize(w, super(ElidedLabel, self).sizeHint().height())
 
     def paintEvent(self, event):
@@ -325,7 +330,9 @@ class ElidedClickableLabel(ElidedLabel):
     clicked = QtCore.Signal()
 
     def __init__(self, text, is_path=False, is_link=False, color=None, parent=None):
-        super(ElidedClickableLabel, self).__init__(text, is_path=is_path, is_link=is_link, color=color, parent=parent)
+        super(ElidedClickableLabel, self).__init__(
+            text, is_path=is_path, is_link=is_link, color=color, parent=parent
+        )
         self.setCursor(QtCore.Qt.PointingHandCursor)
 
     def mousePressEvent(self, event):
@@ -453,8 +460,9 @@ class MenuItemWidget(QtWidgets.QWidget):
         self.setFixedHeight(self.WIDGET_HEIGHT)
         self.setMouseTracking(True)
 
-        self.action.changed.connect(self.update)
-        self.action.toggled.connect(lambda _: self.update())
+        if self.action:
+            self.action.changed.connect(self.update)
+            self.action.toggled.connect(lambda _: self.update())
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -483,7 +491,7 @@ class MenuItemWidget(QtWidgets.QWidget):
             painter.fillRect(text_bg_rect, QtGui.QColor(82, 82, 82))
 
         # Checkbox
-        if self.action.isCheckable():
+        if self.action and self.action.isCheckable():
             # Square checkbox centered vertically, shifted by margin_x horizontally
             check_rect = QtCore.QRectF(margin_x, margin_y, cs, cs)
             # Always dark, borderless background
@@ -508,7 +516,7 @@ class MenuItemWidget(QtWidgets.QWidget):
         text_offset = column_w + self.CONTENT_PADDING
 
         # Icon
-        icon = self.action.icon()
+        icon = self.action.icon() if self.action else QtGui.QIcon()
         if not icon.isNull():
             icon_size = 16
             icon_y = (h - icon_size) / 2.0
@@ -518,7 +526,7 @@ class MenuItemWidget(QtWidgets.QWidget):
         # Text
         text_color = QtGui.QColor(238, 238, 238)
         painter.setPen(text_color)
-        font = self.action.font()
+        font = (self.action.font() if self.action else self.font()) or self.font()
         painter.setFont(font)
 
         # Use a safe margin at the right
@@ -526,8 +534,11 @@ class MenuItemWidget(QtWidgets.QWidget):
         painter.drawText(
             text_rect,
             QtCore.Qt.AlignLeft | QtCore.Qt.AlignVCenter,
-            self.action.text(),
+            self.get_text(),
         )
+
+    def get_text(self):
+        return self.action.text() if self.action else ""
 
     def enterEvent(self, event):
         self._hovered = True
@@ -538,6 +549,9 @@ class MenuItemWidget(QtWidgets.QWidget):
         self.update()
 
     def mouseReleaseEvent(self, event):
+        if not self.action:
+            return
+
         if self.action.isCheckable():
             self.action.setChecked(not self.action.isChecked())
         else:
@@ -546,18 +560,45 @@ class MenuItemWidget(QtWidgets.QWidget):
 
     def sizeHint(self):
         fm = self.fontMetrics()
-        text_w = (
-            fm.horizontalAdvance(self.action.text())
-            if hasattr(fm, "horizontalAdvance")
-            else fm.width(self.action.text())
-        )
+        txt = self.get_text()
+        text_w = fm.horizontalAdvance(txt) if hasattr(fm, "horizontalAdvance") else fm.width(txt)
 
         # Dynamic width: Checkbox Block (H+1) + Padding + (Icon Area if exists) + Text Width + Buffer
         offset = self.WIDGET_HEIGHT + 1 + self.CONTENT_PADDING
-        if not self.action.icon().isNull():
+        icon = self.action.icon() if self.action else QtGui.QIcon()
+        if not icon.isNull():
             offset += 24
 
         return QtCore.QSize(text_w + int(offset) + 20, self.WIDGET_HEIGHT)
+
+
+class ManageItemWidget(MenuItemWidget):
+    """Custom widget for ScrollableMenu that mimics MenuItemWidget but adds a remove button."""
+
+    def __init__(self, text, remove_callback, menu):
+        super(ManageItemWidget, self).__init__(None, menu)
+        self._text = text
+
+        # Use a layout for the remove button to position it on the far right
+        layout = QtWidgets.QHBoxLayout(self)
+        layout.setContentsMargins(0, 0, 4, 0)
+        layout.addStretch()
+
+        self.btn = QtWidgets.QPushButton()
+        self.btn.setIcon(utils.get_icon("remove.svg"))
+        self.btn.setIconSize(QtCore.QSize(10, 10))
+        self.btn.setFixedSize(16, 16)
+        self.btn.setCursor(QtCore.Qt.PointingHandCursor)
+        self.btn.setToolTip("Remove this instance")
+        self.btn.setStyleSheet("""
+            QPushButton { border: none; background: rgba(0, 0, 0, 0.2); border-radius: 8px; }
+            QPushButton:hover { background: rgba(255, 255, 255, 0.1); }
+        """)
+        self.btn.clicked.connect(remove_callback)
+        layout.addWidget(self.btn)
+
+    def get_text(self):
+        return self._text
 
 
 class ScrollableMenu(OpenMenu):
@@ -632,6 +673,11 @@ class ScrollableMenu(OpenMenu):
             QtCore.QTimer.singleShot(0, self._update_arrows)
             return action
         return super(ScrollableMenu, self).addAction(action)
+
+    def addWidget(self, widget):
+        """Adds a custom widget to the scrollable content layout."""
+        self._content_layout.addWidget(widget)
+        QtCore.QTimer.singleShot(0, self._update_arrows)
 
     def addSection(self, text):
         lbl = QtWidgets.QLabel(text)
@@ -880,6 +926,9 @@ class RigItemWidget(QtWidgets.QFrame):
 
         self.name = name
         self.data = data
+        self._btn_mode = None  # 0: ADD, 1: REMOVE, 2: MANAGE
+        self._current_refs = []
+        self._manage_menu = None
 
         self._build_ui()
         self.update_state()
@@ -913,6 +962,15 @@ class RigItemWidget(QtWidgets.QFrame):
 
         # Buttons
         btn_layout = QtWidgets.QHBoxLayout()
+        btn_layout.setSpacing(2)
+
+        self.add_more_btn = QtWidgets.QPushButton(self)
+        self.add_more_btn.setIcon(utils.get_icon("add.svg"))
+        self.add_more_btn.setFixedSize(25, 25)
+        self.add_more_btn.setToolTip("Add another instance")
+        self.add_more_btn.clicked.connect(self.add_reference)
+        btn_layout.addWidget(self.add_more_btn)
+
         self.action_btn = QtWidgets.QPushButton("ADD", self)
         self.action_btn.setMinimumHeight(25)
         btn_layout.addWidget(self.action_btn, 2)
@@ -1003,7 +1061,9 @@ class RigItemWidget(QtWidgets.QFrame):
         resp = QtWidgets.QMessageBox.question(
             self,
             "Remove Rig",
-            "Are you sure you want to remove '{}' from the library?\n\nThis will NOT delete files.".format(self.name),
+            "Are you sure you want to remove '{}' from the library?\n\nThis will NOT delete files.".format(
+                self.name
+            ),
             QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
             QtWidgets.QMessageBox.No,
         )
@@ -1040,7 +1100,9 @@ class RigItemWidget(QtWidgets.QFrame):
         self.image_lbl.updateImageDisplay(self)
 
     def change_image(self):
-        path, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)")
+        path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Select Image", "", "Images (*.png *.jpg *.jpeg *.webp)"
+        )
         if path:
             new_name = utils.save_image_local(path, self.name)
             if new_name:
@@ -1051,10 +1113,6 @@ class RigItemWidget(QtWidgets.QFrame):
     def set_exists(self, exists):
         """Enable repathing if file missing, else enable usage."""
         self.action_btn.setEnabled(True)
-        try:
-            self.action_btn.clicked.disconnect()
-        except Exception:
-            pass
 
         if exists:
             # File exists, check if referenced
@@ -1090,37 +1148,94 @@ class RigItemWidget(QtWidgets.QFrame):
             return
 
         norm_path = os.path.normpath(path).lower()
-        is_ref = False
+        ref_nodes = []
         try:
-            refs = cmds.file(q=True, reference=True)
-            for r in refs:
-                if os.path.normpath(r).lower() == norm_path:
-                    is_ref = True
-                    break
+            for rn in cmds.ls(type="reference"):
+                if "sharedReferenceNode" in rn or "_UNKNOWN_REF_NODE_" in rn:
+                    continue
+                try:
+                    r_path = cmds.referenceQuery(rn, filename=True, withoutCopyNumber=True)
+                    if os.path.normpath(r_path).lower() == norm_path:
+                        ref_nodes.append(rn)
+                except Exception:
+                    continue
         except Exception:
             pass
 
-        try:
-            self.action_btn.clicked.disconnect()
-        except Exception:
-            pass
+        count = len(ref_nodes)
+        new_mode = 0 if count == 0 else (1 if count == 1 else 2)
 
-        if is_ref:
-            self.action_btn.setText("REMOVE")
-            self.action_btn.setStyleSheet(
-                "QPushButton { font-weight: bold; background-color: #733e3e; color: #ddd; }"
-                + "QPushButton:hover { background-color: #8a4d4d; }"
-                + "QPushButton:pressed { background-color: #6e2f2f; }"
-            )
-            self.action_btn.clicked.connect(self.remove_reference)
-        else:
-            self.action_btn.setText("ADD")
-            self.action_btn.setStyleSheet(
-                "QPushButton { font-weight: bold; background-color: #517853; color: white; }"
-                + "QPushButton:disabled { background-color: #4e524e; }"
-                + "QPushButton:hover { background-color: #608c62; }"
-            )
-            self.action_btn.clicked.connect(self.add_reference)
+        # Update mode if changed
+        if new_mode != self._btn_mode:
+            try:
+                self.action_btn.clicked.disconnect()
+            except Exception:
+                pass
+
+            if new_mode == 0:
+                self.action_btn.setCheckable(False)
+                if self.action_btn.menu():
+                    self.action_btn.setMenu(None)
+
+                self.action_btn.setText("ADD")
+                self.action_btn.setStyleSheet(
+                    "QPushButton { font-weight: bold; background-color: #517853; color: white; }"
+                    + "QPushButton:disabled { background-color: #4e524e; }"
+                    + "QPushButton:hover { background-color: #608c62; }"
+                )
+                self.action_btn.clicked.connect(self.add_reference)
+            elif new_mode == 1:
+                self.action_btn.setCheckable(False)
+                if self.action_btn.menu():
+                    self.action_btn.setMenu(None)
+
+                self.action_btn.setText("REMOVE")
+                self.action_btn.setStyleSheet(
+                    "QPushButton { font-weight: bold; background-color: #733e3e; color: #ddd; }"
+                    + "QPushButton:hover { background-color: #8a4d4d; }"
+                    + "QPushButton:pressed { background-color: #6e2f2f; }"
+                )
+                self.action_btn.clicked.connect(self.remove_reference)
+            else:
+                self.action_btn.setCheckable(True)
+                self.action_btn.setStyleSheet(
+                    "QPushButton { font-weight: bold; background-color: #4e5b73; color: #ddd; }"
+                    + "QPushButton:hover { background-color: #5f6c85; }"
+                    + "QPushButton:checked { background-color: #3d4a61; border: 1px solid #7388aa; }"
+                    + "QPushButton::menu-indicator { image: none; width: 0px; }"
+                )
+                if not self._manage_menu:
+                    self._manage_menu = ScrollableMenu(parent=self.action_btn)
+                    self._manage_menu.aboutToHide.connect(lambda: self.action_btn.setChecked(False))
+                self.action_btn.setMenu(self._manage_menu)
+
+            self._btn_mode = new_mode
+
+        # Additional updates for MANAGE mode
+        if new_mode == 2:
+            self.action_btn.setText("MANAGE {}".format(count))
+            # Only rebuild menu if the list of nodes changed
+            if ref_nodes != self._current_refs:
+                self._manage_menu.clear()
+                for ref in ref_nodes:
+                    try:
+                        ns = cmds.referenceQuery(ref, namespace=True)
+                        if ns.startswith(":"):
+                            ns = ns[1:]
+                    except Exception:
+                        ns = ref
+
+                    item_wid = ManageItemWidget(
+                        ns,
+                        remove_callback=lambda checked=False,
+                        r=ref,
+                        m=self._manage_menu: self._remove_from_manage(r, m),
+                        menu=self._manage_menu,
+                    )
+                    self._manage_menu.addWidget(item_wid)
+
+        self.add_more_btn.setVisible(count > 0)
+        self._current_refs = ref_nodes
 
     def add_reference(self):
         path = self.data.get("path", "")
@@ -1128,43 +1243,58 @@ class RigItemWidget(QtWidgets.QFrame):
             QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + path)
             return
 
-        resp = cmds.confirmDialog(
-            title="Add Reference",
-            message="Add '{}' to scene?".format(self.name),
-            button=["Reference", "Cancel"],
-            defaultButton="Reference",
-            cancelButton="Cancel",
-            dismissString="Cancel",
-        )
-        if resp == "Reference":
-            try:
-                self.action_btn.setEnabled(False)
-                cmds.file(path, reference=True, namespace=self.name.replace(" ", "_"))
-                utils.LOG.info("Referenced rig: {}".format(self.name))
-            except Exception as e:
-                utils.LOG.error("Error referencing: {}".format(e))
-                QtWidgets.QMessageBox.warning(self, "Error", str(e))
-            finally:
-                self.action_btn.setEnabled(True)
-                self.update_state()
+        # Use unique namespace
+        try:
+            existing_ns = cmds.namespaceInfo(listOnlyNamespaces=True, recurse=True) or []
+            base_ns = self.name.replace(" ", "_")
+            namespace = RigSetupDialog.get_unique_name(base_ns, existing_ns, separator="_")
 
-    def remove_reference(self):
+            self.action_btn.setEnabled(False)
+            cmds.file(path, reference=True, namespace=namespace)
+            utils.LOG.info("Referenced rig: {} in namespace {}".format(self.name, namespace))
+        except Exception as e:
+            utils.LOG.error("Error referencing: {}".format(e))
+            QtWidgets.QMessageBox.warning(self, "Error", str(e))
+        finally:
+            self.action_btn.setEnabled(True)
+            self.update_state()
+
+    def remove_reference(self, ref_node=None):
+        if not ref_node:
+            if not getattr(self, "_current_refs", []):
+                return
+            ref_node = self._current_refs[0]
+
+        # Get the namespace or name for message
+        try:
+            ns = cmds.referenceQuery(ref_node, namespace=True)
+            if ns.startswith(":"):
+                ns = ns[1:]
+        except Exception:
+            ns = ref_node
+
         resp = cmds.confirmDialog(
             title="Remove Reference",
-            message="Remove '{}'?".format(self.name),
+            message="Remove reference '{}'?".format(ns),
             button=["Remove", "Cancel"],
             defaultButton="Cancel",
             cancelButton="Cancel",
         )
         if resp == "Remove":
             try:
-                cmds.file(self.data.get("path"), removeReference=True)
-                utils.LOG.info("Removed reference: {}".format(self.name))
+                # Get the actual file path of the reference node
+                ref_path = cmds.referenceQuery(ref_node, filename=True)
+                cmds.file(ref_path, removeReference=True)
+                utils.LOG.info("Removed reference: {}".format(ns))
             except Exception as e:
                 utils.LOG.error("Remove failed: {}".format(e))
                 QtWidgets.QMessageBox.warning(self, "Error", str(e))
             finally:
                 self.update_state()
+
+    def _remove_from_manage(self, ref, menu):
+        menu.close()
+        self.remove_reference(ref)
 
     def show_info(self):
         self._curr_info_dlg = InfoDialog(self.name, self.data, self)
@@ -1265,7 +1395,11 @@ class TagFlowWidget(QtWidgets.QWidget):
         # Return a sensible default width; height is determined by heightForWidth
         w = self.width()
         if w <= 0:
-            return self.layout().totalSizeHint() if hasattr(self.layout(), "totalSizeHint") else QtCore.QSize(100, 24)
+            return (
+                self.layout().totalSizeHint()
+                if hasattr(self.layout(), "totalSizeHint")
+                else QtCore.QSize(100, 24)
+            )
         return QtCore.QSize(w, self.heightForWidth(w))
 
     def resizeEvent(self, event):
@@ -1578,6 +1712,32 @@ class InfoDialog(QtWidgets.QDialog):
 class RigSetupDialog(QtWidgets.QDialog):
     """Dialog for Adding or Editing a rig."""
 
+    @staticmethod
+    def get_unique_name(name, existing_names, separator=" "):
+        """Returns a unique name by appending a counter if name already exists."""
+        if name not in existing_names:
+            return name
+
+        # Split name from trailing number
+        base_name = name
+        counter = 2
+
+        # Escape separator for regex if needed
+        sep_escaped = re.escape(separator)
+        match = re.search(r"(.*){}\s*(\d+)$".format(sep_escaped), name)
+        if match:
+            base_name = match.group(1).strip()
+            counter = int(match.group(2)) + 1
+
+        new_name = "{}{}{}".format(base_name, separator, counter)
+        while new_name in existing_names:
+            new_name = "{}{}{}".format(base_name, separator, counter)
+            if new_name not in existing_names:
+                break
+            counter += 1
+            new_name = "{}{}{}".format(base_name, separator, counter)
+        return new_name
+
     def __init__(
         self,
         existing_names,
@@ -1621,7 +1781,9 @@ class RigSetupDialog(QtWidgets.QDialog):
 
         # Image
         self.image_lbl = QtWidgets.QLabel("No Image\n(Click to set)", self)
-        self.image_lbl.setStyleSheet("QLabel {background-color: #222; border: 1px solid #555; border-radius: 5px;}")
+        self.image_lbl.setStyleSheet(
+            "QLabel {background-color: #222; border: 1px solid #555; border-radius: 5px;}"
+        )
         self.image_lbl.setCursor(QtCore.Qt.PointingHandCursor)
         self.image_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.image_lbl.setFixedSize(150, 150)
@@ -1972,12 +2134,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         if is_new or (
             is_rename and name in self.existing_names
         ):  # Only check for uniqueness if it's a new rig or a rename to an existing name
-            counter = 2
-            temp_name = name
-            while temp_name in self.existing_names and (self.mode != "edit" or temp_name != self.rig_name):
-                temp_name = "{} {}".format(name, counter)
-                counter += 1
-            final_name = temp_name
+            final_name = self.get_unique_name(name, self.existing_names)
         elif self.mode == "edit" and name == self.rig_name:
             final_name = name  # If editing and name hasn't changed, no need to make it unique
 
@@ -2041,7 +2198,9 @@ class AIWorker(QtCore.QThread):
 
     def run(self):
         try:
-            json_str, error = utils.query_ai(self.endpoint, self.model, self.api_key, self.file_paths, self.custom_url)
+            json_str, error = utils.query_ai(
+                self.endpoint, self.model, self.api_key, self.file_paths, self.custom_url
+            )
             if json_str:
                 data = json.loads(json_str)
                 self.finished.emit(data)
@@ -2810,7 +2969,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
             self.model_combo.addItem(saved_model)
 
         self.model_combo.currentTextChanged.connect(
-            lambda txt: self.settings.setValue("ai_model_{}".format(self.ai_endpoint_combo.currentText()), txt)
+            lambda txt: self.settings.setValue(
+                "ai_model_{}".format(self.ai_endpoint_combo.currentText()), txt
+            )
         )
         lay_model.addWidget(self.model_combo, 1)
 
@@ -3105,7 +3266,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
                     find_edit = layout.itemAt(1).widget()
                     rep_edit = layout.itemAt(3).widget()
 
-                    if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(rep_edit, QtWidgets.QLineEdit):
+                    if isinstance(find_edit, QtWidgets.QLineEdit) and isinstance(
+                        rep_edit, QtWidgets.QLineEdit
+                    ):
                         f_txt = find_edit.text()
                         r_txt = rep_edit.text()
                         # Only save if at least find_txt has something
@@ -3127,7 +3290,7 @@ class ManageRigsDialog(QtWidgets.QDialog):
             return name
         base = name
         counter = 2
-        while True:
+        while counter < 100:
             new_name = "{} {}".format(base, counter)
             if new_name not in existing_list:
                 return new_name
@@ -3190,7 +3353,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
             if group:
                 # Sort individual group items (main first, then alts alpha by filename)
                 group.sort(key=lambda x: (x["is_alt"], os.path.basename(x["display"]).lower()))
-                rig_groups.append({"name": name, "items": group, "any_exists": any(i["exists"] for i in group)})
+                rig_groups.append(
+                    {"name": name, "items": group, "any_exists": any(i["exists"] for i in group)}
+                )
 
         # Sort groups: Rig that have even 1 found version first, then alphabetical by path
         rig_groups.sort(key=lambda x: (not x["any_exists"], x["items"][0]["display"].lower()))
@@ -3237,14 +3402,21 @@ class ManageRigsDialog(QtWidgets.QDialog):
             is_alt = entry.get("is_alt", False)
 
             # Insert separator if mixed status
-            if (auto_sort or entry.get("force_separator")) and not exists_on_disk and has_found and not separator_added:
+            if (
+                (auto_sort or entry.get("force_separator"))
+                and not exists_on_disk
+                and has_found
+                and not separator_added
+            ):
                 # If we are in grouped mode, only add separator between rigs if both groups ARE fully separated
                 # But typically we still want a clear "Missing" section.
                 sep = ManageRigsSeparatorWidget("NOT FOUND")
                 section.addWidget(sep)
                 separator_added = True
 
-            item = ManageRigsItemWidget(run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section)
+            item = ManageRigsItemWidget(
+                run_p, category, is_found=exists_on_disk, is_alt=is_alt, parent=section
+            )
 
             # Connect all signals regardless of initial category to allow fluid UI state changes
             item.editRequested.connect(self._on_edit_request)
@@ -3253,7 +3425,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
             item.removeRequested.connect(self._on_remove_request)
 
             if category == "exists" and entry.get("is_alt"):
-                item.edit_btn.setToolTip("This path is an alternative for rig: '{}'".format(entry.get("rig_name")))
+                item.edit_btn.setToolTip(
+                    "This path is an alternative for rig: '{}'".format(entry.get("rig_name"))
+                )
 
             section.addWidget(item)
 
@@ -3574,7 +3748,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
         custom_url = self.settings.value("ai_custom_url", "")
 
         if not api_key:
-            QtWidgets.QMessageBox.warning(self, "No API Key", "Please set {} API Key in Settings tab.".format(endpoint))
+            QtWidgets.QMessageBox.warning(
+                self, "No API Key", "Please set {} API Key in Settings tab.".format(endpoint)
+            )
             return
 
         # Gather new paths
@@ -3667,7 +3843,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
         self._refresh_rigs_tab()
 
         if count > 0:
-            QtWidgets.QMessageBox.information(self, "AI Batch", "Successfully auto-added {} rigs.".format(count))
+            QtWidgets.QMessageBox.information(
+                self, "AI Batch", "Successfully auto-added {} rigs.".format(count)
+            )
         else:
             QtWidgets.QMessageBox.warning(
                 self, "AI Batch", "No rigs were added. Check if they were already in the database."
@@ -3697,7 +3875,9 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         self.btn_stop_scan.setVisible(True)
 
-        self.worker = ScannerWorker(self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self)
+        self.worker = ScannerWorker(
+            self.directory, lookup_existing, lookup_blacklist, self._get_blocked_paths(), self
+        )
         self.worker.fileDiscovered.connect(self._on_file_discovered)
         self.worker.finished.connect(self._on_scan_finished)
         self.worker.start()

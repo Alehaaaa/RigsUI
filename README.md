@@ -9,6 +9,7 @@ A professional Maya tool for organizing and managing 3D rig assets. Provides a d
 - **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
 - **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`).
 - **Sorting**: Sort library by Name, Collection, or Author.
+- **Instance Management**: Handle multiple rig instances in your scene with dynamic buttons (ADD/REMOVE/MANAGE).
 - **Batch Import**: Scan entire folders for rapid library expansion. Customize **Blocked Patterns** to skip unneeded directories.
 - **Path Replacements**: Define local path swaps to share databases across different machines without breaking paths.
 - **AI Auto-Tagging**: Automatically add metadata using **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or custom endpoints.
@@ -58,13 +59,22 @@ RigsUI.show()
 2. Select a directory to scan.
 3. Review discovered rigs, categorize them, or add them instantly using the scanner UI.
 
-### Managing Rigs
+### Rig Referencing
+
+RigsUI provides a dynamic system to manage references in your Maya scene:
+
+- **ADD**: Click to add the first reference of a rig.
+- **REMOVE**: Click to remove the rig reference (appears when exactly 1 instance exists).
+- **[+] Button**: A small shortcut button that appears next to the main action button once a rig is referenced, allowing you to quickly add additional instances.
+- **MANAGE**: Click to open a menu of all current instances. You can remove specific instances by their namespace from here.
+
+### Managing Library
 1. **Info & Edit**: Click the ⓘ button to view rig details. 
 2. **Context Menu**: Right-click the ⓘ button to access advanced actions:
    - **Edit Details**: Modification of metadata.
    - **Open Rig Scene**: Opens the original file in a new Maya scene.
    - **Show in Folder**: Reveals the file in Explorer/Finder.
-   - **Remove Rig**: Removes the entry from the library.
+   - **Remove Rig**: Removes the entry from the library database.
 
 ## Requirements
 

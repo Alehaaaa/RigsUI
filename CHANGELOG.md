@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.6] - 2026-01-01
+### 🚀 Added
+- **Multi-Instance Management**: 
+    - The "ADD" button now dynamically transitions between **ADD**, **REMOVE**, and **MANAGE** states based on the number of rig instances in the scene.
+    - Added a square `[+]` button to quickly add more instances of a rig after the first one is added.
+    - **Manage Menu**: A dedicated menu allows removing specific instances of the same rig.
+
+### 📦 Changed
+- **UI State Performance**: Optimized `update_state` to reuse menus and minimize stylesheet re-evaluations, resulting in a snappier interface.
+- **Improved Namespace Naming**: Advanced `get_unique_name` to use underscores as separators for Maya namespaces, avoiding unnecessary namespace warnings.
+
 ## [0.1.5] - 2025-12-30
 ### 🚀 Added
 - **Image Renaming**: When a rig is renamed, its associated image file is now automatically renamed to match.
