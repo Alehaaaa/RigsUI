@@ -338,7 +338,83 @@ class ElidedClickableLabel(ElidedLabel):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.clicked.emit()
-        super(ElidedClickableLabel, self).mousePressEvent(event)
+
+
+class EmptyStateWidget(QtWidgets.QWidget):
+    """A pretty and professional empty state overlay for the grid."""
+
+    actionRequested = QtCore.Signal()
+
+    def __init__(self, parent=None):
+        super(EmptyStateWidget, self).__init__(parent)
+        self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
+        self.setStyleSheet("background-color: transparent;")
+
+        layout = QtWidgets.QVBoxLayout(self)
+        layout.setAlignment(QtCore.Qt.AlignCenter)
+        layout.setSpacing(20)
+
+        # Main Icon
+        self.icon_lbl = QtWidgets.QLabel()
+        self.icon_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self.icon_lbl.setFixedSize(120, 120)
+        self.icon_lbl.setStyleSheet("color: #444; background: transparent;")
+        layout.addWidget(self.icon_lbl, 0, QtCore.Qt.AlignCenter)
+
+        # Title
+        self.title_lbl = QtWidgets.QLabel()
+        self.title_lbl.setStyleSheet("font-size: 18pt; font-weight: bold; color: #888;")
+        self.title_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        layout.addWidget(self.title_lbl)
+
+        # Description
+        self.desc_lbl = QtWidgets.QLabel()
+        self.desc_lbl.setStyleSheet("font-size: 11pt; color: #666;")
+        self.desc_lbl.setAlignment(QtCore.Qt.AlignCenter)
+        self.desc_lbl.setWordWrap(True)
+        self.desc_lbl.setFixedWidth(350)
+        layout.addWidget(self.desc_lbl, 0, QtCore.Qt.AlignCenter)
+
+        # Action Button
+        self.btn = QtWidgets.QPushButton()
+        self.btn.setCursor(QtCore.Qt.PointingHandCursor)
+        self.btn.setFixedHeight(34)
+        self.btn.setFixedWidth(180)
+        self.btn.setStyleSheet("""
+            QPushButton {
+                background-color: #555;
+                color: #ddd;
+                font-weight: bold;
+                border: none;
+                border-radius: 4px;
+                padding: 0 20px;
+            }
+            QPushButton:hover { background-color: #666; color: #fff; }
+            QPushButton:pressed { background-color: #444; }
+        """)
+        self.btn.clicked.connect(self.actionRequested.emit)
+        layout.addWidget(self.btn, 0, QtCore.Qt.AlignCenter)
+
+    def set_no_results(self):
+        """Configure for 'no search results found'."""
+        self.icon_lbl.setPixmap(utils.get_icon("search.svg").pixmap(100, 100))
+        self.title_lbl.setText("No matches found")
+        self.desc_lbl.setText("We couldn't find any rigs matching your current filters or search query.")
+        self.btn.setText("Clear All Filters")
+        self.btn.setIcon(utils.get_icon("trash.svg"))
+        self.btn.setVisible(True)
+
+    def set_empty_database(self):
+        """Configure for 'completely empty library'."""
+        self.icon_lbl.setPixmap(utils.get_icon("info.svg").pixmap(100, 100))
+        self.title_lbl.setText("Library is empty")
+        # Added the user's specific requested text "bieatch"
+        self.desc_lbl.setText(
+            "It looks like you haven't added any rigs to your library yet. Use the [+] button to add rigs, bieatch!"
+        )
+        self.btn.setText("Add New Rig")
+        self.btn.setIcon(utils.get_icon("add.svg"))
+        self.btn.setVisible(True)
 
 
 # -------------------- Scrollable Menu --------------------

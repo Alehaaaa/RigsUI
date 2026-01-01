@@ -8,10 +8,12 @@ All notable changes to this project will be documented in this file.
     - The "ADD" button now dynamically transitions between **ADD**, **REMOVE**, and **MANAGE** states based on the number of rig instances in the scene.
     - Added a square `[+]` button to quickly add more instances of a rig after the first one is added.
     - **Manage Menu**: A dedicated menu allows removing specific instances of the same rig.
+- **Empty States**: Added professional 'Empty Library' and 'No Results Found' screens with actionable buttons.
 
 ### 📦 Changed
 - **UI State Performance**: Optimized `update_state` to reuse menus and minimize stylesheet re-evaluations, resulting in a snappier interface.
 - **Improved Namespace Naming**: Advanced `get_unique_name` to use underscores as separators for Maya namespaces, avoiding unnecessary namespace warnings.
+- **Filter UX**: Renamed 'Only Referenced' filter to 'Only in Scene' for better clarity.
 
 ## [0.1.5] - 2025-12-30
 ### 🚀 Added

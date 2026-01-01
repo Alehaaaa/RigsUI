@@ -10,6 +10,7 @@ from .widgets import (
     RigItemWidget,
     RigSetupDialog,
     SortMenu,
+    EmptyStateWidget,
 )
 
 import maya.cmds as cmds  # type: ignore
@@ -128,7 +129,7 @@ class SearchWorker(QtCore.QObject):
                     statuses = sel.get("Status")
                     if "Only Available" in statuses and not data.get("exists"):
                         continue
-                    if "Only Referenced" in statuses:
+                    if "Only in Scene" in statuses:
                         p = data.get("path")
                         norm = os.path.normpath(p).lower() if p else ""
                         if not norm or norm not in self.referenced_set:
@@ -330,9 +331,19 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.container = QtWidgets.QWidget(self.scroll)
         self.flow_layout = FlowLayout(self.container)
-
         self.scroll.setWidget(self.container)
-        main_layout.addWidget(self.scroll)
+
+        # Empty State Overlay
+        self.empty_state = EmptyStateWidget(self)
+        self.empty_state.actionRequested.connect(self._on_empty_state_action)
+        self.empty_state.hide()
+
+        # Stack everything
+        content_layout = QtWidgets.QVBoxLayout()
+        content_layout.setContentsMargins(0, 0, 0, 0)
+        content_layout.addWidget(self.scroll)
+        content_layout.addWidget(self.empty_state)
+        main_layout.addLayout(content_layout)
 
         # Create Menu Bar
         self.create_menus()
@@ -561,7 +572,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.filter_menu.set_items(
             sections={
-                "Status": ["Only Available", "Only Referenced"],
+                "Status": ["Only Available", "Only in Scene"],
                 "Tags": sorted(list(all_tags)),
                 "Collections": cols_sorted,
                 "Author": auths_sorted,
@@ -762,11 +773,38 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
             if wid.isVisible() != should_show:
                 wid.setVisible(should_show)
 
+        # Handle Empty States
+        has_results = len(visible_set) > 0
+        has_any_rigs = len([n for n in self.rig_data.keys() if not n.startswith("_")]) > 0
+
+        self.scroll.setVisible(has_results)
+        self.empty_state.setVisible(not has_results)
+
+        if not has_results:
+            if not has_any_rigs:
+                self.empty_state.set_empty_database()
+            else:
+                self.empty_state.set_no_results()
+
         # Force layout refresh
         self.flow_layout.invalidate()
         self.container.update()
         if self.container.layout():
             self.container.layout().activate()
+
+    def _on_empty_state_action(self):
+        """Callback for the 'Add Rig' or 'Clear Filters' button in empty state."""
+        has_any_rigs = len([n for n in self.rig_data.keys() if not n.startswith("_")]) > 0
+        if not has_any_rigs:
+            self.add_new_rig()
+        else:
+            self.clear_all_filters()
+
+    def clear_all_filters(self):
+        """Resets all search and category filters."""
+        self.search_input.clear()
+        self.filter_menu.clear_selection()
+        self.trigger_search()
 
     def apply_single_filter(self, category, value):
         self.filter_menu.set_selected({category: [value]})
@@ -1063,7 +1101,9 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
                 utils.LOG.info("Setting workspace control position: {}".format(position))
                 utils.LOG.info("Setting workspace control size: {}".format(size))
-                qt_control.setGeometry(QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1])))
+                qt_control.setGeometry(
+                    QtCore.QRect(int(position[0]), int(position[1]), int(size[0]), int(size[1]))
+                )
         except Exception as e:
             utils.LOG.error("Error setting workspace control geometry: {}".format(e))
 
