@@ -364,13 +364,13 @@ class EmptyStateWidget(QtWidgets.QWidget):
 
         # Title
         self.title_lbl = QtWidgets.QLabel()
-        self.title_lbl.setStyleSheet("font-size: 18pt; font-weight: bold; color: #888;")
+        self.title_lbl.setStyleSheet("font-size: 18pt; font-weight: bold;")
         self.title_lbl.setAlignment(QtCore.Qt.AlignCenter)
         layout.addWidget(self.title_lbl)
 
         # Description
         self.desc_lbl = QtWidgets.QLabel()
-        self.desc_lbl.setStyleSheet("font-size: 11pt; color: #666;")
+        self.desc_lbl.setStyleSheet("font-size: 11pt; color: #888;")
         self.desc_lbl.setAlignment(QtCore.Qt.AlignCenter)
         self.desc_lbl.setWordWrap(True)
         self.desc_lbl.setFixedWidth(350)
