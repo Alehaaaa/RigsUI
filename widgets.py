@@ -348,7 +348,8 @@ class EmptyStateWidget(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(EmptyStateWidget, self).__init__(parent)
         self.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        self.setStyleSheet("background-color: transparent;")
+        self.setObjectName("EmptyStateWidget")
+        self.setStyleSheet("#EmptyStateWidget { background-color: transparent; }")
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setAlignment(QtCore.Qt.AlignCenter)
@@ -380,18 +381,18 @@ class EmptyStateWidget(QtWidgets.QWidget):
         self.btn.setCursor(QtCore.Qt.PointingHandCursor)
         self.btn.setFixedHeight(34)
         self.btn.setFixedWidth(180)
-        self.btn.setStyleSheet("""
-            QPushButton {
-                background-color: #555;
-                color: #ddd;
-                font-weight: bold;
-                border: none;
-                border-radius: 4px;
-                padding: 0 20px;
-            }
-            QPushButton:hover { background-color: #666; color: #fff; }
-            QPushButton:pressed { background-color: #444; }
-        """)
+        # self.btn.setStyleSheet("""
+        #     QPushButton {
+        #         background-color: #555;
+        #         color: #ddd;
+        #         font-weight: bold;
+        #         border: none;
+        #         border-radius: 4px;
+        #         padding: 0 20px;
+        #     }
+        #     QPushButton:hover { background-color: #666; color: #fff; }
+        #     QPushButton:pressed { background-color: #444; }
+        # """)
         self.btn.clicked.connect(self.actionRequested.emit)
         layout.addWidget(self.btn, 0, QtCore.Qt.AlignCenter)
 
