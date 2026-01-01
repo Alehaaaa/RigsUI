@@ -11,6 +11,7 @@ from .widgets import (
     RigSetupDialog,
     SortMenu,
     EmptyStateWidget,
+    BulkEditDialog,
 )
 
 import maya.cmds as cmds  # type: ignore
@@ -108,20 +109,27 @@ class SearchWorker(QtCore.QObject):
                 if path and os.path.normpath(path) in self.blacklist:
                     continue
 
-                # Check General Context (AND search across terms) - found in NAME
+                # Check General Context (AND search across terms) - found in NAME, TAGS, COLLECTION, AUTHOR, NOTES
                 match_general = True
                 if general_terms:
-                    name_lower = name.lower()
+                    search_blob = " ".join(
+                        [
+                            name,
+                            " ".join(data.get("tags", [])),
+                            data.get("collection", "") or "",
+                            data.get("author", "") or "",
+                            data.get("notes", "") or "",
+                        ]
+                    ).lower()
+
                     for term in general_terms:
-                        if term not in name_lower:
+                        if term not in search_blob:
                             match_general = False
                             break
                 if not match_general:
                     continue
 
                 # Check Categories (Status, Collections, Tags, Author)
-                # Each category is an "AND" condition against the others.
-                # Within each category, dropdown selections + prefixed terms are "OR"ed.
                 sel = self.filters
 
                 # STATUS (Dropdown only)
@@ -134,6 +142,8 @@ class SearchWorker(QtCore.QObject):
                         norm = os.path.normpath(p).lower() if p else ""
                         if not norm or norm not in self.referenced_set:
                             continue
+                    if "Favorites" in statuses and not data.get("favorite"):
+                        continue
 
                 # COLLECTIONS (Dropdown OR Prefix)
                 target_cols = sel.get("Collections", [])
@@ -248,6 +258,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         # Threading
         self._search_thread = None
         self._search_worker = None
+        self._selected_names = set()  # Initialize selected names here
 
         self._build_ui()
 
@@ -261,7 +272,6 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         # 3. Restore filter states (now that menus exist)
         self.load_filters()
-        # Also sync window position from settings if possible, or wait for show()
 
     def showEvent(self, event):
         super(LibraryUI, self).showEvent(event)
@@ -358,6 +368,13 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         act_manage = lib_menu.addAction("Manage Rigs")
         act_manage.triggered.connect(lambda: self.manage_database(0))
         act_manage.setToolTip("Manage rigs database")
+
+        act_bulk = lib_menu.addAction("Bulk Edit Selected")
+        act_bulk.setIcon(utils.get_icon("edit.svg"))
+        act_bulk.triggered.connect(self.bulk_edit_rigs)
+        act_bulk.setToolTip("Edit multiple selected rigs at once")
+
+        lib_menu.addSeparator()
 
         act_settings = lib_menu.addAction("Settings")
         act_settings.triggered.connect(lambda: self.manage_database(1))
@@ -572,7 +589,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
 
         self.filter_menu.set_items(
             sections={
-                "Status": ["Only Available", "Only in Scene"],
+                "Status": ["Favorites", "Only Available", "Only in Scene"],
                 "Tags": sorted(list(all_tags)),
                 "Collections": cols_sorted,
                 "Author": auths_sorted,
@@ -688,7 +705,12 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     wid.removeRequested.connect(self.remove_rig)
                     wid.blacklistRequested.connect(self.blacklist_rig)
                     wid.refreshRequested.connect(self.load_data)
+                    wid.selectionChanged.connect(lambda s, n=name: self._on_selection_changed(n, s))
                     wid.set_exists(data["exists"])
+
+                    if name in self._selected_names:
+                        wid.selected = True
+
                     self._widgets_map[name] = wid
                 except Exception as e:
                     utils.LOG.error("Failed to create widget '{}': {}".format(name, e))
@@ -1014,6 +1036,52 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     self.save_blacklist()
                     self.load_data()
                     utils.LOG.info("Blacklisted rig: {}".format(rig_name))
+
+    def _on_selection_changed(self, rig_name, is_selected):
+        if is_selected:
+            self._selected_names.add(rig_name)
+        else:
+            self._selected_names.discard(rig_name)
+
+    def bulk_edit_rigs(self):
+        """Opens the bulk edit dialog for currently selected rigs."""
+        if not self._selected_names:
+            QtWidgets.QMessageBox.information(
+                self, "Bulk Edit", "No rigs selected.\nUse Ctrl/Shift + Click to select rigs."
+            )
+            return
+
+        cols, auths, tags = self._get_autocomplete_data()
+
+        dlg = BulkEditDialog(
+            rig_names=list(self._selected_names),
+            common_collections=cols,
+            common_authors=auths,
+            common_tags=tags,
+            parent=self,
+        )
+
+        if dlg.exec_() == QtWidgets.QDialog.Accepted:
+            updates = dlg.get_results()
+            if not updates:
+                return
+
+            # Apply updates to all selected rigs
+            for name in self._selected_names:
+                if name in self.rig_data:
+                    data = self.rig_data[name]
+                    for key, val in updates.items():
+                        if key == "tags":
+                            # For tags, we append or replace? BulkEditDialog replaces them for now.
+                            data["tags"] = val
+                        else:
+                            data[key] = val
+
+            self.save_data()
+            self.load_data()
+            # Clear selection after bulk edit
+            self._selected_names.clear()
+            utils.LOG.info("Bulk updated {} rigs.".format(len(self._selected_names)))
 
     # ---------- Persistence (Settings) ----------
 

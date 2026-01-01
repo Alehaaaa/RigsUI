@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.7] - 2026-01-01
+### 🚀 Added
+- **Rig Versions**: Dropdown selection for rigs with alternative file paths (Proxy/High-Res).
+- **Notes System**: Searchable custom descriptions for every rig entry.
+- **Interactive Favorites**:
+    - Native heart icons with proximity hover effects and dynamic contrast detection.
+    - Favorite hearts automatically toggle between white/black outlines based on thumbnail brightness.
+
+### 📦 Changed
+- **Smart Alignment**: Titles use adaptive eliding (Align Left when elided, Center otherwise) for long names.
+- **Visual Polish**: Improved spacing, vertically centered icons, and refined micro-animations.
+
+
+### 🛠️ Working On
+- **Bulk Editing**: Batch update metadata (Tags, Author, Collection) for multi-selected rigs.
+- **Selection Logic**: Added multi-select support (Ctrl/Shift + Click) for bulk workflows.  
+
 ## [0.1.6] - 2026-01-01
 ### 🚀 Added
 - **Multi-Instance Management**: 

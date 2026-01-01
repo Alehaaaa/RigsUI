@@ -6,13 +6,13 @@ A professional Maya tool for organizing and managing 3D rig assets. Provides a d
 
 ## Features
 
-- **Smart Filtering**: Filter rigs by **Collection**, **Tags**, or **Author**.
-- **Advanced Search**: Search by name or use specific filters (e.g., `tag:human`, `author:ProRigs`).
-- **Sorting**: Sort library by Name, Collection, or Author.
+- **Favorites System**: Mark your most-used rigs with high-fidelity, interactive heart icons featuring dynamic contrast detection for visibility on any background.
+- **Rig Versions**: Switch between different file versions (e.g., Proxy, Performance, Render) directly from the rig card.
+- **Bulk Editing**: Select multiple rigs to update tags, collections, or authors in a single operation.
 - **Instance Management**: Handle multiple rig instances in your scene with dynamic buttons (ADD/REMOVE/MANAGE).
-- **Batch Import**: Scan entire folders for rapid library expansion. Customize **Blocked Patterns** to skip unneeded directories.
-- **Path Replacements**: Define local path swaps to share databases across different machines without breaking paths.
-- **AI Auto-Tagging**: Automatically add metadata using **Gemini**, **ChatGPT**, **Claude**, **Grok**, **OpenRouter** or custom endpoints.
+- **Advanced Search**: Filter by metadata or use keywords that now include a dedicated **Notes** field.
+- **AI Auto-Tagging**: Automatically add metadata using Gemini, ChatGPT, Claude, Grok, or OpenRouter.
+- **Path Replacements**: Map shared databases across machines with localized path swaps.
 
 ### Edit Rig Details
 

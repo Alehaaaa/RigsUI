@@ -312,7 +312,8 @@ class ElidedLabel(ContextLabel):
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
         metrics = painter.fontMetrics()
-        elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideLeft, self.width())
+        # Elide at the right (end)
+        elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideRight, self.width())
 
         if self._color:
             painter.setPen(QtGui.QColor(self._color))
@@ -321,7 +322,12 @@ class ElidedLabel(ContextLabel):
         else:
             painter.setPen(self.palette().color(QtGui.QPalette.WindowText))
 
-        painter.drawText(self.rect(), self.alignment() | QtCore.Qt.AlignVCenter, elided)
+        # If elided, align left, otherwise use default alignment
+        align = self.alignment()
+        if elided != self._full_text:
+            align = QtCore.Qt.AlignLeft
+
+        painter.drawText(self.rect(), align | QtCore.Qt.AlignVCenter, elided)
 
 
 class ElidedClickableLabel(ElidedLabel):
@@ -338,6 +344,61 @@ class ElidedClickableLabel(ElidedLabel):
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
             self.clicked.emit()
+
+
+class ElidedButton(QtWidgets.QPushButton):
+    """A QPushButton that elides its text if too long."""
+
+    def __init__(self, text="", parent=None):
+        super(ElidedButton, self).__init__(text, parent)
+        self._full_text = text
+
+    def setText(self, text):
+        self._full_text = text
+        super(ElidedButton, self).setText(text)
+        self.update()
+
+    def paintEvent(self, event):
+        # Build style options for standard button drawing
+        opt = QtWidgets.QStyleOptionButton()
+        self.initStyleOption(opt)
+        # Clear text from option so standard draw doesn't draw it
+        opt.text = ""
+
+        painter = QtWidgets.QStylePainter(self)
+        painter.drawControl(QtWidgets.QStyle.CE_PushButton, opt)
+
+        # Draw elided text manually
+        metrics = self.fontMetrics()
+        # Reserve space for chevron on the right (approx 24px)
+        available_w = self.width() - 28
+        elided = metrics.elidedText(self._full_text, QtCore.Qt.ElideRight, available_w)
+
+        # Inset text rect to match typical button padding
+        text_rect = self.rect().adjusted(6, 0, -24, 0)
+
+        # Alignment logic: left if elided, center otherwise
+        align = QtCore.Qt.AlignCenter
+        if elided != self._full_text:
+            align = QtCore.Qt.AlignLeft
+
+        painter.setPen(self.palette().color(QtGui.QPalette.ButtonText))
+        if not self.isEnabled():
+            painter.setPen(self.palette().color(QtGui.QPalette.Disabled, QtGui.QPalette.ButtonText))
+
+        painter.drawText(text_rect, align | QtCore.Qt.AlignVCenter, elided)
+
+        # Draw Chevron manually to ensure it's on the right & centered
+        icon_path = os.path.join(utils.ICONS_DIR, "chevron_down.svg")
+        if os.path.exists(icon_path):
+            pix = QtGui.QIcon(icon_path).pixmap(14, 14)
+            # Position at the right with a 6px margin, centered vertically
+            icon_x = self.width() - 14 - 6
+            icon_y = (self.height() - 14) / 2.0
+
+            # If button is hovered or pressed, optional: tint icon?
+            # For now just draw it as is
+            painter.drawPixmap(int(icon_x), int(icon_y), pix)
 
 
 class EmptyStateWidget(QtWidgets.QWidget):
@@ -428,11 +489,15 @@ class ScrollArrowButton(QtWidgets.QWidget):
         super(ScrollArrowButton, self).__init__(menu)
         self.arrow_type = arrow_type
         self.menu = menu
-        self.setFixedHeight(15)
+        self.setFixedHeight(20)  # Increased for better icon visibility
         self.setMouseTracking(True)
         self.hovered = False
         self.pressed = False
         self.hide()
+
+        # Load icon
+        icon_name = "chevron_up.svg" if arrow_type == QtCore.Qt.UpArrow else "chevron_down.svg"
+        self._pixmap = QtGui.QPixmap(os.path.join(utils.ICONS_DIR, icon_name))
 
     def paintEvent(self, event):
         painter = QtGui.QPainter(self)
@@ -440,25 +505,41 @@ class ScrollArrowButton(QtWidgets.QWidget):
 
         # Semi-transparent overlay background
         if self.pressed:
-            bg_color = QtGui.QColor(35, 35, 35)
+            bg_color = QtGui.QColor(35, 35, 35, 230)
         elif self.hovered:
-            bg_color = QtGui.QColor(65, 65, 65)
+            bg_color = QtGui.QColor(65, 65, 65, 230)
         else:
-            bg_color = QtGui.QColor(45, 45, 45)
+            bg_color = QtGui.QColor(40, 40, 40, 180)  # Slightly transparent
         painter.fillRect(self.rect(), bg_color)
 
-        # Arrow
-        painter.setPen(QtGui.QPen(QtGui.QColor(220, 220, 220), 1.5))
-        w, h = float(self.width()), float(self.height())
-        cx, cy = w / 2.0, h / 2.0
+        # Draw Chevron Path manually for maximum quality
+        painter.setPen(
+            QtGui.QPen(
+                QtGui.QColor(180, 180, 180),
+                2.0,
+                QtCore.Qt.SolidLine,
+                QtCore.Qt.RoundCap,
+                QtCore.Qt.RoundJoin,
+            )
+        )
 
+        cx = self.width() / 2.0
+        cy = self.height() / 2.0
+        size = 4.5  # Slightly smaller to avoid edges
+
+        path = QtGui.QPainterPath()
         if self.arrow_type == QtCore.Qt.UpArrow:
-            # Width: 8 (cx-4 to cx+4), Height: 4 (cy-2 to cy+2)
-            painter.drawLine(QtCore.QLineF(cx - 4, cy + 2, cx, cy - 2))
-            painter.drawLine(QtCore.QLineF(cx, cy - 2, cx + 4, cy + 2))
+            # Up Chevron - perfectly centered
+            path.moveTo(cx - size, cy + size * 0.35)
+            path.lineTo(cx, cy - size * 0.35)
+            path.lineTo(cx + size, cy + size * 0.35)
         else:
-            painter.drawLine(QtCore.QLineF(cx - 4, cy - 2, cx, cy + 2))
-            painter.drawLine(QtCore.QLineF(cx, cy + 2, cx + 4, cy - 2))
+            # Down Chevron - perfectly centered
+            path.moveTo(cx - size, cy - size * 0.35)
+            path.lineTo(cx, cy + size * 0.35)
+            path.lineTo(cx + size, cy - size * 0.35)
+
+        painter.drawPath(path)
 
     def mousePressEvent(self, event):
         if event.button() == QtCore.Qt.LeftButton:
@@ -511,8 +592,8 @@ class ScrollContainer(QtWidgets.QWidget):
         super(ScrollContainer, self).resizeEvent(event)
         w = self.width()
         h = self.height()
-        self.up_btn.setGeometry(0, 0, w, 15)
-        self.down_btn.setGeometry(0, h - 15, w, 15)
+        self.up_btn.setGeometry(0, 0, w, 20)
+        self.down_btn.setGeometry(0, h - 20, w, 20)
         self.up_btn.raise_()
         self.down_btn.raise_()
 
@@ -981,6 +1062,102 @@ class SortMenu(QtWidgets.QPushButton):
         return self._current_key, self._ascending
 
 
+class FavoriteButton(QtWidgets.QPushButton):
+    """Custom heart button with high-fidelity states and transparency."""
+
+    PINK = QtGui.QColor(233, 30, 99)  # #e91e63
+
+    def __init__(self, parent=None):
+        super(FavoriteButton, self).__init__(parent)
+        self.setFixedSize(24, 24)
+        self.setFlat(True)
+        self.setCursor(QtCore.Qt.PointingHandCursor)
+
+        self._is_favorite = False
+        self._hovered = False
+        self._pressed = False
+        self._use_white_outline = False
+
+    def setFavorite(self, value):
+        self._is_favorite = value
+        self.update()
+
+    def setWhiteOutline(self, value):
+        if self._use_white_outline != value:
+            self._use_white_outline = value
+            self.update()
+
+    def paintEvent(self, event):
+        painter = QtGui.QPainter(self)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing)
+
+        # Scale down for a more subtle look
+        scale = 0.65
+        painter.translate(self.width() * (1 - scale) / 2, self.height() * (1 - scale) / 2)
+        painter.scale(scale, scale)
+
+        # Build Heart Path (centered in 24x24)
+        path = QtGui.QPainterPath()
+        path.moveTo(12, 21)
+        path.cubicTo(5.4, 15, 1.5, 11, 1.5, 7.5)
+        path.cubicTo(1.5, 4.5, 3.8, 2.2, 6.7, 2.2)
+        path.cubicTo(8.8, 2.2, 10.8, 3.5, 12, 5.2)
+        path.cubicTo(13.2, 3.5, 15.2, 2.2, 17.3, 2.2)
+        path.cubicTo(20.2, 2.2, 22.5, 4.5, 22.5, 7.5)
+        path.cubicTo(22.5, 11, 18.6, 15, 12, 21)
+
+        # Logic for colors
+        fill_color = QtGui.QColor(0, 0, 0, 0)
+        border_color = QtGui.QColor(255, 255, 255) if self._use_white_outline else QtGui.QColor(0, 0, 0)
+        border_width = 2
+
+        if self._is_favorite:
+            # Checked: full 100% pink
+            fill_color = self.PINK
+            border_color = self.PINK
+        elif self._pressed:
+            # Pressed: pink outline + 30% pink fill
+            fill_color = QtGui.QColor(self.PINK.red(), self.PINK.green(), self.PINK.blue(), int(255 * 0.3))
+            border_color = self.PINK
+        elif self._hovered:
+            # Hover: outlined black/white + 15% pink fill
+            fill_color = QtGui.QColor(self.PINK.red(), self.PINK.green(), self.PINK.blue(), int(255 * 0.15))
+            # border_color remains black/white
+        else:
+            # Normal unchecked
+            pass
+
+        # Draw
+        painter.fillPath(path, fill_color)
+        pen = QtGui.QPen(border_color, border_width)
+        pen.setJoinStyle(QtCore.Qt.RoundJoin)
+        pen.setCapStyle(QtCore.Qt.RoundCap)
+        painter.setPen(pen)
+        painter.drawPath(path)
+
+    def enterEvent(self, event):
+        self._hovered = True
+        self.update()
+        super(FavoriteButton, self).enterEvent(event)
+
+    def leaveEvent(self, event):
+        self._hovered = False
+        self.update()
+        super(FavoriteButton, self).leaveEvent(event)
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._pressed = True
+            self.update()
+        super(FavoriteButton, self).mousePressEvent(event)
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            self._pressed = False
+            self.update()
+        super(FavoriteButton, self).mouseReleaseEvent(event)
+
+
 # -------------------- Main Widgets --------------------
 
 
@@ -994,21 +1171,52 @@ class RigItemWidget(QtWidgets.QFrame):
     removeRequested = QtCore.Signal(str)
     blacklistRequested = QtCore.Signal(str)
     refreshRequested = QtCore.Signal()
+    selectionChanged = QtCore.Signal(bool)  # is_selected
 
     def __init__(self, name, data, parent=None):
         super(RigItemWidget, self).__init__(parent)
+        self.setObjectName("RigItemWidget")
         self.setFrameStyle(QtWidgets.QFrame.StyledPanel | QtWidgets.QFrame.Raised)
         self.setFixedWidth(160)
-        self.setFixedHeight(210)
+        self.setFixedHeight(215)
 
         self.name = name
         self.data = data
+
+        self._active_path = data.get("path", "")
+        self._active_version_name = name
         self._btn_mode = None  # 0: ADD, 1: REMOVE, 2: MANAGE
         self._current_refs = []
         self._manage_menu = None
+        self._selected = False
 
         self._build_ui()
         self.update_state()
+
+    @property
+    def selected(self):
+        return self._selected
+
+    @selected.setter
+    def selected(self, value):
+        if self._selected != value:
+            self._selected = value
+            self._update_selection_style()
+            self.selectionChanged.emit(value)
+
+    def _update_selection_style(self):
+        if self._selected:
+            self.setStyleSheet("#RigItemWidget { border: 2px solid #0078d7; background-color: #2a2a2a; }")
+        else:
+            self.setStyleSheet("#RigItemWidget { border: 1px solid #444; background-color: transparent; }")
+
+    def mousePressEvent(self, event):
+        if event.button() == QtCore.Qt.LeftButton:
+            modifiers = QtWidgets.QApplication.keyboardModifiers()
+            if modifiers & (QtCore.Qt.ControlModifier | QtCore.Qt.ShiftModifier):
+                self.selected = not self.selected
+                return
+        super(RigItemWidget, self).mousePressEvent(event)
 
     def update_data(self, data):
         """Updates internal data and refreshes UI."""
@@ -1016,6 +1224,8 @@ class RigItemWidget(QtWidgets.QFrame):
         self.update_image_display()
         self.set_exists(data.get("exists", True))
         self._formatTooltip()
+        self._update_favorite_btn()
+        self._update_versions_dropdown()
 
     def _build_ui(self):
         layout = QtWidgets.QVBoxLayout(self)
@@ -1025,17 +1235,68 @@ class RigItemWidget(QtWidgets.QFrame):
         self.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.customContextMenuRequested.connect(self.show_context_menu)
 
+        # Image Stack
+        img_container = QtWidgets.QWidget(self)
+        img_container.setFixedSize(150, 150)
+        img_lay = QtWidgets.QVBoxLayout(img_container)
+        img_lay.setContentsMargins(0, 0, 0, 0)
+
         # Image
-        self.image_lbl = ClickableLabel(self)
+        self.image_lbl = ClickableLabel(img_container)
         self.image_lbl.clicked.connect(self.change_image)
-        layout.addWidget(self.image_lbl)
+        img_lay.addWidget(self.image_lbl)
+
+        # Favorite Overlay
+        self.fav_btn = FavoriteButton(img_container)
+        self.fav_btn.clicked.connect(self._toggle_favorite)
+        self.fav_btn.move(122, 4)
+        self._update_favorite_btn()
+
+        layout.addWidget(img_container)
         self.update_image_display()
 
         # Name
-        self.name_lbl = QtWidgets.QLabel(self.name, self)
+        self.name_lbl = ElidedLabel(self.name, parent=self)
+        self.name_lbl.setObjectName("nameLabel")
         self.name_lbl.setAlignment(QtCore.Qt.AlignCenter)
-        self.name_lbl.setStyleSheet("font-weight: bold;")
+        self.name_lbl.setFixedHeight(24)
+        self.name_lbl.setStyleSheet("#nameLabel { font-weight: bold; font-size: 13px; color: #aaaaaa; }")
         layout.addWidget(self.name_lbl)
+
+        # Versions Button
+        self.version_btn = ElidedButton(self.name, self)
+        self.version_btn.setFlat(True)
+        self.version_btn.setFixedHeight(24)
+        self.version_btn.setCursor(QtCore.Qt.PointingHandCursor)
+
+        self.version_btn.setObjectName("versionBtn")
+        self.version_btn.setStyleSheet(
+            """
+            #versionBtn {
+                background: transparent;
+                border: none;
+                font-weight: bold;
+                font-size: 13px;
+                color: #aaaaaa;
+                padding-right: 28px;
+                padding-left: 4px;
+            }
+            #versionBtn:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+                color: #eeeeee;
+            }
+            #versionBtn::menu-indicator {
+                image: none;
+            }
+            QToolTip { font-weight: normal; color: #eeeeee; background-color: #333333; border: 1px solid #555555; }
+        """
+        )
+
+        self.version_menu = OpenMenu(parent=self.version_btn)
+        self.version_btn.setMenu(self.version_menu)
+        layout.addWidget(self.version_btn)
+        self.version_btn.hide()
+        self._update_versions_dropdown()
 
         # Buttons
         btn_layout = QtWidgets.QHBoxLayout()
@@ -1061,6 +1322,90 @@ class RigItemWidget(QtWidgets.QFrame):
 
         layout.addLayout(btn_layout)
         self._formatTooltip()
+        self._update_selection_style()
+
+    def _toggle_favorite(self):
+        new_val = not self.data.get("favorite", False)
+        self.data["favorite"] = new_val
+        self.dataChanged.emit("favorite", new_val)
+        self._update_favorite_btn()
+
+    def _update_favorite_btn(self):
+        is_fav = self.data.get("favorite", False)
+        self.fav_btn.setFavorite(is_fav)
+        self.fav_btn.setToolTip("Unfavorite" if is_fav else "Mark as Favorite")
+
+    def _update_versions_dropdown(self):
+        alts = self.data.get("alternatives", [])
+        main_path = self.data.get("path", "")
+
+        if not alts:
+            self.version_btn.hide()
+            self.name_lbl.show()
+            self._active_path = main_path
+            self._active_version_name = self.name
+            return
+
+        self.name_lbl.hide()
+        self.version_btn.show()
+        self.version_menu.clear()
+
+        # Exclusive Action Group for radio-style checkmarks
+        self.version_group = QActionGroup(self)
+        self.version_group.setExclusive(True)
+
+        # Main Version
+        act_main = QAction(self.name, self.version_menu)
+        act_main.setCheckable(True)
+        act_main.setChecked(self._active_version_name == self.name)
+        act_main.triggered.connect(lambda: self._on_version_selected(self.name, main_path))
+        self.version_group.addAction(act_main)
+        self.version_menu.addAction(act_main)
+
+        if alts:
+            self.version_menu.addSection("Alternatives")
+
+            for alt in alts:
+                if alt:
+                    display_name = os.path.basename(alt)
+                    act = QAction(display_name, self.version_menu)
+                    act.setCheckable(True)
+                    act.setChecked(self._active_version_name == display_name)
+                    act.triggered.connect(lambda p=alt, d=display_name: self._on_version_selected(d, p))
+                    self.version_group.addAction(act)
+                    self.version_menu.addAction(act)
+
+        # Update button label
+        self.version_btn.setText(self._active_version_name)
+
+    def _on_version_selected(self, name, path):
+        self._active_version_name = name
+        self._active_path = path
+        self.version_btn.setText(name)
+        self.update_state()  # Refresh button state for new path
+
+    def get_active_path(self):
+        """Returns the currently selected version path if alternatives exist, otherwise main path."""
+        return self._active_path
+
+    def _formatTooltip(self):
+        tt = "<b>{}</b>".format(self.name)
+        if self.data.get("collection"):
+            tt += "<br>Collection: {}".format(self.data["collection"])
+        if self.data.get("author"):
+            tt += "<br>Author: {}".format(self.data["author"])
+        if self.data.get("tags"):
+            tt += "<br>Tags: {}".format(", ".join(self.data["tags"]))
+
+        notes = self.data.get("notes") or self.data.get("description")
+        if notes:
+            tt += "<br><br><i>{}</i>".format(notes)
+
+        path = self._active_path or self.data.get("path", "")
+        if path:
+            tt += "<br><br>Path: {}".format(path)
+
+        self.setToolTip(tt)
 
     def show_context_menu(self, pos):
         menu = QtWidgets.QMenu(self)
@@ -1096,7 +1441,7 @@ class RigItemWidget(QtWidgets.QFrame):
         menu.exec_(self.mapToGlobal(pos))
 
     def _on_open_file(self):
-        path = self.data.get("path")
+        path = self.get_active_path()
         if not path or not os.path.exists(path):
             QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + str(path))
             return
@@ -1116,7 +1461,7 @@ class RigItemWidget(QtWidgets.QFrame):
             self.refreshRequested.emit()
 
     def _on_show_in_folder(self):
-        path = self.data.get("path")
+        path = self.get_active_path()
         if not path:
             return
 
@@ -1159,22 +1504,42 @@ class RigItemWidget(QtWidgets.QFrame):
         if resp == QtWidgets.QMessageBox.Yes:
             self.blacklistRequested.emit(self.name)
 
-    def _formatTooltip(self):
-        tip = "Name: {}\n".format(self.name)
-        tip += "Author: {}\n".format(self.data.get("author") or "Empty")
-        tip += "Link: {}\n".format(self.data.get("link") or "Empty")
-        tip += "Collection: {}\n".format(self.data.get("collection") or "Empty")
-        tip += "Tags: {}\n".format(self.data.get("tags") or "Empty")
-        path = self.data.get("path")
-        if path:
-            head, tail = os.path.split(path)
-            path = ".../{}/{}".format(os.path.basename(head), tail)
-
-        tip += "Path: {}".format(path or "Empty")
-        self.setToolTip(tip)
-
     def update_image_display(self):
         self.image_lbl.updateImageDisplay(self)
+
+        # Determine contrast for heart button
+        pix = self.image_lbl.pixmap()
+        if pix and not pix.isNull():
+            img = pix.toImage()
+            # Sample center area of heart (relative to pixmap)
+            # Heart is at 122, 4 in 150x150 container. Label is 148x148.
+            # Pixmap might be smaller if zoomed/scaled.
+            # We sample a 10x10 block around the heart position
+            total_lum = 0
+            count = 0
+
+            # Position in container is ~134,16. Label is centered usually.
+            # Let's just sample the top right area of the pixmap
+            w, h = img.width(), img.height()
+            start_x = int(w * 0.75)
+            end_x = int(w * 0.95)
+            start_y = int(h * 0.05)
+            end_y = int(h * 0.25)
+
+            for x in range(start_x, end_x, 2):
+                for y in range(start_y, end_y, 2):
+                    c = QtGui.QColor(img.pixel(x, y))
+                    lum = 0.299 * c.red() + 0.587 * c.green() + 0.114 * c.blue()
+                    total_lum += lum
+                    count += 1
+
+            if count > 0:
+                avg_lum = total_lum / count
+                # If background is dark (< 128), use white outline
+                self.fav_btn.setWhiteOutline(avg_lum < 70)  # Using 110 for slightly more safety
+        else:
+            # Default empty state is dark background (#222), so white outline
+            self.fav_btn.setWhiteOutline(True)
 
     def change_image(self):
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -1194,7 +1559,7 @@ class RigItemWidget(QtWidgets.QFrame):
         if exists:
             # File exists, check if referenced
             self.update_state()
-            self.action_btn.setToolTip(self.data.get("path", ""))
+            self.action_btn.setToolTip(self.get_active_path())
         else:
             # File missing
             self.action_btn.setText("MISSING")
@@ -1206,7 +1571,7 @@ class RigItemWidget(QtWidgets.QFrame):
             self.action_btn.clicked.connect(self.repath_file)
 
     def repath_file(self):
-        old_path = self.data.get("path", "")
+        old_path = self.get_active_path()
         directory = os.path.dirname(old_path) if old_path else ""
 
         path, _ = QtWidgets.QFileDialog.getOpenFileName(
@@ -1220,7 +1585,7 @@ class RigItemWidget(QtWidgets.QFrame):
 
     def update_state(self):
         # Check current references in scene
-        path = self.data.get("path", "")
+        path = self.get_active_path()
         if not path:
             return
 
@@ -1315,32 +1680,70 @@ class RigItemWidget(QtWidgets.QFrame):
         self._current_refs = ref_nodes
 
     def add_reference(self):
-        path = self.data.get("path", "")
+        path = self.get_active_path()
         if not path or not os.path.exists(path):
-            QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + path)
+            QtWidgets.QMessageBox.warning(self, "Error", "Rig file not found:\n" + str(path))
             return
 
-        # Use unique namespace
+        # Determine namespace
         try:
-            existing_ns = cmds.namespaceInfo(listOnlyNamespaces=True, recurse=True) or []
-            base_ns = self.name.replace(" ", "_")
-            namespace = RigSetupDialog.get_unique_name(base_ns, existing_ns, separator="_")
+            # Simple unique namespace logic
+            short_name = self.name.replace(" ", "_")
+            namespaces = cmds.namespaceInfo(listOnlyNamespaces=True, recurse=True) or []
+
+            i = 1
+            ns = "{}_{:02d}".format(short_name, i)
+            while ns in namespaces:
+                i += 1
+                ns = "{}_{:02d}".format(short_name, i)
 
             self.action_btn.setEnabled(False)
-            cmds.file(path, reference=True, namespace=namespace)
-            utils.LOG.info("Referenced rig: {} in namespace {}".format(self.name, namespace))
+            cmds.file(path, reference=True, namespace=ns, prompt=False)
+            utils.LOG.info("Referenced rig: {} in namespace {}".format(self.name, ns))
         except Exception as e:
             utils.LOG.error("Error referencing: {}".format(e))
-            QtWidgets.QMessageBox.warning(self, "Error", str(e))
+            QtWidgets.QMessageBox.critical(self, "Reference Failed", str(e))
         finally:
             self.action_btn.setEnabled(True)
             self.update_state()
 
     def remove_reference(self, ref_node=None):
         if not ref_node:
-            if not getattr(self, "_current_refs", []):
+            path = self.get_active_path()
+            if not path:
                 return
-            ref_node = self._current_refs[0]
+
+            # Find references to this path
+            try:
+                ref_nodes_all = cmds.ls(type="reference")
+                matches = []
+                norm_target = os.path.normpath(path).lower()
+
+                for rn in ref_nodes_all:
+                    if "sharedReferenceNode" in rn or "_UNKNOWN_REF_NODE_" in rn:
+                        continue
+                    try:
+                        r_path = cmds.referenceQuery(rn, filename=True, withoutCopyNumber=True)
+                        if os.path.normpath(r_path).lower() == norm_target:
+                            matches.append(rn)
+                    except Exception:
+                        continue
+
+                if len(matches) == 1:
+                    ref_node = matches[0]
+                elif len(matches) > 1:
+                    # Show manage menu
+                    self.action_btn.setChecked(True)
+                    self._manage_menu.exec_(
+                        self.action_btn.mapToGlobal(QtCore.QPoint(0, self.action_btn.height()))
+                    )
+                    return
+                else:
+                    return
+            except Exception as e:
+                utils.LOG.error("Failed to find references for removal: {}".format(e))
+                QtWidgets.QMessageBox.warning(self, "Error", str(e))
+                return
 
         # Get the namespace or name for message
         try:
@@ -1674,6 +2077,11 @@ class InfoDialog(QtWidgets.QDialog):
         self._add_row("Link", self.data.get("link"), is_link=True)
         self._add_row("Collection", self.data.get("collection"), filter_cat="Collections")
         self._add_row("Tags", self.data.get("tags", []), filter_cat="Tags")
+
+        notes = self.data.get("notes") or self.data.get("description")
+        if notes:
+            self._add_row("Notes", notes)
+
         self._add_row("Path", self.data.get("path"), is_path=True)
 
         alts = self.data.get("alternatives", [])
@@ -1957,6 +2365,14 @@ class RigSetupDialog(QtWidgets.QDialog):
         lay_link.addSpacing(32)
         self.form_layout.addRow("Link:", lay_link)
 
+        # Notes
+        self.notes_input = QtWidgets.QTextEdit(self)
+        self.notes_input.setPlaceholderText("Add rig descriptions, usage notes...")
+        self.notes_input.setMaximumHeight(80)
+        notes_val = self.rig_data.get("notes") or self.rig_data.get("description") or ""
+        self.notes_input.setText(notes_val)
+        self.form_layout.addRow("Notes:", self.notes_input)
+
         # Path
         lay_path = QtWidgets.QHBoxLayout()
         self.path_input = QtWidgets.QLineEdit(self)
@@ -2070,6 +2486,7 @@ class RigSetupDialog(QtWidgets.QDialog):
         self.coll_input.setEnabled(not checked)
         self.auth_input.setEnabled(not checked)
         self.link_input.setEnabled(not checked)
+        self.notes_input.setEnabled(not checked)  # Added notes input
         self.image_lbl.setEnabled(not checked)
         self.image_lbl.setCursor(QtCore.Qt.ArrowCursor if checked else QtCore.Qt.PointingHandCursor)
 
@@ -2216,6 +2633,9 @@ class RigSetupDialog(QtWidgets.QDialog):
             final_name = name  # If editing and name hasn't changed, no need to make it unique
 
         tags = self.tags_input.getTags()
+        coll = self.coll_input.text().strip()
+        auth = self.auth_input.text().strip()
+        link = self.link_input.text().strip()
 
         # Image handling
         img_name = self.rig_data.get("image", "")
@@ -2247,10 +2667,13 @@ class RigSetupDialog(QtWidgets.QDialog):
                 "path": path,
                 "image": img_name,
                 "tags": tags,  # Do not force to "Empty" string if empty list, keep list
-                "collection": self.coll_input.text().strip() or "Empty",
-                "author": self.auth_input.text().strip() or "Empty",
-                "link": self.link_input.text().strip() or "Empty",
-                "alternatives": self.current_alts,
+                "collection": coll if coll else "Empty",
+                "author": auth if auth else "Empty",
+                "link": link if link else "Empty",
+                "notes": self.notes_input.toPlainText(),
+                "exists": True,
+                "favorite": self.rig_data.get("favorite", False),
+                "alternatives": list(self.current_alts),
             },
         }
         self.accept()
@@ -4225,3 +4648,109 @@ class ManageRigsDialog(QtWidgets.QDialog):
 
         # Trigger a full tab refresh to move the item back to its correct section
         self._refresh_rigs_tab()
+
+
+# -------------------- Bulk Edit --------------------
+
+
+class BulkEditDialog(QtWidgets.QDialog):
+    """Dialog for editing multiple rigs at once."""
+
+    def __init__(self, rig_names, common_collections, common_authors, common_tags, parent=None):
+        super(BulkEditDialog, self).__init__(parent)
+        self.rig_names = rig_names
+        self.setWindowTitle("Bulk Edit ({} rigs)".format(len(rig_names)))
+        self.resize(350, 450)
+
+        self._build_ui(common_collections, common_authors, common_tags)
+
+    def _build_ui(self, collections, authors, tags):
+        main_layout = QtWidgets.QVBoxLayout(self)
+        main_layout.setSpacing(15)
+
+        header = QtWidgets.QLabel("Applying changes to {} rigs:".format(len(self.rig_names)))
+        header.setStyleSheet("font-weight: bold;")
+        main_layout.addWidget(header)
+
+        self.form = QtWidgets.QFormLayout()
+        self.form.setSpacing(10)
+
+        # Helper to create a row with a checkbox to enable/disable it
+        def add_bulk_row(label, widget):
+            cb = QtWidgets.QCheckBox()
+            cb.setToolTip("Check to update this field for all selected rigs")
+
+            row_layout = QtWidgets.QHBoxLayout()
+            row_layout.addWidget(widget)
+            row_layout.addWidget(cb)
+
+            # Disable widget by default, only enable if checkbox is checked
+            widget.setEnabled(False)
+            cb.toggled.connect(widget.setEnabled)
+
+            self.form.addRow(label + ":", row_layout)
+            return cb
+
+        # Collection
+        self.coll_input = QtWidgets.QLineEdit()
+        if collections:
+            comp = QtWidgets.QCompleter(collections)
+            comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+            self.coll_input.setCompleter(comp)
+        self.coll_cb = add_bulk_row("Collection", self.coll_input)
+
+        # Author
+        self.auth_input = QtWidgets.QLineEdit()
+        if authors:
+            comp = QtWidgets.QCompleter(authors)
+            comp.setCaseSensitivity(QtCore.Qt.CaseInsensitive)
+            self.auth_input.setCompleter(comp)
+        self.auth_cb = add_bulk_row("Author", self.auth_input)
+
+        # Tags
+        # For bulk tags, we'll just have a comma separated list or similar
+        self.tags_input = QtWidgets.QLineEdit()
+        self.tags_input.setPlaceholderText("tag1, tag2, tag3")
+        self.tags_cb = add_bulk_row("Add Tags", self.tags_input)
+
+        # Link
+        self.link_input = QtWidgets.QLineEdit()
+        self.link_cb = add_bulk_row("Link", self.link_input)
+
+        # Notes
+        self.notes_input = QtWidgets.QTextEdit()
+        self.notes_input.setMaximumHeight(80)
+        self.notes_cb = add_bulk_row("Notes", self.notes_input)
+
+        main_layout.addLayout(self.form)
+
+        # Info label
+        info = QtWidgets.QLabel("Note: Checked fields will overwrite existing data on all selected rigs.")
+        info.setWordWrap(True)
+        info.setStyleSheet("color: #888; font-size: 9px;")
+        main_layout.addWidget(info)
+
+        # Buttons
+        btns = QtWidgets.QDialogButtonBox(QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        btns.accepted.connect(self.accept)
+        btns.rejected.connect(self.reject)
+        main_layout.addWidget(btns)
+
+    def get_results(self):
+        """Returns a dict of fields that should be updated."""
+        results = {}
+        if self.coll_cb.isChecked():
+            results["collection"] = self.coll_input.text() or "Empty"
+        if self.auth_cb.isChecked():
+            results["author"] = self.auth_input.text() or "Empty"
+        if self.tags_cb.isChecked():
+            # We add these tags to existing ones usually, or replace?
+            # Let's say we replace for simplicity in bulk edit, or return as list
+            raw_tags = self.tags_input.text()
+            results["tags"] = [t.strip() for t in raw_tags.split(",") if t.strip()]
+        if self.link_cb.isChecked():
+            results["link"] = self.link_input.text() or "Empty"
+        if self.notes_cb.isChecked():
+            results["notes"] = self.notes_input.toPlainText()
+
+        return results

@@ -345,7 +345,7 @@
         ]
     },
     "Carlos": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Carlos\\ProRigs_Carlos_v01.04_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Carlos\\ProRigs_Carlos_v01.04_L.ma",
         "image": "carlos.jpg",
         "tags": [
             "human",
@@ -358,7 +358,7 @@
         "alternatives": []
     },
     "Charlie": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Charlie\\ProRigs_Charlie_v01.07_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Charlie\\ProRigs_Charlie_v01.07_L.ma",
         "image": "charlie.jpg",
         "tags": [
             "human",
@@ -368,10 +368,11 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Lucas": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Lucas\\ProRigs_Lucas_v01.08_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Lucas\\ProRigs_Lucas_v01.08_L.ma",
         "image": "lucas.jpg",
         "tags": [
             "human",
@@ -381,10 +382,11 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Maria": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Maria\\ProRigs_Maria_v01.04_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Maria\\ProRigs_Maria_v01.04_L.ma",
         "image": "maria.jpg",
         "tags": [
             "human",
@@ -394,10 +396,13 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
+        "notes": "",
+        "exists": true,
+        "favorite": false,
         "alternatives": []
     },
     "Mikey": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Mikey\\ProRigs_Mikey_v01.06_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Mikey\\ProRigs_Mikey_v01.06_L.ma",
         "image": "mikey.jpg",
         "tags": [
             "human",
@@ -410,7 +415,7 @@
         "alternatives": []
     },
     "Will": {
-        "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Kids\\ProRigs_Will\\ProRigs_Will_v01.05_L.ma",
+        "path": "P:\\01 WORK\\2025 ECIB - TMH\\TMH_FINAL_SHOT\\assets\\ProRigs_Will\\ProRigs_Will_v01.05_L.ma",
         "image": "will.jpg",
         "tags": [
             "human",
@@ -420,7 +425,8 @@
         "collection": "ProRigs Kids",
         "author": "ProRigs",
         "link": "https://prorigs.com/characters/the-kids/",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Jinx": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\03 PAID-INDIVIDUALLY\\Jinx_Rig_Maya\\Jinx_Maya_v1.2.ma",
@@ -730,7 +736,8 @@
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Violin_rig_01.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Washboard_rig_01.ma",
             "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\Maurice Racoon\\scenes\\Props_rigs\\Wok_rig_01.ma"
-        ]
+        ],
+        "favorite": true
     },
     "Backpack": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\01 ANIMALS-PROPS\\RIG_backpack\\RIG_backpack_closed_001.ma",
@@ -771,7 +778,8 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Ballie": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Ballie\\ballie_shot_ready_anim.ma",
@@ -806,7 +814,8 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Monster Ball": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\01 Fundamental Rigs\\Monster Ball\\monster_ball_shot_ready_anim.ma",
@@ -843,7 +852,8 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Stan": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\02 Body Mechanics Rigs\\Stan\\stan_shot_ready_anim.ma",
@@ -909,7 +919,8 @@
         "exists": false,
         "alternatives": [
             "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/00 ANIMATION MENTOR RIGS/04 Acting Rigs/Aia/extras/aia_extras.ma"
-        ]
+        ],
+        "favorite": false
     },
     "Bishop": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\04 Acting Rigs\\Bishop\\bishop_shot_ready_anim.ma",
@@ -1803,7 +1814,8 @@
         "collection": "Agora",
         "author": "Agora.Community",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Delta": {
         "path": "/Users/aleha/Library/CloudStorage/CloudMounter-pCloud/00 PERSONAL/Rigs/PACKS/Agora/Delta/Delta_rig.ma",
@@ -1852,7 +1864,8 @@
         "collection": "Agora",
         "author": "Agora.Community",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Pinky": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\00 ANIMATION MENTOR RIGS\\03 Body Mechanics Advanced Rigs\\Imp Pinky\\imp_pinky_shot_ready_anim.ma",
@@ -1916,7 +1929,8 @@
         "collection": "Animation Mentor Rigs",
         "author": "Animation Mentor",
         "link": "Empty",
-        "alternatives": []
+        "alternatives": [],
+        "favorite": false
     },
     "Stella": {
         "path": "D:/00 ARCHIVE/01 3D ANIMATION/01 RIGS/02 PACKS/Body Mechanics Rigs/stella_rig.ma",
