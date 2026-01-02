@@ -31,7 +31,8 @@
             "human",
             "female",
             "adult"
-        ]
+        ],
+        "favorite": false
     },
     "Mars": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mars_v01.6.mb",
@@ -44,7 +45,8 @@
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Mazu": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mazu_v01.4.mb",
@@ -57,7 +59,8 @@
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Minerva": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\minerva_v01.3.mb",
@@ -70,7 +73,8 @@
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Mireuk": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mireuk_v01.3.mb",
@@ -81,7 +85,8 @@
         ],
         "collection": "M-Bundle",
         "author": "Ramon Arango",
-        "link": "https://ramonarango.gumroad.com/l/mrigsbundle"
+        "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
+        "favorite": true
     },
     "Modjadji": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\modjadji_v01.3.mb",
@@ -94,7 +99,8 @@
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Mukuru": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\mukuru_v01.4.mb",
@@ -107,7 +113,8 @@
         "author": "Ramon Arango",
         "link": "https://ramonarango.gumroad.com/l/mrigsbundle",
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Mandalorian": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\Star Wars\\Mandalorian\\scenes\\Mandalorian_Rig_v.1.1.mb",
@@ -1235,7 +1242,8 @@
         "author": "Ramon Arango",
         "link": null,
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Male Mannequin": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\M-Bundle\\Mannequins\\male_mannequin.mb",
@@ -1249,7 +1257,8 @@
         "author": "Ramon Arango",
         "link": null,
         "exists": false,
-        "alternatives": []
+        "alternatives": [],
+        "favorite": true
     },
     "Adult Man": {
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Basics\\ProRigs_Adult_Man\\Adult_Man_v01.02_L.ma",
