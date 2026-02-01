@@ -1617,13 +1617,16 @@
         "path": "D:\\00 ARCHIVE\\01 3D ANIMATION\\01 RIGS\\02 PACKS\\ProRigs\\ProRigs_Lighting_Stage\\ProRigs_Lighting_Stage.ma",
         "image": "lighting_stage.jpg",
         "tags": [
-            "prop",
             "environment",
-            "utility"
+            "utility",
+            "set"
         ],
         "collection": "ProRigs Basics",
         "author": "ProRigs",
         "link": "Empty",
+        "notes": "",
+        "exists": true,
+        "favorite": false,
         "alternatives": []
     },
     "Miosha": {
@@ -1711,11 +1714,14 @@
         "image": "spideysense.jpg",
         "tags": [
             "superhero",
-            "prop"
+            "fx"
         ],
         "collection": "Spider-verse",
         "author": "Agora.Community",
         "link": "https://agora.community/content/spidey-sense-maya",
+        "notes": "",
+        "exists": true,
+        "favorite": false,
         "alternatives": []
     },
     "Cyber Gun": {
