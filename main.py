@@ -377,7 +377,7 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         lib_menu.addSeparator()
 
         act_settings = lib_menu.addAction("Settings")
-        act_settings.triggered.connect(lambda: self.manage_database(1))
+        act_settings.triggered.connect(lambda *args: self.manage_database(1))
         act_settings.setToolTip("Configure application settings")
 
         # Help Menu
@@ -526,8 +526,8 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
                     data["alternatives"] = new_alts
 
     def _get_replacements(self):
-        raw_replacements = self.settings.value("path_replacements") or "[]"
         try:
+            raw_replacements = self.settings.value("path_replacements") or "[]"
             return json.loads(raw_replacements)
         except Exception:
             return []
@@ -1125,11 +1125,15 @@ class LibraryUI(MayaQWidgetDockableMixin, QtWidgets.QWidget):
         """
         Restores or initializes the dock/floating position of the workspace control.
         """
-        floating = utils.setting_bool(self.settings.value("floating") or False)
-
-        utils.LOG.info("Restoring floating = {}".format(floating))
-        position = self.settings.value("position")
-        size = self.settings.value("size")
+        try:
+            floating = utils.setting_bool(self.settings.value("floating") or False)
+            position = self.settings.value("position")
+            size = self.settings.value("size")
+        except Exception as e:
+            utils.LOG.warning("Failed to load window settings: {}".format(e))
+            floating = False
+            position = None
+            size = None
 
         kwargs = {
             "e": True,

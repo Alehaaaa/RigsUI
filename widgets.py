@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 import subprocess
 import logging
@@ -1443,7 +1445,7 @@ class RigItemWidget(QtWidgets.QFrame):
     def _on_open_file(self):
         path = self.get_active_path()
         if not path or not os.path.exists(path):
-            QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n" + str(path))
+            QtWidgets.QMessageBox.warning(self, "Error", "File not found:\n{}".format(path))
             return
 
         resp = QtWidgets.QMessageBox.warning(
@@ -1457,7 +1459,7 @@ class RigItemWidget(QtWidgets.QFrame):
             try:
                 cmds.file(path, open=True, force=True)
             except Exception as e:
-                QtWidgets.QMessageBox.critical(self, "Error", "Failed to open file:\n" + str(e))
+                QtWidgets.QMessageBox.critical(self, "Error", "Failed to open file:\n{}".format(e))
             self.refreshRequested.emit()
 
     def _on_show_in_folder(self):
@@ -1702,7 +1704,7 @@ class RigItemWidget(QtWidgets.QFrame):
             utils.LOG.info("Referenced rig: {} in namespace {}".format(self.name, ns))
         except Exception as e:
             utils.LOG.error("Error referencing: {}".format(e))
-            QtWidgets.QMessageBox.critical(self, "Reference Failed", str(e))
+            QtWidgets.QMessageBox.critical(self, "Reference Failed", "{}".format(e))
         finally:
             self.action_btn.setEnabled(True)
             self.update_state()
@@ -1742,7 +1744,7 @@ class RigItemWidget(QtWidgets.QFrame):
                     return
             except Exception as e:
                 utils.LOG.error("Failed to find references for removal: {}".format(e))
-                QtWidgets.QMessageBox.warning(self, "Error", str(e))
+                QtWidgets.QMessageBox.warning(self, "Error", "{}".format(e))
                 return
 
         # Get the namespace or name for message
@@ -1768,7 +1770,7 @@ class RigItemWidget(QtWidgets.QFrame):
                 utils.LOG.info("Removed reference: {}".format(ns))
             except Exception as e:
                 utils.LOG.error("Remove failed: {}".format(e))
-                QtWidgets.QMessageBox.warning(self, "Error", str(e))
+                QtWidgets.QMessageBox.warning(self, "Error", "{}".format(e))
             finally:
                 self.update_state()
 
@@ -2557,7 +2559,10 @@ class RigSetupDialog(QtWidgets.QDialog):
             lbl.setStyleSheet("font-size: 9pt;")
             lay.addWidget(lbl, 1)
 
-            btn = QtWidgets.QPushButton("×")
+            try:
+                btn = QtWidgets.QPushButton("×")
+            except Exception:
+                btn = QtWidgets.QPushButton("x")
             btn.setFixedSize(18, 18)
             btn.setCursor(QtCore.Qt.PointingHandCursor)
             btn.setToolTip("Remove reference to this alternative")
@@ -2897,7 +2902,10 @@ class ManageRigsItemWidget(QtWidgets.QFrame):
 
         if is_alt:
             layout.setContentsMargins(15, 2, 5, 2)
-            self.arrow_lbl = QtWidgets.QLabel("↳", self)
+            try:
+                self.arrow_lbl = QtWidgets.QLabel("↳", self)
+            except Exception:
+                self.arrow_lbl = QtWidgets.QLabel("->", self)
             self.arrow_lbl.setStyleSheet("color: #666; font-weight: bold;")
             layout.addWidget(self.arrow_lbl)
 

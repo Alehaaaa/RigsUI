@@ -9,7 +9,7 @@ import os
 import io
 
 TOOL_TITLE = "Rigs Library"
-MOD_NAME = "RigsUI"
+MOD_NAME = __name__
 
 # Expose version
 try:
@@ -31,15 +31,15 @@ def show(mod_name=MOD_NAME):
 
     if importlib and hasattr(importlib, "invalidate_caches"):
         importlib.invalidate_caches()
-        rigsui = importlib.import_module(mod_name)
+        main_ui = importlib.import_module(mod_name)
         main_mod = importlib.import_module(mod_name + ".main")
     else:
-        rigsui = __import__(mod_name)
+        main_ui = __import__(mod_name)
         main_mod = __import__(mod_name + ".main", fromlist=["main"])
 
     main_mod.LibraryUI.showUI()
 
-    return rigsui
+    return main_ui
 
 
 if __name__ == "__main__":

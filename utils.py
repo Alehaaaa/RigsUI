@@ -1,9 +1,15 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 import json
 import logging
-import urllib.request
-import urllib.error
+import contextlib
+
+try:
+    from urllib.request import urlopen, Request
+    from urllib.error import HTTPError
+except ImportError:
+    from urllib2 import urlopen, Request, HTTPError
 import ssl
 import sys
 import subprocess
@@ -291,11 +297,9 @@ Expected JSON Structure:
     payload = payload_fn(system_instruction, prompt_text, model)
 
     try:
-        req = urllib.request.Request(
-            url, data=json.dumps(payload).encode("utf-8"), headers=headers, method="POST"
-        )
+        req = Request(url, data=json.dumps(payload).encode("utf-8"), headers=headers)
         context = ssl._create_unverified_context()
-        with urllib.request.urlopen(req, context=context) as response:
+        with contextlib.closing(urlopen(req, context=context)) as response:
             if response.status == 200:
                 result = json.loads(response.read().decode("utf-8"))
                 raw_text = parse_fn(result)
@@ -321,9 +325,9 @@ def get_ai_models(url, headers=None):
         return []
 
     try:
-        req = urllib.request.Request(url, headers=headers or {}, method="GET")
+        req = Request(url, headers=headers or {})
         context = ssl._create_unverified_context()
-        with urllib.request.urlopen(req, context=context) as response:
+        with contextlib.closing(urlopen(req, context=context)) as response:
             if response.status == 200:
                 result = json.loads(response.read().decode("utf-8"))
                 # Handle varied API response keys (Gemini: 'models', OpenAI: 'data')
@@ -349,8 +353,8 @@ def check_for_updates(current_version):
 
     try:
         context = ssl._create_unverified_context()
-        with urllib.request.urlopen(remote_url, timeout=5, context=context) as response:
-            if response.status == 200:
+        with contextlib.closing(urlopen(remote_url, timeout=5, context=context)) as response:
+            if response.getcode() == 200:
                 content = response.read()
                 try:
                     remote_ver = content.decode("utf-8").strip()
@@ -360,7 +364,7 @@ def check_for_updates(current_version):
                 if remote_ver != current_version:
                     return True, remote_ver
                 return False, remote_ver
-    except urllib.error.HTTPError as e:
+    except HTTPError as e:
         if e.code != 404:
             LOG.warning("Update check failed for {}: {}".format(remote_url, e))
     except Exception as e:
